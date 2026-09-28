@@ -1,0 +1,7 @@
+* xref:index.adoc[Alerting]
+** xref:alert-theory.adoc[Alert Purpose and Severity]
+** xref:prometheus-rules.adoc[Anatomy of a PrometheusRule]
+** xref:alert-design.adoc[Alert Design for AI Serving]
+** xref:create-alerts.adoc[Create Alert Rules]
+** xref:load-test.adoc[Load Test and Observe]
+** xref:alert-lifecycle.adoc[Alert Lifecycle]

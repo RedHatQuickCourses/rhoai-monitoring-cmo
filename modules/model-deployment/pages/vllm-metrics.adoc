@@ -1,0 +1,198 @@
+= vLLM Metrics Catalog
+:navtitle: vLLM Metrics Catalog
+
+Now that you understand the inference mechanics, this section maps them to the concrete Prometheus metrics that vLLM exposes at its `/metrics` endpoint on port 8080 (the RHOAI convention).
+
+vLLM metrics fall into four categories: latency, throughput, saturation, and diagnostic.
+
+== Latency Metrics (Histograms)
+
+Latency metrics are recorded as *histograms*, meaning Prometheus stores a distribution across predefined buckets.
+This lets you compute percentiles (p50, p95, p99) -- which are far more useful than averages for understanding user experience.
+
+[cols="2,3,2,3", options="header"]
+|===
+|Metric |What It Measures |Phase |Why It Matters
+
+|`vllm:time_to_first_token_seconds`
+|Duration of the prefill phase
+|Prefill
+|User-perceived responsiveness -- how long before the model starts "typing"
+
+|`vllm:time_per_output_token_seconds`
+|Average time per decode step
+|Decode
+|Token streaming speed -- how fast the response appears
+
+|`vllm:inter_token_latency_seconds`
+|Time between consecutive output tokens
+|Decode
+|Streaming smoothness -- are tokens arriving at a consistent pace?
+
+|`vllm:e2e_request_latency_seconds`
+|Total wall-clock time from request arrival to final token
+|Both
+|Overall SLO compliance -- total user wait time
+
+|`vllm:request_queue_time_seconds`
+|Time a request spent waiting in the queue before inference began
+|Queuing
+|Directly measures queuing delay
+
+|`vllm:request_prefill_time_seconds`
+|Time spent in the prefill phase only
+|Prefill
+|Isolates GPU compute time for prompt processing, excluding queue wait
+
+|`vllm:request_decode_time_seconds`
+|Time spent in the decode phase only
+|Decode
+|Isolates generation time -- helps distinguish slow decoding from slow prefill
+|===
+
+=== Why Histograms, Not Averages?
+
+Consider two scenarios, both with the same average latency of 2 seconds:
+
+* *Scenario A*: All requests take 1.8-2.2 seconds (tight distribution)
+* *Scenario B*: 90% of requests take 0.5 seconds, 10% take 15.5 seconds (long tail)
+
+The average hides Scenario B's terrible experience for 10% of users.
+The p99 (99th percentile) reveals it: Scenario A's p99 is ~2.2s; Scenario B's p99 is ~15.5s.
+This is why we use percentile-based alerting and dashboards.
+
+== Throughput Metrics (Counters)
+
+Throughput metrics are *counters* -- monotonically increasing values that reset to zero when the process restarts.
+To get a useful rate (for example, tokens per second), you must apply the `rate()` function in PromQL.
+
+[cols="2,3,2,3", options="header"]
+|===
+|Metric |What It Measures |Raw Value Example |Useful Query
+
+|`vllm:prompt_tokens_total`
+|Total input tokens processed since startup
+|1,547,832
+|`rate(vllm:prompt_tokens_total[5m])` -> prompt tokens/sec
+
+|`vllm:generation_tokens_total`
+|Total output tokens generated since startup
+|892,451
+|`rate(vllm:generation_tokens_total[5m])` -> generation tokens/sec
+
+|`vllm:request_success_total`
+|Total completed requests (with `finished_reason` label)
+|5,412
+|`rate(vllm:request_success_total[5m])` -> requests/sec
+
+|`vllm:num_preemptions_total`
+|KV cache evictions from running requests to make room for another
+|23
+|`rate(vllm:num_preemptions_total[5m])` -> preemptions/sec
+|===
+
+=== The finished_reason Label
+
+Every completed request gets labeled with why it finished:
+
+* *`finished_reason="stop"`* -- The model naturally completed its response (hit a stop token). This is normal.
+* *`finished_reason="length"`* -- The request hit the `max_tokens` limit and was cut off.
+
+A high ratio of `length` finishes can indicate that users are requesting more output than allowed, or that your `max_tokens` setting is too conservative for the use case.
+
+=== KV Cache Evictions (Preemptions)
+
+When GPU memory is tight, vLLM may *preempt* a running request by evicting its KV cache blocks to make room for another request.
+The preempted request must later re-process those evicted tokens, wasting GPU compute.
+A non-zero preemption rate is a strong signal that the KV cache is undersized for the concurrent workload.
+
+== Saturation Metrics (Gauges)
+
+Saturation metrics are *gauges* -- point-in-time values that can go up or down.
+You query them directly without needing `rate()`.
+
+[cols="2,3,2,2", options="header"]
+|===
+|Metric |What It Measures |Healthy Range |Alarm Range
+
+|`vllm:num_requests_running`
+|Requests currently being processed by the model
+|Depends on model/GPU
+|Context-dependent
+
+|`vllm:num_requests_waiting`
+|Requests in the queue waiting for KV cache space
+|*0* (ideally)
+|*> 0 sustained* means the model is saturated
+
+|`vllm:kv_cache_usage_perc`
+|Fraction of KV cache pages currently allocated
+|0.0 - 0.8
+|> 0.9 means approaching capacity ceiling
+|===
+
+=== The Most Important Metric for Capacity
+
+`vllm:num_requests_waiting` deserves special emphasis.
+In traditional monitoring, you might alert when CPU > 80%.
+The AI serving equivalent is alerting when `vllm:num_requests_waiting > 0` for a sustained period.
+
+Consider two cases, both with GPU at 95% utilization:
+
+* *Case A*: `num_requests_running` = 10, `num_requests_waiting` = 0 -- The GPU is efficiently serving all requests. No one is waiting. This is ideal.
+* *Case B*: `num_requests_running` = 10, `num_requests_waiting` = 15 -- 15 users are in a queue, experiencing additional latency. The model is saturated.
+
+Same GPU utilization.
+Completely different user experience.
+
+Think of it like a restaurant: GPU utilization is "how busy is the kitchen."
+`vllm:num_requests_waiting` is "how many people are standing in line."
+A busy kitchen with no line is efficient.
+A busy kitchen with 15 people in line has a capacity problem.
+
+== Diagnostic Metrics (Workload Characterization)
+
+Beyond the core metrics, vLLM exposes several metrics useful for understanding your workload's shape.
+
+[cols="2,1,4", options="header"]
+|===
+|Metric |Type |What It Tells You
+
+|`vllm:request_prompt_tokens`
+|Histogram
+|Distribution of input prompt sizes. Helps you understand typical workload -- are users sending 50-token prompts or 2000-token prompts?
+
+|`vllm:request_generation_tokens`
+|Histogram
+|Distribution of output generation sizes. Shows whether requests typically generate 50 or 500 tokens -- critical for capacity planning.
+
+|`vllm:prefix_cache_queries_total`
+|Counter
+|How many times vLLM checked whether a prompt prefix was already cached.
+
+|`vllm:prefix_cache_hits_total`
+|Counter
+|How many prefix cache lookups succeeded. The ratio `hits / queries` gives you the prefix cache hit rate.
+
+|`vllm:cache_config_info`
+|Info
+|An info metric (always value 1) with labels describing the KV cache configuration: block size, number of GPU/CPU blocks.
+|===
+
+Use these metrics for capacity planning:
+
+* If `request_prompt_tokens` shows most prompts are under 500 tokens, you might safely reduce `--max-model-len` from 4096 to 2048 to double KV cache capacity.
+* If `request_generation_tokens` shows 90% of outputs are under 100 tokens, but `max_tokens` is set to 2048, you are over-allocating KV cache budget per request.
+
+== References
+
+=== Red Hat Documentation
+
+* https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/monitoring_data_science_models/index[Red Hat OpenShift AI — Monitoring Data Science Models^]
+* https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/serving_models/serving-large-models_serving-large-models[Serving Large Language Models with vLLM^]
+
+=== Upstream Resources
+
+* https://docs.vllm.ai/en/stable/serving/metrics.html[vLLM Production Metrics^]
+* https://prometheus.io/docs/concepts/metric_types/[Prometheus Metric Types^]
+* https://prometheus.io/docs/practices/histograms/[Prometheus Histograms and Summaries Best Practices^]

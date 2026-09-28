@@ -1,0 +1,6 @@
+* xref:index.adoc[Model Deployment and Metrics]
+** xref:inference-mechanics.adoc[LLM Inference Mechanics]
+** xref:vllm-metrics.adoc[vLLM Metrics Catalog]
+** xref:kserve-model.adoc[KServe Deployment Model]
+** xref:deploy-model.adoc[Deploy the Model]
+** xref:verify-metrics.adoc[Verify the Metrics Pipeline]

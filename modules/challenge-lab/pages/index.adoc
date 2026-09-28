@@ -1,0 +1,38 @@
+= Challenge Lab
+:navtitle: Challenge Lab
+
+== Introduction
+
+You have built a complete observability pipeline across the previous four chapters: User Workload Monitoring for Prometheus scraping, a model deployment with auto-created ServiceMonitor, Grafana dashboards for visualization, and PrometheusRule alerts for threshold monitoring.
+
+This challenge lab tests whether you can apply those skills independently.
+
+You are handed a model deployment that is already running and receiving user traffic -- but users are complaining about poor performance.
+The model responds to requests (no crashes, no HTTP errors), but response times are unacceptable and concurrent users experience severe queuing.
+
+Your job is to use observability to diagnose the root cause and fix it.
+
+== The Rules
+
+. *Do not read the setup script or manifest files* before completing your investigation. The point is to diagnose through observability, not by reading configuration files.
+. *Do not delete and redeploy* the model from scratch. Fix the existing deployment.
+. *Document your reasoning.* Be prepared to explain which metrics led you to the root cause and why your fix addresses the problem.
+
+== What You Will Do
+
+The challenge is structured in five investigation phases:
+
+. *Instrument* -- Verify that metrics are flowing from the challenge namespace and set up visualization
+. *Observe* -- Use dashboards or ad-hoc PromQL queries to understand the model's behavior under load
+. *Diagnose* -- Correlate metrics across layers to identify the root cause
+. *Fix* -- Modify the deployment configuration to resolve the performance issues
+. *Verify* -- Confirm that your fix resolved the problem with before/after metric comparison
+
+== Pages
+
+* xref:challenge.adoc[Performance Investigation] -- The scenario, instructions, and progressive hints
+* xref:solution.adoc[Solution Walkthrough] -- Detailed solution with diagnostic path and grading rubric
+
+== Time Estimate
+
+45-60 minutes for students who completed Chapters 1-4.

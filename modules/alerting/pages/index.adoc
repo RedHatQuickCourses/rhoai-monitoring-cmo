@@ -1,0 +1,45 @@
+= Alerting for AI Model Serving
+:navtitle: Alerting
+
+== Introduction
+
+You now have three operational dashboards in Grafana.
+GPU health, inference latency, queue depth, KV cache -- it is all there, updating in real time.
+But here is the problem: dashboards only work when someone is watching them.
+
+At 2 AM on a Saturday, nobody is watching.
+Your model server is saturated, requests are queuing, users are getting 15-second response times, and your dashboard panels are glowing red -- but nobody is looking.
+
+This is the gap alerts fill.
+Dashboards are for humans who are already watching.
+Alerts are for humans who are doing something else.
+An alert reaches out and says: "Something needs your attention."
+Then you open the dashboard to figure out what.
+
+This chapter teaches you what makes a good alert, how to structure alert rules as Kubernetes resources, how to choose thresholds that are meaningful without being noisy, and how to observe the full alert lifecycle under load.
+
+== What You Will Learn
+
+This chapter has three lecture sections and three hands-on exercises:
+
+*Lectures:*
+
+* xref:alert-theory.adoc[Alert Purpose and Severity] -- What makes a useful alert, the three questions every alert must answer, and how severity levels prevent alert fatigue
+* xref:prometheus-rules.adoc[Anatomy of a PrometheusRule] -- The YAML structure of a PrometheusRule CR, the alert lifecycle, and why namespace enforcement determines where rules must live
+* xref:alert-design.adoc[Alert Design for AI Serving] -- Choosing infrastructure and application alerts for GPU health and inference SLOs, and how alerts connect to dashboards
+
+*Exercises:*
+
+* xref:create-alerts.adoc[Create Alert Rules] -- Deploy two PrometheusRule resources: GPU health alerts in the `nvidia-gpu-operator` namespace and inference SLO alerts in `llm-serving`
+* xref:load-test.adoc[Load Test and Observe] -- Send concurrent requests to your model and watch alerts transition through the full lifecycle in real time
+* xref:alert-lifecycle.adoc[Alert Lifecycle] -- Examine the Inactive, Pending, Firing, and Resolved states in the OpenShift Console as load rises and falls
+
+== Chapter Objectives
+
+By the end of this chapter, you will be able to:
+
+. Explain what makes a useful alert and apply three evaluation questions to any proposed alert rule
+. Describe the PrometheusRule YAML structure and the role of the `expr`, `for`, `labels`, and `annotations` fields
+. Explain why OpenShift namespace enforcement requires GPU and vLLM alert rules to live in separate namespaces
+. Deploy PrometheusRule resources that define infrastructure and application alerts for AI model serving
+. Observe the full alert lifecycle -- Inactive, Pending, Firing, Resolved -- under a controlled load test

@@ -1,0 +1,198 @@
+= Performance Investigation
+:navtitle: Performance Investigation
+
+== Scenario
+
+You are an AI Platform Engineer at Meridian Health.
+Last Friday, your team deployed a Granite LLM model to power an internal clinical note summarization tool.
+Over the weekend, usage ramped up as more physicians started using the application.
+
+On Monday morning, you arrive to a queue of escalation tickets:
+
+[quote, 'Ticket #4271 — Dr. Patel (Cardiology)']
+The summarization tool was working fine last week, but today every request takes 30-45 seconds. I cannot use this between patient appointments — I need responses in under 10 seconds.
+
+[quote, 'Ticket #4273 — Nurse Thompson (ER)']
+I submitted three notes for summarization at the same time and only one started processing. The other two just hung there for over a minute before anything happened.
+
+[quote, 'Ticket #4280 — Dr. Kim (Radiology)']
+The tool seems to work fine when I am the only one using it, but during rounds when everyone is submitting notes simultaneously, it becomes completely unusable.
+
+The infrastructure team has confirmed:
+
+* The GPU node is healthy -- no hardware alerts
+* The model pod is running without OOMKills or CrashLoopBackoffs
+* The model responds to requests -- no HTTP 5xx errors
+* Network latency between the app and the model endpoint is < 1ms
+
+*The problem is not a crash. The model runs, it just runs poorly.*
+
+== Setup
+
+Your instructor runs the setup script to deploy the challenge environment.
+If you are working independently, run the setup yourself:
+
+[source,console,subs="+quotes"]
+----
+$ **bash challenge/setup.sh**
+----
+
+This creates the `llm-challenge` namespace with an InferenceService and a load generator that simulates 8 concurrent users.
+The model takes 5-10 minutes for the first image pull and startup.
+
+WARNING: Do NOT read the `challenge/setup.sh` script or the `challenge/manifests/` directory before completing your investigation. The point is to diagnose through observability, not by reading configuration files.
+
+== What Is Deployed
+
+The setup script deployed the following in namespace `llm-challenge`:
+
+[cols="1,2,3", options="header"]
+|===
+|Resource |Name |Description
+
+|InferenceService
+|`granite-challenge`
+|IBM Granite 3.1 8B Instruct on vLLM runtime
+
+|Deployment
+|`load-generator`
+|Simulates user traffic (~8 concurrent users)
+|===
+
+KServe has auto-created a ServiceMonitor for metrics scraping, but *no dashboards or alerts have been configured* for this namespace.
+
+Chapters 1-4 resources should remain running -- the challenge lab uses a separate namespace.
+You can reuse the Grafana instance from Chapter 3 to visualize metrics from `llm-challenge`.
+
+== Your Mission
+
+Use the observability techniques from Chapters 1-4 to investigate the performance problem and fix it.
+
+=== Phase 1: Instrument
+
+You cannot diagnose what you cannot see.
+Verify that metrics are flowing from the `llm-challenge` namespace and set up visualization.
+
+Think about:
+
+* What metrics sources exist in this environment?
+* Is the auto-created ServiceMonitor working? Are metrics reaching Prometheus?
+* How can you visualize the metrics effectively (dashboards or ad-hoc queries)?
+
+=== Phase 2: Observe
+
+Build dashboards or use ad-hoc PromQL queries to understand the model's behavior under the current load.
+The load generator is already running inside the cluster with 8 concurrent users -- you do not need to generate your own load.
+
+Think about:
+
+* What does the GPU health look like? Is it the bottleneck? (Remember: GPU metrics and inference metrics may live in different namespaces)
+* What do the inference-level metrics tell you? Are requests being processed efficiently?
+* Is there a mismatch between infrastructure metrics and application metrics? Compare GPU utilization, GPU memory usage, and inference queue metrics side by side.
+* Are there any hard ceilings or caps visible in the metrics -- values that never exceed a certain number?
+
+=== Phase 3: Diagnose
+
+Correlate the metrics across layers to identify the root cause.
+
+Think about:
+
+* What metric behavior is abnormal compared to what you saw in Chapters 2-4?
+* Are there hard limits or ceilings visible in the metrics?
+* What configuration could cause the behavior you are observing?
+
+=== Phase 4: Fix
+
+Modify the deployment configuration to resolve the performance issues.
+Do not delete and recreate the InferenceService -- edit the existing one.
+
+Think about:
+
+* Where is the serving configuration defined?
+* Which parameters control the behavior you identified?
+* How do you apply changes to a KServe InferenceService?
+* What values did Chapter 2's working deployment use for these parameters?
+
+=== Phase 5: Verify
+
+Confirm that your fix resolved the problem.
+The load generator automatically starts sending traffic to the new pod after rollout -- wait 2-3 minutes for metrics to accumulate.
+
+Think about:
+
+* What should the metrics look like after the fix?
+* Do the user complaints map to the improvements you see?
+* Are there any remaining bottlenecks?
+* Can you create a before/after comparison of key metrics?
+
+== Completion Criteria
+
+You have completed the challenge when:
+
+* Metrics from the `llm-challenge` namespace are visible in Prometheus (both vLLM inference metrics and GPU metrics)
+* You can explain the root cause of the performance degradation, supported by metric evidence
+* You have applied a fix to the existing InferenceService (not deleted and recreated it)
+* `vllm:num_requests_waiting` is consistently near 0 under the same load
+* The user complaints (slow response, queuing, poor concurrent performance) are resolved
+* You can present a before/after metric comparison showing improvement
+
+== Hints
+
+Use these only if you are stuck.
+Try each phase independently for at least 10 minutes before reading a hint.
+
+[%collapsible]
+.Hint 1 — Instrumentation
+====
+KServe auto-creates a ServiceMonitor when you deploy an InferenceService.
+Check whether it exists with `oc get servicemonitor -n llm-challenge`.
+Verify the target is UP in OpenShift Console > Observe > Targets.
+
+Remember from Chapter 4 that GPU metrics (DCGM) carry `namespace="nvidia-gpu-operator"`, not your model's namespace -- query them without a namespace filter or with the correct namespace.
+====
+
+[%collapsible]
+.Hint 2 — What to look for
+====
+Query these three metrics side by side and compare:
+
+* `DCGM_FI_DEV_GPU_UTIL`
+* `vllm:num_requests_running{namespace="llm-challenge"}`
+* `vllm:num_requests_waiting{namespace="llm-challenge"}`
+
+What is the maximum value `vllm:num_requests_running` ever reaches?
+Is that normal for 8 concurrent users?
+====
+
+[%collapsible]
+.Hint 3 — Root cause direction
+====
+The InferenceService args control vLLM's behavior.
+Two arguments in particular limit throughput: one caps concurrency, the other restricts how much GPU memory vLLM is allowed to use.
+
+Run `oc get inferenceservice granite-challenge -n llm-challenge -o yaml` and examine the `args` section carefully.
+Compare the values to what was used in Chapter 2.
+====
+
+[%collapsible]
+.Hint 4 — Verifying your fix
+====
+Do not test your fix by running `curl` through `oc port-forward` -- as you learned in Chapter 4, port-forward serializes connections and will not show true concurrent behavior.
+Instead, watch the metrics from the already-running load generator after you apply your fix.
+====
+
+== Cleanup
+
+After completing the challenge lab:
+
+[source,console,subs="+quotes"]
+----
+$ **bash challenge/teardown.sh**
+----
+
+To reset the entire cluster (all 5 chapters):
+
+[source,console,subs="+quotes"]
+----
+$ **bash scripts/cleanup-all.sh**
+----

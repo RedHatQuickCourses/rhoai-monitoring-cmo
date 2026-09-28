@@ -1,0 +1,5 @@
+* xref:index.adoc[Observability Foundations]
+** xref:ai-vs-traditional.adoc[AI vs Traditional Monitoring]
+** xref:three-layers.adoc[Three Layers of Observability]
+** xref:monitoring-stack.adoc[OpenShift Monitoring Stack]
+** xref:enable-uwm.adoc[Enable User Workload Monitoring]

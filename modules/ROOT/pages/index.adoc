@@ -1,30 +1,51 @@
-= An Example Quick Course
+= From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI
 :navtitle: Home
 
 == Introduction
 
-Course Title: Course title FIXME
+This hands-on course teaches AI platform engineers how to monitor GPU infrastructure and LLM inference workloads on Red Hat OpenShift AI using the built-in OpenShift monitoring stack.
 
-Description:
-Course description FIXME
+Students progress from understanding why AI workloads need specialized observability, through enabling User Workload Monitoring and deploying a model with metrics, to building Grafana dashboards and authoring Prometheus alert rules — culminating in a challenge lab where they diagnose a misconfigured model deployment using only observability tools.
 
-Duration: pass:[<span class="course-total-duration" aria-live="polite">…</span>]
+The course uses the *Cluster Monitoring Operator (CMO)* — the monitoring stack built into every OpenShift cluster.
+Students learn to use User Workload Monitoring (UWM), ServiceMonitors, the community Grafana Operator for dashboards, and PrometheusRules for alerting — all using the standard `monitoring.coreos.com` API.
 
-== Objectives
+== Course Overview and Objectives
 
-On completing this course, you should be able to:
+Organizations running AI model serving workloads on OpenShift face a common challenge: traditional container metrics (CPU, memory, pod restarts) cannot explain _why_ a model is slow, _when_ the GPU is saturated, or _how_ the KV cache is affecting concurrent requests.
+GPU-level and inference-level metrics are essential — but they need to be collected, visualized, and alerted on.
 
-* Observable, measurable objective...
-* Observable, measurable objective...
-* Observable, measurable objective...
+This course builds the complete monitoring and alerting pipeline incrementally — each chapter adds a new capability (metrics collection, dashboards, alerts) until students can observe the full lifecycle of an AI serving incident from first signal to root cause.
+
+By the end of this course, students will be able to:
+
+. Explain why AI model serving workloads require different observability strategies than traditional web applications
+. Describe the OpenShift monitoring stack (Prometheus, Thanos Querier, Alertmanager) and how metrics flow from a vLLM runtime through to dashboards and alerts
+. Configure User Workload Monitoring and ServiceMonitors to collect metrics from model-serving runtimes
+. Deploy a model on KServe with the vLLM runtime and verify that inference metrics are being scraped
+. Build Grafana dashboards that visualize GPU health, node health, and inference performance using the USE and RED methods
+. Author PrometheusRule alert definitions for both infrastructure (GPU) and application-level (latency SLO) conditions
+. Generate synthetic load against a model endpoint and observe the full alert lifecycle (Inactive -> Pending -> Firing -> Resolved)
+. Independently diagnose a misconfigured model serving deployment using observability tools, correlating metrics across infrastructure and application layers to identify and fix the root cause
+
+== Course Duration
+
+Approximately 6 hours total (lecture + hands-on + challenge lab)
+
+== Target Audience
+
+- *AI Platform Engineers* designing observability strategies for AI/ML platforms on OpenShift
+- *OpenShift administrators* responsible for monitoring clusters with GPU workloads
+- *SREs* managing AI/ML infrastructure reliability and incident response
 
 == Prerequisites
 
-This course assumes that you have the following prior experience:
+- Working knowledge of Kubernetes/OpenShift concepts (`Pods`, `Services`, `Deployments`, `Namespaces`)
+- Familiarity with the `oc` CLI for cluster administration
+- Basic understanding of Prometheus concepts (metrics, scraping, PromQL) is helpful but not required — the course covers these from the ground up
+- No prior experience with Grafana, PrometheusRules, or GPU monitoring is required
 
-* Course or experience...
-* Course or experience...
-* Course or experience...
+== Getting Started
 
-NOTE: **Use of Artificial Intelligence:**
-This publication contains content or media that is generated or assisted by AI tools. All the Training deliverables have primarily human authorship, and all content was reviewed by a human domain expert.
+Before starting the course, set up your lab environment by following the instructions in xref:LABENV:index.adoc[Lab Environment].
+This covers cluster provisioning, hardware requirements, and environment verification.

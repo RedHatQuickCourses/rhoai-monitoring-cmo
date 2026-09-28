@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" font-family="Red Hat Text, Helvetica Neue, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4a4a4a"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0066CC"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6753AC"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="520" fill="#f8f9fa" rx="8"/>
+
+  <!-- Title -->
+  <text x="450" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#151515">Metrics Flow: vLLM and DCGM to CMO Prometheus</text>
+
+  <!-- ========== ROW 1: Consumers ========== -->
+
+  <!-- OpenShift Console -->
+  <rect x="200" y="45" width="175" height="35" rx="4" fill="#E7F1FA" stroke="#0066CC" stroke-width="1.5"/>
+  <text x="287" y="67" text-anchor="middle" font-size="12" font-weight="600" fill="#002952">OpenShift Console</text>
+
+  <!-- Grafana -->
+  <rect x="505" y="45" width="175" height="35" rx="4" fill="#FAECD5" stroke="#F4C145" stroke-width="1.5"/>
+  <text x="592" y="67" text-anchor="middle" font-size="12" font-weight="600" fill="#795600">Grafana</text>
+
+  <!-- ========== ROW 2: Monitoring Infrastructure ========== -->
+
+  <!-- openshift-monitoring namespace (contains Thanos Querier + Platform Prometheus) -->
+  <rect x="20" y="98" width="468" height="185" rx="6" fill="none" stroke="#0066CC" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="254" y="115" text-anchor="middle" font-size="10" fill="#002952" font-weight="600">openshift-monitoring</text>
+
+  <!-- Thanos Querier -->
+  <rect x="75" y="122" width="385" height="42" rx="4" fill="#E7F1FA" stroke="#0066CC" stroke-width="2"/>
+  <text x="267" y="145" text-anchor="middle" font-size="13" font-weight="700" fill="#002952">Thanos Querier</text>
+  <text x="267" y="158" text-anchor="middle" font-size="9" fill="#6A6E73">Unified query endpoint</text>
+
+  <!-- Platform Prometheus -->
+  <rect x="48" y="200" width="325" height="60" rx="4" fill="#E7F1FA" stroke="#0066CC" stroke-width="2"/>
+  <text x="210" y="225" text-anchor="middle" font-size="13" font-weight="600" fill="#002952">Platform Prometheus</text>
+  <text x="210" y="242" text-anchor="middle" font-size="9" fill="#6A6E73">Scrapes platform-level ServiceMonitors</text>
+
+  <!-- Arrow: Platform Prom -> Thanos (within namespace) -->
+  <line x1="210" y1="200" x2="240" y2="166" stroke="#0066CC" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <text x="248" y="190" font-size="8" fill="#0066CC" font-weight="600">federates</text>
+
+  <!-- openshift-user-workload-monitoring namespace -->
+  <rect x="508" y="180" width="372" height="103" rx="6" fill="none" stroke="#6753AC" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="694" y="197" text-anchor="middle" font-size="10" fill="#3B1F8E" font-weight="600">openshift-user-workload-monitoring</text>
+
+  <!-- UWM Prometheus -->
+  <rect x="530" y="208" width="330" height="60" rx="4" fill="#F0E6FF" stroke="#6753AC" stroke-width="2"/>
+  <text x="695" y="233" text-anchor="middle" font-size="13" font-weight="600" fill="#3B1F8E">UWM Prometheus</text>
+  <text x="695" y="250" text-anchor="middle" font-size="9" fill="#6A6E73">Scrapes user workload ServiceMonitors</text>
+
+  <!-- Arrow: UWM Prom -> Thanos (cross-namespace path) -->
+  <path d="M530,238 L505,238 Q498,238 498,231 L498,150 Q498,143 491,143 L460,143" stroke="#6753AC" stroke-width="1.5" fill="none" marker-end="url(#arrow-purple)"/>
+
+  <!-- Arrows: Consumers -> Thanos (queries) -->
+  <line x1="287" y1="80" x2="240" y2="122" stroke="#4a4a4a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="240" y="100" font-size="8" fill="#6A6E73">queries</text>
+  <line x1="592" y1="80" x2="400" y2="122" stroke="#4a4a4a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="500" y="97" font-size="8" fill="#6A6E73">queries</text>
+
+  <!-- ========== ROW 3: Data Sources ========== -->
+
+  <!-- Namespace: nvidia-gpu-operator -->
+  <rect x="30" y="310" width="250" height="175" rx="6" fill="none" stroke="#8BC1F7" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="155" y="328" text-anchor="middle" font-size="11" fill="#004080" font-weight="600">nvidia-gpu-operator</text>
+
+  <!-- DCGM Exporter -->
+  <rect x="52" y="338" width="206" height="52" rx="4" fill="#E7F1FA" stroke="#8BC1F7" stroke-width="1.5"/>
+  <text x="155" y="359" text-anchor="middle" font-size="12" font-weight="600" fill="#004080">DCGM Exporter</text>
+  <text x="155" y="376" text-anchor="middle" font-size="10" fill="#6A6E73">(DaemonSet) :9400/metrics</text>
+
+  <!-- DCGM ServiceMonitor -->
+  <rect x="52" y="405" width="206" height="52" rx="4" fill="#FAECD5" stroke="#F4C145" stroke-width="1.5"/>
+  <text x="155" y="426" text-anchor="middle" font-size="11" font-weight="600" fill="#795600">ServiceMonitor</text>
+  <text x="155" y="441" text-anchor="middle" font-size="9" fill="#6A6E73">monitoring.coreos.com/v1</text>
+
+  <!-- Arrow: DCGM SM -> DCGM Exporter (describes target) -->
+  <line x1="155" y1="405" x2="155" y2="392" stroke="#4a4a4a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Namespace: llm-serving -->
+  <rect x="310" y="310" width="260" height="175" rx="6" fill="none" stroke="#BDE2B9" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="440" y="328" text-anchor="middle" font-size="11" fill="#1E4F18" font-weight="600">llm-serving</text>
+
+  <!-- vLLM Pod -->
+  <rect x="332" y="338" width="216" height="52" rx="4" fill="#E6FAE6" stroke="#BDE2B9" stroke-width="1.5"/>
+  <text x="440" y="359" text-anchor="middle" font-size="12" font-weight="600" fill="#1E4F18">vLLM (Granite 3.1 8B)</text>
+  <text x="440" y="376" text-anchor="middle" font-size="10" fill="#6A6E73">(Pod) :8080/metrics</text>
+
+  <!-- vLLM ServiceMonitor -->
+  <rect x="332" y="405" width="216" height="58" rx="4" fill="#FAECD5" stroke="#F4C145" stroke-width="1.5"/>
+  <text x="440" y="424" text-anchor="middle" font-size="11" font-weight="600" fill="#795600">ServiceMonitor</text>
+  <text x="440" y="439" text-anchor="middle" font-size="9" fill="#6A6E73">monitoring.coreos.com/v1</text>
+  <text x="440" y="454" text-anchor="middle" font-size="8" fill="#0066CC" font-style="italic">auto-created by KServe</text>
+
+  <!-- Arrow: vLLM SM -> vLLM Pod (describes target) -->
+  <line x1="440" y1="405" x2="440" y2="392" stroke="#4a4a4a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- GPU Hardware / Key Metrics -->
+  <rect x="600" y="310" width="275" height="175" rx="6" fill="none" stroke="#C9190B" stroke-width="1" stroke-dasharray="6,3" opacity="0.4"/>
+  <text x="737" y="328" text-anchor="middle" font-size="11" fill="#A30000" font-weight="600">NVIDIA L4 GPU (24 GB)</text>
+
+  <rect x="622" y="340" width="228" height="44" rx="4" fill="#FAEAE8" stroke="#C9190B" stroke-width="1"/>
+  <text x="736" y="358" text-anchor="middle" font-size="11" font-weight="600" fill="#A30000">GPU Hardware</text>
+  <text x="736" y="373" text-anchor="middle" font-size="9" fill="#6A6E73">DCGM_FI_DEV_GPU_UTIL, GPU_TEMP, FB_*</text>
+
+  <rect x="622" y="398" width="228" height="58" rx="4" fill="#F5F5F5" stroke="#D2D2D2" stroke-width="1"/>
+  <text x="736" y="416" text-anchor="middle" font-size="9" fill="#6A6E73">vllm:num_requests_running</text>
+  <text x="736" y="428" text-anchor="middle" font-size="9" fill="#6A6E73">vllm:kv_cache_usage_perc</text>
+  <text x="736" y="440" text-anchor="middle" font-size="9" fill="#6A6E73">vllm:e2e_request_latency_seconds</text>
+
+  <!-- Arrow: GPU Hardware -> DCGM Exporter (exposes) -->
+  <line x1="622" y1="362" x2="260" y2="362" stroke="#C9190B" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <text x="295" y="355" text-anchor="middle" font-size="8" fill="#A30000">exposes</text>
+
+  <!-- ========== Scrape Arrows: Data Sources -> Prometheus ========== -->
+
+  <!-- nvidia-gpu-operator -> Platform Prometheus -->
+  <path d="M155,310 L155,295 Q155,288 170,288 L193,288 Q210,288 210,278 L210,262" stroke="#0066CC" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+  <text x="85" y="302" font-size="9" fill="#0066CC" font-weight="600">scrapes GPU metrics</text>
+
+  <!-- llm-serving -> UWM Prometheus -->
+  <path d="M440,310 L440,295 Q440,288 455,288 L680,288 Q695,288 695,278 L695,270" stroke="#6753AC" stroke-width="2" fill="none" marker-end="url(#arrow-purple)"/>
+  <text x="500" y="302" font-size="9" fill="#6753AC" font-weight="600">scrapes vLLM metrics</text>
+
+  <!-- ========== Legend ========== -->
+  <rect x="30" y="498" width="12" height="12" rx="2" fill="#FAECD5" stroke="#F4C145" stroke-width="1"/>
+  <text x="48" y="509" font-size="10" fill="#4a4a4a">ServiceMonitor (monitoring.coreos.com/v1)</text>
+  <rect x="300" y="498" width="12" height="12" rx="2" fill="#E7F1FA" stroke="#0066CC" stroke-width="1"/>
+  <text x="318" y="509" font-size="10" fill="#4a4a4a">Platform component</text>
+  <rect x="480" y="498" width="12" height="12" rx="2" fill="#F0E6FF" stroke="#6753AC" stroke-width="1"/>
+  <text x="498" y="509" font-size="10" fill="#4a4a4a">User workload component</text>
+  <rect x="690" y="498" width="12" height="12" rx="2" fill="none" stroke="#8BC1F7" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="708" y="509" font-size="10" fill="#4a4a4a">Namespace boundary</text>
+</svg>

@@ -1,0 +1,304 @@
+= Enable User Workload Monitoring
+:navtitle: Enable User Workload Monitoring
+
+== Concepts
+
+This lab enables User Workload Monitoring (UWM) -- the critical piece that allows Prometheus to scrape metrics from your application pods.
+Without UWM, Prometheus completely ignores your model serving workloads, even if they expose a `/metrics` endpoint.
+
+By the end of this lab, you will have:
+
+* Verified that the NVIDIA GPU Operator and DCGM Exporter are running
+* Created a dedicated namespace for model-serving workloads
+* Enabled User Workload Monitoring
+* Confirmed that both GPU hardware metrics and UWM health metrics are queryable
+
+== Lab
+
+=== 1. Verify the NVIDIA GPU Operator
+
+Before touching the monitoring stack, confirm the GPU infrastructure is healthy.
+
+[source,console,subs="+quotes"]
+----
+$ **oc get pods -n nvidia-gpu-operator**
+NAME                                           READY   STATUS      RESTARTS   AGE
+gpu-feature-discovery-xxxxx                    1/1     Running     0          2d
+gpu-operator-xxxxx                             1/1     Running     0          2d
+nvidia-container-toolkit-daemonset-xxxxx       1/1     Running     0          2d
+nvidia-cuda-validator-xxxxx                    0/1     Completed   0          2d
+nvidia-dcgm-xxxxx                              1/1     Running     0          2d
+nvidia-dcgm-exporter-xxxxx                     1/1     Running     0          2d
+nvidia-device-plugin-daemonset-xxxxx           1/1     Running     0          2d
+nvidia-driver-daemonset-xxx-xxxxx              2/2     Running     0          2d
+nvidia-node-status-exporter-xxxxx              1/1     Running     0          2d
+nvidia-operator-validator-xxxxx                1/1     Running     0          2d
+----
+
+Most pods should show `Running`.
+The `nvidia-cuda-validator` pod shows `Completed` -- this is normal, it runs once to verify CUDA functionality.
+
+Verify the DCGM Exporter specifically:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get pods -n nvidia-gpu-operator -l app=nvidia-dcgm-exporter**
+NAME                          READY   STATUS    RESTARTS   AGE
+nvidia-dcgm-exporter-xxxxx    1/1     Running   0          2d
+----
+
+You should see one DCGM exporter pod per GPU node.
+
+Verify the DCGM ServiceMonitor exists:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get servicemonitor -n nvidia-gpu-operator**
+NAME                          AGE
+gpu-operator                  20d
+nvidia-dcgm-exporter          20d
+nvidia-node-status-exporter   20d
+----
+
+The `nvidia-dcgm-exporter` ServiceMonitor tells platform Prometheus to scrape GPU hardware metrics.
+You did not create this -- the NVIDIA GPU Operator ships it automatically.
+
+=== 2. Create the Lab Namespace
+
+All model-serving workloads for this course will live in a namespace called `llm-serving`.
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f monitoring-setup/namespace.yaml**
+namespace/llm-serving created
+----
+
+Verify the namespace was created with the correct labels:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get namespace llm-serving --show-labels**
+NAME          STATUS   AGE   LABELS
+llm-serving   Active   5s    modelmesh-enabled=false,opendatahub.io/dashboard=true,...
+----
+
+The `modelmesh-enabled: "false"` label ensures KServe uses its standard serving path (required for vLLM-based runtimes in RHOAI 3.4).
+The `opendatahub.io/dashboard: "true"` label makes the namespace visible as a Data Science Project in the RHOAI Dashboard.
+
+=== 3. Enable User Workload Monitoring
+
+This is the most important step in this chapter.
+
+First, check if UWM is already enabled on your cluster:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get pods -n openshift-user-workload-monitoring**
+----
+
+If you see `prometheus-user-workload-0` pods, UWM is already enabled.
+Skip to step 3c to verify, but still apply the configuration ConfigMap to ensure retention and log level are set correctly.
+
+If the namespace is empty or does not exist, UWM is not enabled.
+Continue with step 3a.
+
+==== 3a. Apply the UWM configuration
+
+Apply the UWM configuration ConfigMap first.
+This sets the retention period and log level that UWM Prometheus will use when it starts up.
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f monitoring-setup/uwm-cm-conf.yaml**
+configmap/user-workload-monitoring-config created
+----
+
+Verify:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get configmap user-workload-monitoring-config -n openshift-user-workload-monitoring -o yaml**
+----
+
+You should see the `retention: 15d` and `logLevel: debug` settings in the output.
+
+==== 3b. Enable UWM
+
+Apply the cluster monitoring ConfigMap that enables User Workload Monitoring:
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f monitoring-setup/uwm-cm-enable.yaml**
+configmap/cluster-monitoring-config created
+----
+
+WARNING: If the `cluster-monitoring-config` ConfigMap already exists on your cluster, applying this file will *overwrite* it.
+In that case, edit the existing ConfigMap instead: +
+`oc edit configmap cluster-monitoring-config -n openshift-monitoring` +
+Add `enableUserWorkload: true` under `config.yaml`, save, and exit.
+
+==== 3c. Wait for UWM pods to start
+
+After applying the ConfigMap, the Cluster Monitoring Operator detects the change and deploys UWM components.
+This typically takes 30-60 seconds.
+
+[source,console,subs="+quotes"]
+----
+$ **oc get pods -n openshift-user-workload-monitoring -w**
+NAME                                   READY   STATUS    RESTARTS   AGE
+prometheus-operator-xxxxxxxxx-xxxxx    2/2     Running   0          30s
+prometheus-user-workload-0             6/6     Running   0          45s
+thanos-ruler-user-workload-0           4/4     Running   0          45s
+----
+
+Wait until `prometheus-user-workload-0` shows `Running`, then press `Ctrl+C` to exit the watch.
+
+[%collapsible]
+.Troubleshooting: Pods not appearing after 2 minutes
+====
+. Check the ConfigMap was applied correctly:
++
+[source,console,subs="+quotes"]
+----
+$ **oc get configmap cluster-monitoring-config -n openshift-monitoring -o yaml**
+----
++
+Look for `enableUserWorkload: true` in the data section.
+
+. Check the Cluster Monitoring Operator logs:
++
+[source,console,subs="+quotes"]
+----
+$ **oc logs -n openshift-monitoring deployment/cluster-monitoring-operator --tail=50**
+----
++
+Look for errors related to user workload monitoring.
+
+. Check if the namespace exists:
++
+[source,console,subs="+quotes"]
+----
+$ **oc get namespace openshift-user-workload-monitoring**
+----
++
+The CMO should create this namespace automatically.
+====
+
+=== 4. Verify Metrics Are Flowing
+
+==== 4a. Query DCGM metrics via the OpenShift Console
+
+. Open the *OpenShift Web Console* in your browser
+. Switch to the *Administrator* perspective (top-left dropdown)
+. Navigate to *Observe > Metrics*
+. In the query box, type:
++
+----
+DCGM_FI_DEV_GPU_UTIL
+----
+. Click *Run queries* (or press Enter)
+
+You should see a time-series graph showing GPU utilization.
+Since no model is currently running, the value should be near *0%* (perhaps 1-3% from background GPU processes).
+
+TIP: If you see no data, make sure the metric name is typed exactly as shown (it is case-sensitive) and verify the DCGM exporter pod is Running (step 1).
+
+==== 4b. Explore additional GPU metrics
+
+Try these queries one at a time to explore what GPU data is available:
+
+`DCGM_FI_DEV_GPU_TEMP`:: Shows the current GPU temperature. At idle, expect 30-50C depending on your GPU model and cooling.
+
+`DCGM_FI_DEV_FB_USED`:: Shows GPU memory (framebuffer) currently in use, in megabytes. At idle with no model loaded, this should be low (a few hundred MB for CUDA context).
+
+`DCGM_FI_DEV_FB_FREE`:: Shows available GPU memory. On the L4 with ~24,000 MB free, dividing by 2 gives ~12B parameters -- meaning an 8B model fits with room to spare, but that room (~6-7 GB) is all you have for the KV cache.
+
+==== 4c. Verify UWM Prometheus is healthy
+
+Query the UWM Prometheus self-monitoring metric:
+
+----
+up{namespace="openshift-user-workload-monitoring"}
+----
+
+You should see one or more time series with value `1`, indicating that UWM Prometheus targets are up and healthy.
+
+If this returns no data, UWM may not have finished starting.
+Wait 1-2 minutes and retry.
+
+=== 5. Explore the Monitoring UI
+
+Take a few minutes to explore the OpenShift monitoring interface.
+
+==== 5a. Metrics tab
+
+You are already here from step 4. Try these explorations:
+
+* *Add a second query*: Click "Add query" and enter `DCGM_FI_DEV_GPU_TEMP` alongside `DCGM_FI_DEV_GPU_UTIL`. You can see multiple metrics on the same timeline.
+* *Change the time range*: Use the dropdown in the top-right to switch between "Last 30 minutes", "Last 1 hour", etc. Notice how the graph resolution changes.
+* *Check the results table*: Below the graph, a table displays the current value for each time series along with all its labels.
+
+==== 5b. Alerting tab
+
+Navigate to *Observe > Alerting*.
+You will see alerts that are already defined for the platform (OpenShift infrastructure alerts).
+
+* Click on the *Alerting rules* tab to see what rules exist
+* Note the structure: each rule has a name, an expression (PromQL), a `for` duration, and a severity label
+* You will create your own alert rules in the xref:alerting:index.adoc[Alerting] chapter
+
+==== 5c. Targets tab
+
+Navigate to *Observe > Targets*.
+This page shows every scrape target that Prometheus is actively collecting from.
+
+* Type "nvidia" in the search box to filter to GPU Operator targets
+* Find the `nvidia-dcgm-exporter` target and note its state (should be "Up"), the endpoint URL, and the last scrape time
+* In the next chapter, after deploying the model, you can return here and search for "llm" to verify the vLLM target appears
+
+== Checkpoint
+
+Before proceeding to the next chapter, verify all of the following:
+
+[cols="2,3,2", options="header"]
+|===
+|Check |How to Verify |Expected Result
+
+|GPU Operator running
+|`oc get pods -n nvidia-gpu-operator`
+|All pods Running
+
+|DCGM Exporter running
+|`oc get pods -n nvidia-gpu-operator -l app=nvidia-dcgm-exporter`
+|At least 1 pod Running
+
+|Lab namespace exists
+|`oc get namespace llm-serving`
+|Namespace exists with correct labels
+
+|UWM enabled
+|`oc get pods -n openshift-user-workload-monitoring`
+|`prometheus-user-workload-0` Running
+
+|GPU metrics queryable
+|Query `DCGM_FI_DEV_GPU_UTIL` in Console
+|Returns data (value near 0%)
+
+|UWM healthy
+|Query `up{namespace="openshift-user-workload-monitoring"}`
+|Returns value of 1
+|===
+
+== Summary
+
+In this lab, you:
+
+* Verified the NVIDIA GPU Operator and DCGM Exporter are running and exposing GPU metrics
+* Created the `llm-serving` namespace for model-serving workloads
+* Enabled User Workload Monitoring by applying two ConfigMaps
+* Confirmed that GPU hardware metrics (Layer 2) are queryable from the OpenShift Console
+* Explored the monitoring UI: Metrics, Alerting, and Targets tabs
+
+Notice what is missing: you have GPU hardware metrics flowing, but no application-level inference metrics yet.
+That is because you need a running model with a `/metrics` endpoint.
+In the next chapter, you will deploy the Granite 3.1 8B model and see all three layers of metrics flowing into Prometheus.

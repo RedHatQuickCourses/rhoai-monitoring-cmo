@@ -1,0 +1,217 @@
+= Grafana on OpenShift
+:navtitle: Grafana on OpenShift
+
+OpenShift includes built-in monitoring dashboards in the web console, but they are limited to single-metric views without the ability to create custom, multi-panel dashboards.
+For operational dashboards that combine GPU health, inference latency, and queue depth into a single view, you need Grafana.
+
+This page explains how the community Grafana Operator works on OpenShift, why ServiceAccount RBAC is necessary, and how dashboard-as-code CRs replace manual dashboard creation.
+
+image::grafana-architecture.svg[Grafana Operator custom resource architecture showing Operator and Instance and Datasource and Dashboard CRs with RBAC chain to Thanos Querier,width=780]
+
+== Components
+
+The Grafana deployment on OpenShift involves four components that work together:
+
+=== Grafana Operator
+
+The Grafana Operator is a community Kubernetes operator that watches for Grafana custom resources and manages the lifecycle of Grafana instances.
+You install it from OperatorHub.
+
+When the operator detects a `Grafana` CR, it creates:
+
+* A *Deployment* running the Grafana server pod
+* A *Service* exposing port 3000
+* A *Route* providing external HTTPS access through the OpenShift router
+
+The operator also watches for three additional CR types:
+
+[cols="2,3", options="header"]
+|===
+|Custom Resource |Purpose
+
+|`GrafanaDatasource`
+|Configures where Grafana queries metrics from (Thanos Querier in our case)
+
+|`GrafanaDashboard`
+|Defines a complete dashboard as a JSON model embedded in a CR
+
+|`GrafanaFolder`
+|Organizes dashboards into folders within the Grafana UI
+|===
+
+When you create, update, or delete any of these CRs, the operator reconciles the corresponding configuration inside the Grafana instance automatically.
+
+=== Grafana Instance
+
+The `Grafana` CR defines the Grafana server itself.
+In the xref:install-grafana.adoc[Install Grafana] exercise, you will create a Grafana instance in the `llm-monitoring` namespace with a minimal configuration that sets the admin credentials and enables the route.
+
+=== GrafanaDatasource
+
+The datasource tells Grafana where to find metrics.
+In the OpenShift monitoring stack, all metrics (platform and user workload) are queryable through *Thanos Querier*, which runs at `https://thanos-querier.openshift-monitoring.svc.cluster.local:9091`.
+
+The datasource configuration includes:
+
+* The Thanos Querier URL
+* A bearer token for authentication (from the ServiceAccount)
+* TLS settings (using the OpenShift service CA)
+
+=== GrafanaDashboard
+
+Each `GrafanaDashboard` CR contains a complete dashboard definition as an embedded JSON model.
+When the operator processes this CR, it creates (or updates) the corresponding dashboard inside the Grafana instance.
+You will deploy three of these in the xref:deploy-dashboards.adoc[Deploy Dashboards] exercise.
+
+== Why a ServiceAccount with RBAC Is Required
+
+Unlike a standalone Grafana that connects to an open Prometheus endpoint, Grafana on OpenShift must authenticate to query metrics.
+The OpenShift monitoring stack enforces authentication and authorization on all metric queries through Thanos Querier.
+
+The authentication chain works as follows:
+
+. You create a *ServiceAccount* named `grafana-sa` in the `llm-monitoring` namespace
+. You create a *Secret* of type `kubernetes.io/service-account-token` bound to that ServiceAccount, which generates a bearer token
+. You create a *ClusterRoleBinding* that grants the `cluster-monitoring-view` ClusterRole to `grafana-sa`
+. The GrafanaDatasource references this bearer token in its configuration
+
+The `cluster-monitoring-view` role grants read-only access to all metrics in the cluster -- both platform metrics (from `openshift-monitoring`) and user workload metrics (from `openshift-user-workload-monitoring`).
+This single role gives Grafana access to container metrics, GPU metrics from DCGM Exporter, and vLLM inference metrics.
+
+WARNING: Do not use the `cluster-admin` role for Grafana. The `cluster-monitoring-view` role provides exactly the access Grafana needs -- read-only metrics access -- without granting permissions to modify cluster resources.
+
+== Dashboard-as-Code
+
+There are two ways to create Grafana dashboards: manually through the UI, or declaratively as GrafanaDashboard custom resources.
+This course uses the declarative approach exclusively.
+
+[cols="2,2,2", options="header"]
+|===
+|Capability |Manual (UI) |Dashboard-as-Code (CR)
+
+|*Reproducibility*
+|Must recreate by hand on each cluster
+|`oc apply -f` deploys the same dashboard everywhere
+
+|*Version control*
+|Changes not tracked
+|Dashboard JSON stored in Git alongside other manifests
+
+|*Multi-cluster*
+|Export JSON, import on each cluster manually
+|Same CR applied to every cluster via GitOps
+
+|*Review process*
+|No review -- changes are immediate
+|Changes go through pull requests and code review
+
+|*Disaster recovery*
+|Dashboard lost if Grafana PVC is deleted
+|Re-apply the CR to restore the dashboard instantly
+
+|*Drift detection*
+|No way to know if someone modified the dashboard
+|Operator reconciles the CR, reverting manual edits
+|===
+
+TIP: The Grafana Operator continuously reconciles GrafanaDashboard CRs. If someone modifies a dashboard through the Grafana UI, the operator will revert the changes on the next reconciliation cycle. This is a feature, not a bug -- it ensures your dashboards in production match what is in Git.
+
+== Reading a Dashboard JSON Model
+
+Each GrafanaDashboard CR contains a `json` field with the full dashboard definition.
+Understanding the structure of this JSON helps you customize dashboards and troubleshoot panels that do not display data.
+
+=== Top-Level Fields
+
+[cols="2,3", options="header"]
+|===
+|Field |Purpose
+
+|`title`
+|The dashboard name displayed in the Grafana UI
+
+|`uid`
+|A unique identifier used in URLs and cross-references between dashboards
+
+|`templating`
+|Defines dropdown variables (such as a namespace or pod selector) that users can change to filter all panels at once
+
+|`panels`
+|Array of panel definitions -- each panel is one visualization on the dashboard
+
+|`time`
+|Default time range when the dashboard is opened (e.g., last 1 hour)
+
+|`refresh`
+|Auto-refresh interval (e.g., every 30 seconds)
+|===
+
+=== Panel Structure
+
+Each entry in the `panels` array defines a single visualization:
+
+[source,json,subs="-attributes"]
+----
+{
+  "title": "GPU Utilization",
+  "type": "timeseries",
+  "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+  "targets": [
+    {
+      "expr": "DCGM_FI_DEV_GPU_UTIL{namespace=\"nvidia-gpu-operator\"}",
+      "legendFormat": "GPU {{gpu}} on {{instance}}"
+    }
+  ],
+  "fieldConfig": {
+    "defaults": {
+      "thresholds": {
+        "steps": [
+          { "color": "green", "value": null },
+          { "color": "yellow", "value": 80 },
+          { "color": "red", "value": 95 }
+        ]
+      },
+      "unit": "percent"
+    }
+  }
+}
+----
+
+The key fields within each panel:
+
+[cols="2,3", options="header"]
+|===
+|Field |Purpose
+
+|`targets[].expr`
+|The PromQL query that provides data for this panel. This is where the three patterns from xref:promql-fundamentals.adoc[PromQL Fundamentals] appear.
+
+|`targets[].legendFormat`
+|Template for the legend label, using double-brace syntax (e.g., `+{{gpu}}+`) to insert metric label values
+
+|`gridPos`
+|Position and size on the dashboard grid. `x` and `y` set the position; `h` and `w` set height and width in grid units.
+
+|`fieldConfig.defaults.thresholds`
+|Color thresholds that change the visualization color based on the current value. In the example above, the panel is green below 80%, yellow from 80-95%, and red above 95%.
+
+|`fieldConfig.defaults.unit`
+|The display unit (e.g., `percent`, `s` for seconds, `reqps` for requests per second)
+
+|`type`
+|The visualization type: `timeseries` for line graphs, `gauge` for radial gauges, `stat` for single-value panels, `table` for tabular data
+|===
+
+IMPORTANT: The `thresholds` in your dashboard panels should match the thresholds in your alerting rules. If your PrometheusRule fires when GPU utilization exceeds 95% for 10 minutes, set the red threshold in the dashboard panel at 95% so the visual warning and the alert are synchronized.
+
+== References
+
+=== Upstream Resources
+
+* https://grafana-operator.github.io/grafana-operator/docs/[Grafana Operator Documentation^]
+* https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/[Grafana -- Dashboard JSON Model^]
+
+=== Red Hat Documentation
+
+* https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/accessing-third-party-monitoring-apis[OpenShift -- Accessing Third-Party Monitoring APIs^]
+* https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/managing-metrics#querying-metrics-for-user-defined-projects-as-a-developer_managing-metrics[OpenShift -- Querying Metrics for User-Defined Projects^]

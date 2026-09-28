@@ -1,0 +1,334 @@
+= Deploy and Explore Dashboards
+:navtitle: Deploy Dashboards
+
+== Concepts
+
+With Grafana connected to Thanos Querier, you are ready to deploy the three dashboards that cover AI model serving observability:
+
+* *Node Health (USE Method)* -- Is the compute node healthy? CPU, memory, disk, network.
+* *GPU Health (USE Method)* -- Is the GPU hardware healthy? Utilization, memory, temperature, power.
+* *vLLM Inference (RED Method)* -- How is the model performing for users? Rate, errors, duration, saturation.
+
+Each dashboard is defined as a `GrafanaDashboard` custom resource.
+The Grafana Operator reconciles the dashboard JSON into the Grafana instance automatically -- changes to the YAML appear in Grafana within about 30 seconds.
+This is the _dashboard-as-code_ approach: dashboards are version-controlled, reproducible, and deployable alongside the rest of your infrastructure.
+
+By the end of this lab, you will have:
+
+* Deployed all three dashboards as GrafanaDashboard CRs
+* Explored each dashboard at idle to establish baseline readings
+* Sent inference requests and observed how metrics change under load
+* Understood how the USE and RED methods complement each other
+
+=== Lab Files
+
+----
+grafana/
+├── grafana-dashboard-node.yaml   # Node Health (USE Method)
+├── grafana-dashboard-gpu.yaml    # GPU Health (USE Method)
+└── grafana-dashboard-vllm.yaml   # vLLM Inference (RED Method)
+----
+
+== Lab
+
+=== 1. Deploy the Dashboards
+
+Apply all three dashboard CRs:
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f grafana/grafana-dashboard-node.yaml**
+grafanadashboard.grafana.integreatly.org/node-health created
+----
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f grafana/grafana-dashboard-gpu.yaml**
+grafanadashboard.grafana.integreatly.org/gpu-health created
+----
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f grafana/grafana-dashboard-vllm.yaml**
+grafanadashboard.grafana.integreatly.org/vllm-inference created
+----
+
+Verify all three CRs were created:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get grafanadashboard -n llm-serving**
+NAME              AGE
+gpu-health        10s
+node-health       15s
+vllm-inference    5s
+----
+
+=== 2. Verify Dashboards in Grafana
+
+. In the Grafana UI, click *Dashboards* in the left sidebar (the four-squares icon).
+. You should see all three dashboards listed:
+* *Node Health (USE Method)*
+* *GPU Health (USE Method)*
+* *vLLM Inference (RED Method)*
+
+If the dashboards do not appear immediately, wait 30 seconds and refresh the page.
+The Grafana Operator reconciles on a short polling interval.
+
+[%collapsible]
+.Troubleshooting: Dashboards not appearing
+====
+. Verify the GrafanaDashboard CRs have the correct `instanceSelector`:
++
+[source,console,subs="+quotes"]
+----
+$ **oc get grafanadashboard -n llm-serving -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.instanceSelector}{"\n"}{end}'**
+----
++
+Each should show `matchLabels.dashboards: grafana`, matching the Grafana instance label.
+
+. Check the Grafana Operator logs for reconciliation errors:
++
+[source,console,subs="+quotes"]
+----
+$ **oc logs -n llm-serving deployment/grafana-operator --tail=20**
+----
+
+. Verify the Grafana instance has the matching label:
++
+[source,console,subs="+quotes"]
+----
+$ **oc get grafana -n llm-serving -o jsonpath='{.items[0].metadata.labels}'**
+----
++
+Look for `"dashboards":"grafana"`.
+====
+
+=== 3. Explore the Node Health Dashboard
+
+Click on *Node Health (USE Method)* to open it.
+
+This dashboard uses the *USE Method* (Utilization, Saturation, Errors) applied to compute node resources.
+It contains a `$instance` template variable at the top -- select the GPU node from the dropdown.
+
+==== Expected state at idle
+
+At idle with the model loaded but no active requests, you should see:
+
+* *CPU Usage*: 5-15%. The model pod and system processes consume minimal CPU when idle.
+* *Memory Usage*: 30-60%. System processes, container runtime, and the model pod's CPU-side memory (not GPU memory) contribute here.
+* *Disk I/O*: Near zero. After model loading completes, there is minimal disk activity.
+* *Network I/O*: Very low baseline. Small amounts of traffic from Prometheus scraping, kubelet heartbeats, and control plane communication.
+* *Filesystem Usage*: Varies by cluster. Watch for values above 80% (orange threshold line) -- high filesystem usage can prevent new container images from being pulled.
+
+NOTE: The threshold lines on each panel (orange at 80% for CPU, 80% for memory, 80% and 90% for filesystem) are visual guides, not alerting rules. You will create actual alerting rules in the xref:alerting:index.adoc[Alerting] chapter.
+
+=== 4. Explore the GPU Health Dashboard
+
+Click the back arrow and open *GPU Health (USE Method)*.
+
+This dashboard applies the USE Method to GPU hardware using DCGM Exporter metrics.
+
+==== Expected state at idle
+
+With Granite 3.1 8B loaded but no active requests:
+
+* *GPU Utilization*: 0-5%. The GPU compute cores are essentially idle when no inference is running.
+* *GPU Memory Used*: Approximately 17,000-21,000 MB (~17-21 GB). This looks high, but it is expected.
+* *GPU Memory Free*: Approximately 3,000-7,000 MB (~3-7 GB).
+* *GPU Temperature*: 30-50 C. Well within safe operating range at idle.
+* *GPU Power Draw*: 15-25 W. The L4 has a 72 W TDP; idle power draw is roughly 20-35% of maximum.
+
+==== Why is GPU memory so high at idle?
+
+The ~17-21 GB of GPU memory usage at idle is not a problem -- it is _expected_.
+Three things consume GPU VRAM before any requests arrive:
+
+. *Model weights* (~16 GB): Granite 3.1 8B has 8 billion parameters, each stored as 16-bit floating point (2 bytes per parameter). 8B x 2 bytes = ~16 GB.
+. *CUDA context* (~300-500 MB): PyTorch, CUDA libraries, and the vLLM runtime allocate GPU memory for framework overhead.
+. *Pre-allocated KV cache*: vLLM pre-allocates KV cache blocks at startup (controlled by `--gpu-memory-utilization=0.90`). It claims 90% of total VRAM and divides the space after model weights into cache blocks. Even with zero active requests, this memory is _reserved_ (allocated but not yet used for any request's key/value tensors).
+
+This leaves only ~3-7 GB of _free_ framebuffer memory -- the unallocated 10% safety buffer. The KV cache usage gauge on the vLLM dashboard (which you will see next) shows the fraction of _pre-allocated cache blocks_ actually in use, which is a more meaningful saturation signal than raw GPU memory.
+
+=== 5. Explore the vLLM Inference Dashboard
+
+Click the back arrow and open *vLLM Inference (RED Method)*.
+
+This dashboard uses the *RED Method* (Rate, Errors, Duration) plus Saturation signals, applied to the vLLM inference engine.
+The `$namespace` variable at the top should default to `llm-serving`.
+
+==== Expected state at idle
+
+With no active inference requests:
+
+* *Requests Waiting*: 0. No requests are queued.
+* *KV Cache Usage*: 0% (or very close). No cache blocks are allocated to active requests.
+* *Request Queue Time*: No data. Histogram percentiles require recent observations to compute.
+* *KV Cache Preemptions*: 0/sec. No evictions needed when there are no requests.
+* *Requests Running*: 0. No active inference.
+* *Token Throughput*: 0 tokens/sec. No tokens being generated.
+* *E2E Latency and TTFT panels*: No data or NaN. These panels compute percentiles from histogram buckets, which require recent request data. After you send requests in the next steps, these will populate.
+
+NOTE: It is normal for latency panels to show "No data" at idle. Histogram-based percentiles (`histogram_quantile`) return NaN when there are no observations in the rate window. As soon as you send requests, data will appear.
+
+=== 6. Generate Load and Observe the Dashboards
+
+Now send requests and watch all three dashboards respond.
+Keep the Grafana UI open while running commands in the terminal.
+
+==== 6a. Set up port-forwarding
+
+[source,console,subs="+quotes"]
+----
+$ **POD_NAME=$(oc get pods -n llm-serving -l serving.kserve.io/inferenceservice=granite-3-1-8b -o jsonpath='{.items[0].metadata.name}')**
+$ **oc port-forward pod/$POD_NAME 8080:8080 -n llm-serving &**
+----
+
+==== 6b. Send a single request
+
+Send one request with 512 max tokens to generate enough load for the dashboards to register:
+
+[source,console,subs="+quotes"]
+----
+$ **curl -s http://localhost:8080/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "granite-3-1-8b",
+    "prompt": "Write a detailed explanation of how large language models work:",
+    "max_tokens": 512,
+    "temperature": 0.7
+  }' | python3 -m json.tool | head -5**
+----
+
+While this request is processing (it takes several seconds with 512 tokens), switch to the Grafana dashboards and observe:
+
+* *GPU Health dashboard*: GPU Utilization spikes from near 0% to 40-80%. GPU Temperature may rise a few degrees. Power draw increases toward the TDP.
+* *vLLM Inference dashboard*: Requests Running jumps to 1. KV Cache Usage briefly rises as the KV cache fills with key/value tensors for this request. Token Throughput shows generation activity.
+* *Node Health dashboard*: CPU usage may increase slightly. Network Transmitted shows outbound traffic as the response is sent.
+
+TIP: Set the Grafana time range to "Last 15 minutes" and the refresh interval to "10s" (both in the top-right corner) for the most responsive view during testing.
+
+==== 6c. Send multiple requests to populate latency panels
+
+The latency panels (E2E Latency, TTFT, TPOT) compute percentiles over a 5-minute rate window.
+A single request may not produce smooth percentile curves.
+Send 10 requests in a loop:
+
+[source,console,subs="+quotes"]
+----
+$ **for i in $(seq 1 10); do
+  echo "Sending request $i..."
+  curl -s http://localhost:8080/v1/completions \
+    -H "Content-Type: application/json" \
+    -d '{
+      "model": "granite-3-1-8b",
+      "prompt": "Explain concept number '"$i"' in machine learning:",
+      "max_tokens": 256,
+      "temperature": 0.7
+    }' > /dev/null
+  echo "Request $i complete."
+done**
+----
+
+This runs requests sequentially (one at a time).
+It takes 2-5 minutes to complete all 10.
+
+After all requests finish, return to the vLLM Inference dashboard and observe:
+
+* *E2E Latency*: The p50, p95, and p99 lines now show data. With Granite 8B and 256 tokens, expect p50 around 5-15 seconds.
+* *TTFT (Time to First Token)*: Shows the prefill duration. Expect p50 around 0.1-0.5 seconds for short prompts.
+* *Request Completion Rate*: Shows completed requests per second, broken down by `finished_reason` (`stop` vs `length`). With `max_tokens: 256`, most will show `length` because the model was cut off.
+* *Token Throughput*: Shows the generation and prompt token rates during the burst.
+
+==== 6d. Stop port-forwarding
+
+[source,console,subs="+quotes"]
+----
+$ **kill %1**
+----
+
+=== 7. Interpret the Dashboards
+
+Now that you have data on all three dashboards, understand how to read them.
+
+==== USE Method (Node Health and GPU Health)
+
+The USE Method asks three questions about every resource:
+
+* *Utilization* -- What fraction of the resource's capacity is being used? (CPU %, GPU %, memory %)
+* *Saturation* -- Is work queuing because the resource is full? (Disk I/O queuing, requests waiting for GPU)
+* *Errors* -- Are there failures? (GPU temperature approaching thermal throttle, filesystem nearly full)
+
+The Node Health dashboard applies USE to the compute node (CPU, memory, disk, network).
+The GPU Health dashboard applies USE to the GPU accelerator (compute cores, VRAM, temperature, power).
+
+*When to look here*: These are _overview_ dashboards. Start here when you suspect an infrastructure problem -- the model is slow but you do not know why. USE dashboards help you quickly identify _which resource_ is the bottleneck.
+
+==== RED Method (vLLM Inference)
+
+The RED Method asks three questions about every service:
+
+* *Rate* -- How many requests is the service handling? (Requests running, tokens/sec, completions/sec)
+* *Errors* -- Are requests failing or being cut off? (Completion reasons: `stop` vs `length`)
+* *Duration* -- How long do requests take? (E2E latency, TTFT, TPOT percentiles)
+
+The vLLM dashboard adds _Saturation_ signals (requests waiting, KV cache usage, preemptions) because these are the leading indicators of performance degradation.
+
+*When to look here*: This is a _drill-down_ dashboard. Look here when users report slow responses. The percentile panels (p50/p95/p99) show the distribution of user experience:
+
+* *p50 (median)* -- The "typical" experience. Half of all requests are faster, half are slower.
+* *p95* -- The experience of 1-in-20 requests. This is often used for SLO targets.
+* *p99* -- The worst-case experience for 1-in-100 requests. A large gap between p50 and p99 indicates inconsistent performance.
+
+==== How USE and RED complement each other
+
+These two methods answer different questions:
+
+* RED tells you *what* is happening: "Latency is high and requests are queuing."
+* USE tells you *why* it is happening: "GPU utilization is at 95% and KV cache is full."
+
+In practice, you start with the RED dashboard (user-facing symptoms), then drill into the USE dashboards (infrastructure causes).
+For example: if the vLLM dashboard shows rising p99 latency and increasing queue depth, switch to the GPU Health dashboard to check whether GPU utilization is saturated or if KV cache preemptions are occurring.
+
+== Checkpoint
+
+[cols="2,3,2", options="header"]
+|===
+|Check |How to Verify |Expected Result
+
+|Dashboard CRs created
+|`oc get grafanadashboard -n llm-serving`
+|3 dashboards listed
+
+|Dashboards visible in Grafana
+|Grafana UI > Dashboards
+|All 3 dashboards appear
+
+|Node Health shows data
+|Open Node Health dashboard
+|CPU, memory, disk, network panels populated
+
+|GPU Health shows data
+|Open GPU Health dashboard
+|GPU utilization, memory, temperature panels populated
+
+|vLLM dashboard shows data
+|Open vLLM Inference dashboard (after sending requests)
+|Latency percentiles and rate panels populated
+
+|Latency percentiles populated
+|Check E2E Latency panel after 10 requests
+|p50, p95, p99 lines visible
+|===
+
+== Summary
+
+In this lab, you:
+
+* Deployed three dashboards as GrafanaDashboard custom resources -- the dashboard-as-code approach
+* Explored the Node Health (USE) and GPU Health (USE) dashboards and established baseline readings at idle
+* Learned why GPU memory appears high at idle (model weights + CUDA context + pre-allocated KV cache)
+* Sent inference requests and observed how metrics respond in real time across all three dashboards
+* Understood how to interpret percentile panels (p50/p95/p99) and how the USE and RED methods complement each other
+
+In the next exercise, you will use the Grafana Explore tab to write and experiment with PromQL queries directly -- building the query skills you need for the xref:alerting:index.adoc[Alerting] chapter.

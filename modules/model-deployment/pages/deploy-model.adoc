@@ -1,0 +1,225 @@
+= Deploy the Model
+:navtitle: Deploy the Model
+
+== Concepts
+
+In this lab, you create the three resources required to deploy a model on RHOAI 3.4 -- a HardwareProfile, a ServingRuntime, and an InferenceService -- and deploy IBM Granite 3.1 8B Instruct on the L4 GPU.
+
+By the end of this lab, you will have:
+
+* Created the HardwareProfile, ServingRuntime, and InferenceService
+* Deployed Granite 3.1 8B using the vLLM runtime on KServe
+* Verified the model pod is running with the model loaded into GPU memory
+
+=== Prerequisites
+
+Before starting, confirm:
+
+* Chapter 1 completed: UWM enabled, DCGM metrics queryable
+* The `llm-serving` namespace exists (`oc get namespace llm-serving`)
+* You have at least one NVIDIA L4 GPU node with an available GPU
+* You are logged in with cluster-admin privileges
+
+=== Lab Files
+
+----
+model-deploy/
+├── hardware-profile.yaml    # HardwareProfile for GPU resource constraints
+├── serving-runtime.yaml     # ServingRuntime for vLLM on NVIDIA GPUs
+└── inference-service.yaml   # InferenceService for Granite 3.1 8B Instruct
+----
+
+NOTE: RHOAI 3.4 auto-creates a ServiceMonitor when you deploy an InferenceService. You do not need to create one manually -- you will examine the auto-created one in the xref:verify-metrics.adoc[next exercise].
+
+== Lab
+
+=== 1. Create the HardwareProfile
+
+The HardwareProfile defines resource constraints (CPU, memory, GPU) for model serving workloads.
+It is a cluster-level resource created in the `redhat-ods-applications` namespace.
+
+Review the YAML:
+
+[source,console,subs="+quotes"]
+----
+$ **cat model-deploy/hardware-profile.yaml**
+----
+
+Key fields to note:
+
+* `namespace: redhat-ods-applications` -- The RHOAI operator namespace, not your project namespace. HardwareProfiles are cluster-scoped resources.
+* `spec.identifiers` -- Defines three resource types: CPU (1-8 cores), Memory (8Gi-24Gi), and GPU (1 NVIDIA GPU).
+* `opendatahub.io/disabled: "false"` -- Makes this profile available in the RHOAI dashboard.
+
+Apply the HardwareProfile:
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f model-deploy/hardware-profile.yaml**
+hardwareprofile.infrastructure.opendatahub.io/gpu-profile created
+----
+
+Verify:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get hardwareprofile gpu-profile -n redhat-ods-applications**
+NAME          AGE
+gpu-profile   5s
+----
+
+=== 2. Create the ServingRuntime
+
+The ServingRuntime defines the model serving platform -- the container image, startup command, and supported model formats.
+The InferenceService references this by name, so it must exist before the InferenceService is created.
+
+Review the YAML:
+
+[source,console,subs="+quotes"]
+----
+$ **cat model-deploy/serving-runtime.yaml**
+----
+
+Key fields to note:
+
+* `name: granite-3-1-8b` -- The InferenceService will reference this exact name in its `runtime` field.
+* `containers[0].name: kserve-container` -- *Must be exactly this name.* KServe requires it to inject storage initializer sidecars and volume mounts.
+* `--port=8080` -- The RHOAI convention for the vLLM API and metrics port.
+* `--served-model-name=\{{.Name}}` -- A Go template that KServe resolves to the InferenceService name at runtime.
+* `image: registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.4` -- The Red Hat certified vLLM image for CUDA/NVIDIA GPUs.
+
+Apply the ServingRuntime:
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f model-deploy/serving-runtime.yaml**
+servingruntime.serving.kserve.io/granite-3-1-8b created
+----
+
+Verify:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get servingruntimes -n llm-serving**
+NAME             DISABLED   MODELTYPE   CONTAINERS         AGE
+granite-3-1-8b              vLLM        kserve-container   5s
+----
+
+=== 3. Deploy the InferenceService
+
+Review the YAML:
+
+[source,console,subs="+quotes"]
+----
+$ **cat model-deploy/inference-service.yaml**
+----
+
+Key fields to note:
+
+* `serving.kserve.io/deploymentMode: RawDeployment` -- Uses standard Kubernetes Deployments instead of Knative. Recommended for GPU workloads.
+* `runtime: granite-3-1-8b` -- Must match the ServingRuntime name from step 2.
+* `storageUri` -- The OCI modelcar image from the Red Hat AI Services registry (~15 GB).
+* `--max-model-len=4096` -- Limits context window to prevent OOM (Granite supports 128K natively, but that would exceed L4 VRAM).
+* `--gpu-memory-utilization=0.90` -- Uses 90% of GPU memory, keeping 10% as a safety buffer.
+* `--enforce-eager` -- Disables CUDA graphs to save GPU memory.
+
+Apply:
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f model-deploy/inference-service.yaml**
+inferenceservice.serving.kserve.io/granite-3-1-8b created
+----
+
+=== 4. Monitor the Deployment
+
+Watch the InferenceService status:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get inferenceservice granite-3-1-8b -n llm-serving -w**
+NAME             URL   READY   PREV   LATEST   ...   AGE
+granite-3-1-8b         False                         5s
+granite-3-1-8b         False                         2m
+granite-3-1-8b   ...   True                          5m
+----
+
+The deployment is ready when `READY` shows `True`.
+For Granite 3.1 8B, expect *3-8 minutes* on first deploy (the ~15 GB modelcar image must be pulled, then the model loaded into GPU memory).
+On subsequent deploys with the image cached, expect ~60-90 seconds.
+Press `Ctrl+C` to exit the watch.
+
+TIP: The model image is ~15 GB. On a 1 Gbps network, the pull alone takes 2-3 minutes. You can monitor pull progress in a separate terminal: +
+`oc get events -n llm-serving --sort-by='.lastTimestamp' -w`
+
+=== 5. Check the Model Pod Logs
+
+Once the pod is Running, verify that vLLM has loaded the model successfully:
+
+[source,console,subs="+quotes"]
+----
+$ **POD_NAME=$(oc get pods -n llm-serving -l serving.kserve.io/inferenceservice=granite-3-1-8b -o jsonpath='{.items[0].metadata.name}')**
+$ **oc logs $POD_NAME -c kserve-container -n llm-serving | tail -30**
+----
+
+Signs of a healthy startup:
+
+* `"Loading model weights..."` followed by `"Model loaded successfully"`
+* `"GPU blocks: <number>"` -- tells you how many KV cache blocks vLLM allocated. With Granite 8B on L4, expect around 1,500-1,700 blocks.
+* `"Uvicorn running on http://0.0.0.0:8080"` -- the server is ready
+
+NOTE: The model pod shows `2/2` containers: `kserve-container` (the vLLM server) and `modelcar` (the storage initializer that downloads the model). Always specify `-c kserve-container` to target the vLLM container.
+
+[%collapsible]
+.Troubleshooting: Model pod won't start
+====
+[cols="2,2,3", options="header"]
+|===
+|Symptom |Cause |Fix
+
+|`Pending` forever
+|No GPU available on any node
+|Check `oc describe node <gpu-node>` for GPU allocatable vs. allocated. Free up GPUs or add a node.
+
+|`ImagePullBackOff`
+|Can't pull the ~15 GB modelcar image
+|Check cluster internet access to `quay.io`. Verify with: `oc debug node/<node> -- chroot /host curl -sI https://quay.io`.
+
+|`CrashLoopBackOff` with `CUDA out of memory`
+|Model + KV cache exceeds L4 VRAM
+|Reduce `--max-model-len` to `2048` in inference-service.yaml, or lower `--gpu-memory-utilization` to `0.85`. Re-apply.
+
+|`OOMKilled`
+|Not enough container memory (not GPU memory)
+|Increase `resources.requests.memory` to `24Gi` in inference-service.yaml.
+
+|InferenceService stays False, no pod created
+|ServingRuntime missing or name mismatch
+|Verify `oc get servingruntimes -n llm-serving` shows the runtime. Check that the `runtime` field matches exactly.
+|===
+====
+
+== Checkpoint
+
+Before proceeding to the next exercise, verify all of the following:
+
+[cols="2,3,2", options="header"]
+|===
+|Check |How to Verify |Expected Result
+
+|HardwareProfile created
+|`oc get hardwareprofile gpu-profile -n redhat-ods-applications`
+|Profile exists
+
+|ServingRuntime created
+|`oc get servingruntimes -n llm-serving`
+|`granite-3-1-8b` exists
+
+|InferenceService ready
+|`oc get inferenceservice granite-3-1-8b -n llm-serving`
+|READY = True
+
+|Model pod running
+|`oc get pods -n llm-serving -l serving.kserve.io/inferenceservice=granite-3-1-8b`
+|1 pod, Running, 2/2
+|===

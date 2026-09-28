@@ -1,0 +1,284 @@
+= Explore PromQL in Grafana
+:navtitle: Explore PromQL
+
+== Concepts
+
+The dashboards you deployed in the previous exercise are pre-built -- each panel has a PromQL query already wired in.
+In this exercise, you use the Grafana *Explore* tab to write PromQL queries by hand.
+
+Why does this matter?
+In the xref:alerting:index.adoc[Alerting] chapter, you will define PrometheusRule CRs that contain PromQL expressions.
+If an alert fires (or fails to fire), you need to debug the PromQL directly.
+Building intuition for how gauges, counters, and histograms behave -- and how `rate()` windows affect smoothness versus responsiveness -- is essential.
+
+By the end of this exercise, you will have:
+
+* Queried gauge, counter, and histogram metrics directly in Grafana Explore
+* Understood why raw counter values are meaningless and why `rate()` is required
+* Computed latency percentiles using `histogram_quantile()`
+* Compared rate windows (`[1m]`, `[5m]`, `[15m]`) and observed the smoothness-versus-responsiveness tradeoff
+
+=== Prerequisites
+
+Before starting, confirm:
+
+* The previous two exercises are complete: Grafana is running with the datasource connected and dashboards deployed
+* You have sent at least 10 inference requests (from the previous exercise) so histogram data is available
+* If you have not sent requests recently, send a batch now to populate fresh metric data:
++
+[source,console,subs="+quotes"]
+----
+$ **POD_NAME=$(oc get pods -n llm-serving -l serving.kserve.io/inferenceservice=granite-3-1-8b -o jsonpath='{.items[0].metadata.name}')**
+$ **oc port-forward pod/$POD_NAME 8080:8080 -n llm-serving &**
+$ **for i in $(seq 1 10); do
+  curl -s http://localhost:8080/v1/completions \
+    -H "Content-Type: application/json" \
+    -d '{
+      "model": "granite-3-1-8b",
+      "prompt": "Explain topic '"$i"' in data science:",
+      "max_tokens": 256,
+      "temperature": 0.7
+    }' > /dev/null
+  echo "Request $i complete."
+done**
+----
+
+== Lab
+
+=== 1. Open Grafana Explore
+
+. In the Grafana UI, click the *Explore* icon in the left sidebar (the compass icon).
+. In the datasource dropdown (top-left), select *Prometheus - Thanos*.
+. Switch to *Code* mode by clicking the *Code* toggle in the top-right of the query editor. This gives you a raw PromQL text input instead of the visual query builder.
+. Set the time range to *Last 30 minutes* (top-right).
+
+You are now in a PromQL sandbox.
+Every query you type here runs directly against Thanos Querier -- the same endpoint your dashboards use.
+
+=== 2. Gauge Queries
+
+Gauges are the simplest metric type -- the current value is the actual measurement.
+No transformations needed.
+
+==== 2a. GPU utilization
+
+Enter this query and click *Run query*:
+
+----
+DCGM_FI_DEV_GPU_UTIL
+----
+
+This returns the current GPU compute utilization as a percentage (0-100).
+At idle, you should see a value near 0.
+This is the same metric the GPU Health dashboard's "GPU Utilization" gauge displays.
+
+Notice the labels on the result: `gpu`, `instance`, `pod`, `namespace`.
+These labels let you filter to specific GPUs in multi-GPU clusters.
+
+==== 2b. KV cache usage
+
+----
+vllm:kv_cache_usage_perc{namespace="llm-serving"}
+----
+
+This returns the fraction of vLLM's pre-allocated KV cache blocks currently in use (0.0 to 1.0).
+At idle, this should be 0 or very close to it.
+If you just finished sending requests, you may see it settling back toward 0.
+
+TIP: Gauge queries are straightforward: the value you see _is_ the value. No `rate()` or `increase()` needed. If you want the current GPU temperature, just query `DCGM_FI_DEV_GPU_TEMP`. What you see is degrees Celsius right now.
+
+=== 3. Counter Queries
+
+Counters are cumulative -- they only go up (or reset to 0 on restart).
+The raw value is the _total count since the process started_, which is rarely useful.
+You must apply `rate()` or `increase()` to extract meaningful information.
+
+==== 3a. The wrong way: raw counter
+
+Enter this query:
+
+----
+vllm:prompt_tokens_total{namespace="llm-serving"}
+----
+
+You will see a monotonically increasing line -- a staircase that goes up with every request.
+The current value might be something like `2847`.
+This tells you "2,847 prompt tokens have been processed since the vLLM pod started," which is not actionable.
+You cannot tell from this graph whether the model is busy _right now_ or was busy an hour ago.
+
+==== 3b. The right way: rate()
+
+Now apply `rate()`:
+
+----
+rate(vllm:prompt_tokens_total{namespace="llm-serving"}[5m])
+----
+
+This computes the per-second rate of change over a 5-minute sliding window.
+You should see a graph that shows _when_ prompt processing actually occurred -- spikes during your request bursts, dropping to 0 during idle periods.
+
+The difference is dramatic:
+
+* *Raw counter*: An ever-increasing number that hides timing information
+* *rate()*: A per-second rate that reveals _when_ and _how fast_ work happened
+
+WARNING: Never alert on a raw counter value. An expression like `vllm:prompt_tokens_total > 10000` fires once the counter crosses 10,000 and _stays firing forever_. Always use `rate()` or `increase()` for counter-based alerts.
+
+==== 3c. rate() vs increase()
+
+Try this alternative:
+
+----
+increase(vllm:prompt_tokens_total{namespace="llm-serving"}[5m])
+----
+
+`increase()` returns the _total increase_ over the window, not the per-second rate.
+If `rate()` returns 10 tokens/sec over a 5-minute window, `increase()` returns 10 x 300 = 3,000 tokens.
+
+* Use `rate()` when you want a _rate_: "How many tokens per second?"
+* Use `increase()` when you want a _count over a period_: "How many tokens in the last 5 minutes?"
+
+=== 4. Histogram Queries
+
+Histograms are the most complex metric type.
+They store observations in pre-defined buckets, enabling percentile calculations without storing every individual measurement.
+
+==== 4a. Compute p99 end-to-end latency
+
+Enter this query:
+
+----
+histogram_quantile(0.99, sum by(le) (rate(vllm:e2e_request_latency_seconds_bucket{namespace="llm-serving"}[5m])))
+----
+
+This is the same query the vLLM dashboard's "End-to-End Request Latency" p99 line uses.
+Break it down from the inside out:
+
+. `vllm:e2e_request_latency_seconds_bucket{namespace="llm-serving"}` -- Selects the raw histogram bucket counters. Each bucket has an `le` (less-than-or-equal) label.
+. `rate(...[5m])` -- Computes the per-second rate of observations falling into each bucket over the last 5 minutes. Required because histogram buckets are counters.
+. `sum by(le) (...)` -- Aggregates across all pods/instances, keeping only the `le` label. This is necessary for `histogram_quantile` to work.
+. `histogram_quantile(0.99, ...)` -- Estimates the 99th percentile from the bucket rates. The result is an approximation -- its accuracy depends on bucket boundaries.
+
+If you have sent requests recently, you should see a value in seconds.
+With Granite 8B and 256 tokens, expect p99 around 10-30 seconds.
+
+==== 4b. Compare p50 and p99
+
+Modify the query to compute p50 (the median):
+
+----
+histogram_quantile(0.50, sum by(le) (rate(vllm:e2e_request_latency_seconds_bucket{namespace="llm-serving"}[5m])))
+----
+
+Compare the two values.
+The gap between p50 and p99 reveals _consistency_:
+
+* *Small gap (p99 is 1.5x p50)*: Performance is consistent. Most requests experience similar latency.
+* *Large gap (p99 is 5x or 10x p50)*: Performance is inconsistent. Some requests are much slower than others -- often caused by KV cache pressure, preemptions, or queuing.
+
+TIP: To see both percentiles on the same graph, click *Add query* (the `+` button below the query editor). Enter the p50 query in query A and the p99 query in query B. Both lines appear on the same chart.
+
+==== 4c. Try TTFT percentiles
+
+Time to First Token (TTFT) measures the prefill phase -- how long users wait before text starts streaming.
+Compute p95 TTFT:
+
+----
+histogram_quantile(0.95, sum by(le) (rate(vllm:time_to_first_token_seconds_bucket{namespace="llm-serving"}[5m])))
+----
+
+TTFT is typically much shorter than E2E latency because it only measures the initial prompt processing, not the full token generation.
+With short prompts, expect p95 TTFT around 0.1-1.0 seconds.
+
+=== 5. Rate Window Comparison
+
+The `[5m]` in `rate(...[5m])` is the _lookback window_.
+It controls the tradeoff between responsiveness and smoothness.
+
+==== 5a. Set up the comparison
+
+Click *Add query* twice to create three queries (A, B, C).
+Enter these three queries:
+
+*Query A:*
+----
+rate(vllm:generation_tokens_total{namespace="llm-serving"}[1m])
+----
+
+*Query B:*
+----
+rate(vllm:generation_tokens_total{namespace="llm-serving"}[5m])
+----
+
+*Query C:*
+----
+rate(vllm:generation_tokens_total{namespace="llm-serving"}[15m])
+----
+
+Click *Run query* to display all three on the same graph.
+
+==== 5b. Observe the tradeoff
+
+Compare the three lines:
+
+* *`[1m]` (Query A)*: The most responsive. Spikes appear immediately when requests arrive and drop to zero quickly when they stop. But the line is noisy -- it jumps sharply between values because it is only averaging over 60 seconds of data.
+* *`[5m]` (Query B)*: A good balance. Shows the general trend without excessive noise. Spikes are still visible but smoother. This is the most common choice for dashboards and alerts.
+* *`[15m]` (Query C)*: The smoothest. Trends are very clear, but the line _lags_ -- it takes several minutes to reflect changes. Short bursts of activity may be averaged away entirely.
+
+==== 5c. Understand the implications
+
+The rate window matters for alerting (which you will configure in the next chapter):
+
+* *Too short (`[1m]`)*: Alerts may fire on brief spikes that resolve on their own (false positives). Use for dashboards where you want to see real-time activity.
+* *Just right (`[5m]`)*: Catches sustained issues while ignoring transient spikes. The standard choice for most alert rules.
+* *Too long (`[15m]`)*: Alerts are slow to fire, even during real incidents. Use for trend analysis and capacity planning, not for operational alerting.
+
+NOTE: The rate window must contain at least two scrape intervals worth of data. With a 30-second scrape interval, the minimum useful window is `[1m]`. A `[30s]` window would contain at most one data point and produce unreliable results.
+
+=== 6. Clean Up Port-Forwarding
+
+If you started port-forwarding earlier in this exercise:
+
+[source,console,subs="+quotes"]
+----
+$ **kill %1 2>/dev/null; pkill -f "oc port-forward" 2>/dev/null**
+----
+
+== Checkpoint
+
+[cols="2,3,2", options="header"]
+|===
+|Check |How to Verify |Expected Result
+
+|Gauge queries work
+|Query `DCGM_FI_DEV_GPU_UTIL` in Explore
+|Returns GPU utilization data
+
+|Counter rate queries work
+|Query `rate(vllm:prompt_tokens_total{namespace="llm-serving"}[5m])`
+|Shows per-second token rate (spiky, not monotonic)
+
+|Histogram percentiles work
+|Query `histogram_quantile(0.99, ...)` for E2E latency
+|Returns latency value in seconds
+
+|Rate window comparison
+|Run 3 queries with `[1m]`, `[5m]`, `[15m]` windows
+|`[1m]` is noisiest, `[15m]` is smoothest
+
+|Understand raw vs rate
+|Compare raw `prompt_tokens_total` with `rate(prompt_tokens_total[5m])`
+|Raw is monotonic staircase; rate shows activity spikes
+|===
+
+== Summary
+
+In this exercise, you built hands-on PromQL skills by querying each metric type directly:
+
+* *Gauges* -- Query directly; the value is the measurement. No transformation needed.
+* *Counters* -- Always apply `rate()` or `increase()`. Raw counter values are misleading.
+* *Histograms* -- Use `histogram_quantile()` with `rate()` inside `sum by(le)` to compute percentiles. Compare p50 and p99 to assess performance consistency.
+* *Rate windows* -- Shorter windows (`[1m]`) are responsive but noisy; longer windows (`[15m]`) are smooth but laggy. The `[5m]` window balances responsiveness and stability for most use cases.
+
+These query patterns are the foundation for the alert rules you will write next.
+In the xref:alerting:index.adoc[Alerting] chapter, you will create PrometheusRule custom resources containing PromQL expressions, run a load test to push the model to its limits, and watch alerts fire and resolve through their full lifecycle.

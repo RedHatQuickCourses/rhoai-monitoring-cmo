@@ -1,19 +1,14 @@
 site:
-  title: FIXME Course Title
-  start_page: REPLACEREPONAME::index.adoc
-
-antora:
-  extensions:
-  - require: '@antora/lunr-extension'
-    index_latest_only: true
+  title: "From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI"
+  start_page: rhoai-monitoring-cmo::index.adoc
 
 content:
   sources:
-  - url: ./
+    - url: ./
 
 asciidoc:
   extensions:
-  - '@asciidoctor/tabs'
+    - '@asciidoctor/tabs'
   attributes:
     page-pagination: true
 

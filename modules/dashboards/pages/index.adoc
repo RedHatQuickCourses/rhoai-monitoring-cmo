@@ -1,0 +1,43 @@
+= Observability Dashboards
+:navtitle: Observability Dashboards
+
+== Introduction
+
+You enabled User Workload Monitoring.
+GPU metrics are flowing.
+vLLM is exposing inference metrics.
+The natural next step is to build dashboards -- and this is where many teams go wrong.
+
+The most common mistake is the "wall of numbers" dashboard: every available metric added to a single page, arranged in a grid of line charts with no visual hierarchy.
+A GPU utilization chart sits next to a pod restart counter sits next to a histogram of request latency.
+Everything is the same size, the same color, the same priority.
+When an incident happens at 2 AM, the on-call engineer opens this dashboard and sees forty panels, all moving -- but has no idea where to look first.
+
+Good dashboards are not metric inventories.
+They are *operational tools* designed to answer specific questions in a specific order.
+This chapter teaches you how to design dashboards that are useful under pressure, how to write the PromQL queries that power them, and how to deploy them as code on OpenShift using Grafana.
+
+== What You Will Learn
+
+This chapter has three lecture sections and three hands-on exercises:
+
+*Lectures:*
+
+* xref:dashboard-design.adoc[Dashboard Design Principles] -- The USE and RED methods for choosing which metrics belong on which dashboard
+* xref:promql-fundamentals.adoc[PromQL Fundamentals] -- Three query patterns you need for every dashboard panel: gauges, rates, and histograms
+* xref:grafana-architecture.adoc[Grafana on OpenShift] -- How the Grafana Operator, ServiceAccount RBAC, and dashboard-as-code CRs fit together
+
+*Exercises:*
+
+* xref:install-grafana.adoc[Install Grafana] -- Deploy the Grafana Operator, create a Grafana instance, and connect it to the OpenShift monitoring stack
+* xref:deploy-dashboards.adoc[Deploy Dashboards] -- Apply three GrafanaDashboard CRs covering node health, GPU health, and vLLM inference
+* xref:explore-promql.adoc[Explore PromQL] -- Run live PromQL queries against your cluster to see how the dashboard panels work
+
+== Chapter Objectives
+
+By the end of this chapter, you will be able to:
+
+. Choose metrics for a dashboard using the USE method (for infrastructure) and the RED method (for services)
+. Write basic PromQL queries using three patterns: direct gauge queries, `rate()` over counters, and `histogram_quantile()` over histograms
+. Explain how the Grafana Operator, ServiceAccount RBAC, and GrafanaDashboard CRs work together on OpenShift
+. Deploy three operational dashboards as code and verify they display live data from your cluster

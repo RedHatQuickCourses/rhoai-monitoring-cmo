@@ -1,3 +1,250 @@
 = Lab Environment
+:navtitle: Lab Environment
 
-FIXME: Instructions for accessing the lab environment for this hands-on based training.
+This chapter covers provisioning your lab cluster and verifying that it meets the requirements for the course.
+
+== Ordering Your Lab on the Red Hat Demo Platform (RHDP)
+
+. *Log in* to the RHDP portal.
+.. Red Hat associates: https://demo.redhat.com/[https://demo.redhat.com/^]
+.. Red Hat partners: https://partner.demo.redhat.com/[https://partner.demo.redhat.com/^]
+. *Search* for the catalog entry: *AI Factory Training*.
++
+Direct link: https://catalog.demo.redhat.com/catalog/babylon-catalog-prod?item=babylon-catalog-prod/published.ai-factory-training.prod[AI Factory Training^]
+. On the catalog page, *click* the *Order* button.
+. *Fill out* the required details in the order form.
+.. *Activity*: `Practice/Enablement`
+.. *Purpose*: `Learning about the Product`
+.. *Cloud Provider*: `aws`
+.. *GPU instance type*: `g6.8xlarge`
+.. *Region*: Nearest available AWS region
+. Review the *IMPORTANT information* text at the bottom of the form and select the box labeled: +
+*"I confirm that I understand the above warnings."*
+. Click the *Order* button to start provisioning your lab environment.
+
+IMPORTANT: This lab can take approximately *90 minutes to 2 hours* to be provisioned.
+You will receive an email with access details after your lab environment is provisioned.
+
+=== How to Access Your Lab via the RHDP Portal
+
+. On the RHDP portal, *click* on the *Services* option in the left-hand menu.
+. *Select your lab* from the listings on the right-hand side of the page to view access details.
+. Note the following details from your lab environment:
+.. *OpenShift Console URL* — the web console URL for cluster administration
+.. *admin password* — the password for the `admin` user (cluster admin)
+.. *Bastion SSH access* — SSH host, port, and credentials for the bastion server (if available)
+
+== Cluster Specifications
+
+This course was tested on the following cluster configuration.
+If you are provisioning your own cluster outside of RHDP, match these specifications as closely as possible.
+
+=== Tested Versions
+
+[cols="2,3", options="header"]
+|===
+|Component |Version
+
+|OpenShift Container Platform
+|4.20.30
+
+|Kubernetes
+|v1.33.13
+
+|Red Hat Enterprise Linux CoreOS
+|9.6 (Plow)
+
+|CRI-O
+|1.33.13
+
+|`oc` CLI
+|4.20+
+
+|Red Hat OpenShift AI (RHOAI)
+|3.4.2
+
+|NVIDIA GPU Operator
+|25.3.4
+|===
+
+=== Node Configuration
+
+The RHDP lab environment is a single-node OpenShift cluster where the node carries the `control-plane`, `master`, and `worker` roles.
+
+[cols="2,1,1,1,1,1", options="header"]
+|===
+|Node Role |Count |vCPUs |Memory |Disk |GPU
+
+|Control-plane + worker
+|1
+|32
+|121 GiB
+|1.4 TiB
+|1x NVIDIA L4 (23 GiB VRAM)
+|===
+
+=== GPU
+
+[cols="2,3", options="header"]
+|===
+|Property |Value
+
+|GPU Model
+|NVIDIA L4
+
+|GPU Memory
+|23 GiB VRAM
+
+|CUDA Driver
+|580.x
+
+|AWS Instance Type
+|g6.8xlarge
+|===
+
+=== Storage
+
+[cols="3,3", options="header"]
+|===
+|StorageClass |Provisioner
+
+|`gp3-csi` (default)
+|`ebs.csi.aws.com`
+
+|`gp2-csi`
+|`ebs.csi.aws.com`
+|===
+
+=== Platform
+
+[cols="2,3", options="header"]
+|===
+|Property |Value
+
+|Infrastructure platform
+|AWS
+
+|Identity provider
+|Red Hat Build of Keycloak (RHBK)
+
+|Pre-installed operators
+|RHOAI 3.4.2, NVIDIA GPU Operator, Node Feature Discovery, Red Hat Serverless, Red Hat Service Mesh, Red Hat Build of Keycloak, cert-manager, OpenShift Pipelines, JobSet
+|===
+
+=== Minimum Requirements for Your Own Cluster
+
+If you do not have access to the Red Hat Demo Platform, you can provision your own cluster with the following minimum requirements:
+
+* OpenShift Container Platform 4.20+
+* *1 GPU node* with at least 16 vCPUs, 64 GiB RAM, and 1x NVIDIA L4 GPU (24 GiB VRAM) or equivalent
+* Cluster admin access via `oc`
+* Red Hat OpenShift AI (RHOAI) 3.4+ installed
+* NVIDIA GPU Operator installed and functional (DCGM Exporter pods running)
+* Persistent storage (any CSI-based StorageClass)
+
+NOTE: The Grafana Operator is *not* pre-installed.
+You will install the community Grafana Operator as part of the course exercises in xref:dashboards:install-grafana.adoc[Install Grafana].
+
+== Verifying Cluster Access
+
+Once your lab is provisioned, log in with the credentials from the RHDP email or portal:
+
+[source,console,subs="+quotes"]
+----
+$ **oc login -u admin -p <password> <OPENSHIFT_CLUSTER_API_URL>**
+Login successful.
+...
+----
+
+Verify the cluster node:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get nodes**
+NAME                         STATUS   ROLES                         AGE   VERSION
+ip-10-0-3-183.ec2.internal   Ready    control-plane,master,worker   3h    v1.33.13
+----
+
+You should see a single node with the `control-plane`, `master`, and `worker` roles.
+
+== Verifying GPU Access
+
+Verify that the GPU node is detected and the NVIDIA GPU Operator is running:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get nodes -l nvidia.com/gpu.present=true**
+NAME                         STATUS   ROLES                         AGE   VERSION
+ip-10-0-3-183.ec2.internal   Ready    control-plane,master,worker   3h    v1.33.13
+----
+
+Verify the DCGM Exporter pods are running (these expose GPU metrics that Prometheus scrapes):
+
+[source,console,subs="+quotes"]
+----
+$ **oc get pods -n nvidia-gpu-operator -l app=nvidia-dcgm-exporter**
+NAME                          READY   STATUS    RESTARTS   AGE
+nvidia-dcgm-exporter-xxxxx    1/1     Running   0          3h
+----
+
+Verify the GPU is visible to workloads:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get node -o jsonpath='{.items[0].status.capacity.nvidia\.com/gpu}'**
+1
+----
+
+== Verifying RHOAI
+
+Verify that Red Hat OpenShift AI is installed:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get csv -n redhat-ods-operator | grep rhods**
+rhods-operator.3.4.2   Red Hat OpenShift AI   3.4.2   ...   Succeeded
+----
+
+The `Succeeded` phase confirms RHOAI is installed and ready.
+
+== Required CLI Tools
+
+Ensure the following tools are installed on your workstation:
+
+* `oc` — OpenShift CLI (4.20+)
+* `curl` — for testing model inference endpoints
+* `jq` — for parsing JSON responses from APIs
+* `git` — for cloning the lab files repository
+
+== Cloning the Lab Code Repository
+
+The lab code (YAML manifests, shell scripts, and configuration files) is in a separate repository from the course content.
+
+[source,console,subs="+quotes"]
+----
+$ **git clone https://github.com/RedHatQuickCourses/genai-apps.git**
+$ **cd monitoring-cmo**
+----
+
+All exercise commands in this course assume you are in the `monitoring-cmo` directory.
+The repository is organized by chapter:
+
+[source,text]
+----
+monitoring-cmo/
+├── scripts/              # Cluster check and cleanup scripts
+├── monitoring-setup/     # UWM ConfigMaps, namespace YAML
+├── model-deploy/         # HardwareProfile, ServingRuntime, InferenceService
+├── grafana/              # Grafana Operator, instance, RBAC, datasource, dashboards
+├── alerts/               # PrometheusRule CRs, load test script
+└── challenge/            # Challenge lab setup/teardown and manifests
+----
+
+The `scripts/` directory includes a cleanup script you can use at any point if you need to start over:
+
+`bash scripts/cleanup-all.sh`::
+Removes all course resources (alerts, dashboards, Grafana, model, UWM configuration) in reverse order.
+Use this to restart the entire course from the Observability Foundations chapter.
+
+WARNING: If the cluster has existing GPU workloads running, you must remove them before continuing.
+The lab cluster has a single NVIDIA L4 GPU, and the Granite model deployment requires the full GPU.

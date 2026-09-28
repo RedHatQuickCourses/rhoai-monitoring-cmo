@@ -1,0 +1,32 @@
+= Model Deployment and Metrics
+:navtitle: Model Deployment and Metrics
+
+You open a chat interface, type a question, and hit Enter.
+There is a brief pause -- maybe a second or two -- and then text starts streaming in, word by word.
+Have you ever noticed that the pause before the first word is always longer than the gaps between subsequent words?
+That is not a UI quirk.
+That pause is the model doing fundamentally different work than the streaming that follows.
+
+Understanding that difference is the key to understanding every inference metric you will monitor in this course.
+
+In the previous chapter, you enabled User Workload Monitoring and verified that GPU hardware metrics flow into Prometheus.
+But you have no application-level metrics yet because there is no model running.
+This chapter deploys a model and completes the three-layer metrics pipeline.
+
+== What You Will Learn
+
+* xref:inference-mechanics.adoc[LLM Inference Mechanics] -- What happens inside the GPU during prefill and decode, and why the KV cache is the hidden resource bottleneck
+* xref:vllm-metrics.adoc[vLLM Metrics Catalog] -- The four categories of metrics that vLLM exposes and what each one means
+* xref:kserve-model.adoc[KServe Deployment Model] -- The three Kubernetes resources required to deploy a model on RHOAI 3.4, the auto-created ServiceMonitor, and why we chose Granite 3.1 8B
+* xref:deploy-model.adoc[Deploy the Model] -- Create the HardwareProfile, ServingRuntime, and InferenceService to deploy Granite 3.1 8B on the L4 GPU
+* xref:verify-metrics.adoc[Verify the Metrics Pipeline] -- Test the model endpoint, examine raw vLLM metrics, and confirm all three layers of observability are flowing into Prometheus
+
+== Chapter Objectives
+
+By the end of this chapter, you will be able to:
+
+* Explain the prefill and decode phases of LLM inference and how they map to TTFT and TPOT metrics
+* Describe why the KV cache limits concurrent request capacity on a memory-constrained GPU
+* Identify the four categories of vLLM metrics (latency, throughput, saturation, diagnostic) and their Prometheus types
+* Deploy a model on RHOAI 3.4 using the three-resource model (HardwareProfile, ServingRuntime, InferenceService)
+* Verify that all three layers of observability -- container, GPU, and inference metrics -- are flowing into Prometheus

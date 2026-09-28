@@ -1,0 +1,329 @@
+= Solution Walkthrough
+:navtitle: Solution Walkthrough
+
+WARNING: This page contains the complete solution. Do not read this until you have attempted the challenge on your own.
+
+== Root Cause Summary
+
+The InferenceService is deployed with two restrictive vLLM arguments that severely limit throughput:
+
+[cols="2,1,1,3", options="header"]
+|===
+|Parameter |Deployed Value |Correct Value |Effect
+
+|`--max-num-seqs`
+|`3`
+|`256` (default)
+|Only 3 requests can run concurrently; all others queue
+
+|`--gpu-memory-utilization`
+|`0.80`
+|`0.90`
+|Reduces GPU memory available for KV cache from ~5.6 GB to ~1.7 GB
+|===
+
+Students who identify and fix only `--max-num-seqs` will see improvement, but KV cache pressure becomes the new ceiling at higher concurrency.
+Both must be addressed for full resolution.
+This teaches that performance problems are often multi-layered.
+
+== Phase 1: Instrument
+
+=== Verify the Auto-Created ServiceMonitor
+
+KServe in RHOAI 3.4 auto-creates a ServiceMonitor when the InferenceService is deployed:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get servicemonitor -n llm-challenge**
+NAME                         AGE
+granite-challenge-metrics    10m
+----
+
+=== Verify Metrics Are Being Scraped
+
+Navigate to OpenShift Console > Observe > Targets and look for a target matching `llm-challenge/granite-challenge-metrics`.
+It should show state UP.
+
+Alternatively, query a vLLM metric in Observe > Metrics:
+
+----
+vllm:num_requests_running{namespace="llm-challenge"}
+----
+
+If this returns data, scraping is working.
+
+=== Understand the Two Metrics Namespaces
+
+Students should recognize from Chapter 4 that GPU and inference metrics live in different namespaces:
+
+[cols="2,2,2", options="header"]
+|===
+|Metric Source |Namespace on Metric |Where to Query
+
+|vLLM inference metrics
+|`namespace="llm-challenge"`
+|Observe > Metrics (Developer view with `llm-challenge` project)
+
+|DCGM GPU metrics
+|`namespace="nvidia-gpu-operator"`
+|Observe > Metrics (Administrator view or Developer view with `nvidia-gpu-operator` project)
+|===
+
+If students query `DCGM_FI_DEV_GPU_UTIL{namespace="llm-challenge"}`, they will get no results.
+This is the same namespace enforcement behavior from Chapter 4.
+Query GPU metrics without a namespace filter or with `namespace="nvidia-gpu-operator"`.
+
+=== Set Up Grafana (Optional)
+
+Students can reuse the Grafana instance from Chapter 3.
+It already has `cluster-monitoring-view` and sees all namespaces.
+No new Grafana RBAC is needed.
+
+Students can either use the existing dashboards (adjusting the namespace variable if available) or run ad-hoc queries in Grafana Explore or OpenShift Console Metrics.
+
+== Phase 2: Observe
+
+=== Key Queries and Expected Values Under Load
+
+[cols="2,4,2,2", options="header"]
+|===
+|Metric |Query |Expected Value |Interpretation
+
+|GPU utilization
+|`DCGM_FI_DEV_GPU_UTIL`
+|40-60%
+|Moderate -- GPU has idle capacity
+
+|GPU memory free
+|`DCGM_FI_DEV_FB_FREE`
+|~4-5 GB
+|Significant free memory not being used
+
+|Requests running
+|`vllm:num_requests_running{namespace="llm-challenge"}`
+|*Exactly 3* (never higher)
+|Hard cap -- this is the smoking gun
+
+|Requests waiting
+|`vllm:num_requests_waiting{namespace="llm-challenge"}`
+|3-5+
+|Requests queuing because only 3 can run
+
+|KV cache usage
+|`vllm:kv_cache_usage_perc{namespace="llm-challenge"}`
+|80-100%
+|KV cache is under pressure
+
+|E2E latency p95
+|`histogram_quantile(0.95, sum by(le)(rate(vllm:e2e_request_latency_seconds_bucket{namespace="llm-challenge"}[5m])))`
+|15-30s+
+|Very high due to queuing
+
+|TTFT p95
+|`histogram_quantile(0.95, sum by(le)(rate(vllm:time_to_first_token_seconds_bucket{namespace="llm-challenge"}[5m])))`
+|5-20s+
+|Includes queue wait time
+|===
+
+=== The Diagnostic Insight
+
+----
+GPU utilization at 40-60%          <-- GPU has capacity
+         BUT
+Requests waiting at 3-5+          <-- Requests are queuing
+         AND
+vllm:num_requests_running = 3     <-- Hard ceiling, never exceeds 3
+         AND
+KV cache near 100%                <-- Memory pressure
+         BUT
+GPU memory has 4-5 GB free        <-- vLLM is not using all available VRAM
+----
+
+The GPU has both compute capacity and free memory, but vLLM is artificially constrained.
+Something in the configuration is limiting concurrency and memory usage.
+
+== Phase 3: Diagnose
+
+Inspect the InferenceService configuration:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get inferenceservice granite-challenge -n llm-challenge -o yaml**
+----
+
+Look at the `args` section and compare to the Chapter 2 InferenceService:
+
+----
+# Chapter 2 (working):
+# --gpu-memory-utilization 0.90
+# (no --max-num-seqs, uses default 256)
+
+# Challenge (broken):
+# --gpu-memory-utilization 0.80    <-- 10% less GPU memory, ~4 GB less KV cache
+# --max-num-seqs 3                 <-- Hard cap at 3 concurrent sequences
+----
+
+=== Root Cause 1: `--max-num-seqs 3`
+
+This vLLM argument limits the maximum number of sequences that can be processed concurrently to 3.
+The default is 256.
+With 8 concurrent users from the load generator, 5 requests always wait in the queue.
+
+This explains Nurse Thompson's ticket: "I submitted three notes at the same time and only one started processing."
+Actually, all three would start (the cap is 3), but the fourth and beyond would queue.
+
+=== Root Cause 2: `--gpu-memory-utilization 0.80`
+
+This argument tells vLLM to use only 80% of the 24 GB GPU (19.2 GB).
+After model weights (~16 GB) and framework overhead (~1.5 GB), only ~1.7 GB remains for KV cache.
+At the correct value of 0.90 (21.6 GB), there would be ~4-5 GB for KV cache -- roughly 3x more capacity.
+
+NOTE: vLLM pre-allocates the entire KV cache pool at startup based on `--gpu-memory-utilization`. The `DCGM_FI_DEV_FB_USED` metric stays roughly constant whether the model is idle or under heavy load. The key diagnostic signal is that `DCGM_FI_DEV_FB_FREE` shows significant unused memory that vLLM was configured not to claim.
+
+== Phase 4: Fix
+
+Edit the InferenceService to remove the bottlenecks:
+
+[source,console,subs="+quotes"]
+----
+$ **oc edit inferenceservice granite-challenge -n llm-challenge**
+----
+
+In the `args` section:
+
+. Change `"0.80"` to `"0.90"` (the line after `--gpu-memory-utilization`)
+. Remove the two lines `--max-num-seqs` and `"3"`
+
+Save and exit.
+KServe will roll out a new revision automatically.
+
+Alternatively, use `oc patch`:
+
+[source,console,subs="+quotes"]
+----
+$ **oc patch inferenceservice granite-challenge -n llm-challenge --type='json' -p='[
+  {"op": "replace", "path": "/spec/predictor/model/args", "value": [
+    "--max-model-len", "4096",
+    "--dtype", "float16",
+    "--gpu-memory-utilization", "0.90",
+    "--enforce-eager"
+  ]}
+]'**
+----
+
+Wait for the new pod to be ready:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get pods -n llm-challenge -w**
+----
+
+The old pod terminates and a new one starts.
+Wait until the new pod shows `Running` with `1/1` ready.
+
+== Phase 5: Verify
+
+After the fix is applied and the new pod is running, the load generator automatically starts sending traffic to the new pod.
+Wait 2-3 minutes for metrics to accumulate, then compare:
+
+[cols="2,2,2,1", options="header"]
+|===
+|Metric |Before Fix |After Fix |Improved?
+
+|`vllm:num_requests_running`
+|Always 3
+|5-8 (matches actual demand)
+|Yes
+
+|`vllm:num_requests_waiting`
+|3-5+
+|0-1
+|Yes
+
+|`DCGM_FI_DEV_GPU_UTIL`
+|40-60%
+|70-90%
+|Yes (better utilization)
+
+|`vllm:kv_cache_usage_perc`
+|80-100%
+|40-70%
+|Yes (more headroom)
+
+|E2E latency p95
+|15-30s
+|2-5s
+|Yes
+
+|TTFT p95
+|5-20s
+|0.5-2s
+|Yes
+|===
+
+=== Mapping Back to User Complaints
+
+[cols="2,2,2", options="header"]
+|===
+|Complaint |Root Cause |After Fix
+
+|Dr. Patel: 30-45s responses
+|Queue wait + limited concurrency
+|Responses in 2-5s
+
+|Nurse Thompson: 2 of 3 requests hung
+|`--max-num-seqs 3` cap
+|All concurrent requests served
+
+|Dr. Kim: fine alone but slow during rounds
+|Concurrency limit hit under load
+|Scales to ~10 concurrent requests
+|===
+
+== Grading Rubric
+
+[cols="2,2,2,2", options="header"]
+|===
+|Criterion |Full Credit |Partial Credit |No Credit
+
+|Instrumentation
+|Auto-created ServiceMonitor verified and metrics visible in Prometheus. Student correctly queries GPU metrics from `nvidia-gpu-operator` namespace.
+|Metrics visible but student struggled with namespace scoping for GPU metrics
+|No metrics collected
+
+|Observation
+|Dashboards or PromQL queries showing GPU + inference metrics side by side with cross-layer correlation
+|Some metrics queried but not correlated across layers
+|No metrics examined
+
+|Diagnosis
+|Both `--max-num-seqs` and `--gpu-memory-utilization` identified with metric evidence
+|One of the two root causes identified
+|Root cause not found or found by reading YAML instead of metrics
+
+|Fix applied
+|InferenceService updated with new pod running with correct args
+|Fix applied but only partially (one of two issues fixed)
+|No fix attempted or model deleted and redeployed
+
+|Verification
+|Before/after metric comparison showing improvement and verified via load generator metrics (not port-forward)
+|Fix applied but no metric verification
+|No verification
+|===
+
+== Common Mistakes
+
+. *Reading the YAML first instead of using metrics.* While `oc get isvc -o yaml` reveals the bad args, it bypasses the observability skills the challenge tests. Diagnose through metrics first.
+
+. *Fixing only `--max-num-seqs` and declaring victory.* After removing the concurrency cap, performance improves significantly. But if load increases, `--gpu-memory-utilization 0.80` becomes the new bottleneck. Both issues must be addressed.
+
+. *Deleting the InferenceService and recreating from Chapter 2.* This fixes the issue but does not demonstrate diagnostic ability.
+
+. *Confusing GPU utilization with GPU memory.* GPU utilization at 40-60% might suggest the GPU is not the problem. The key is that vLLM pre-allocates KV cache memory at startup -- `DCGM_FI_DEV_FB_USED` stays constant under load. The diagnostic signal is `DCGM_FI_DEV_FB_FREE` showing unused memory that vLLM was configured not to claim.
+
+. *Not waiting for the new pod to be ready.* After editing the InferenceService, students may check metrics before the new pod finishes loading the model and see no data.
+
+. *Testing the fix via port-forward instead of using the in-cluster load generator.* As learned in Chapter 4, `oc port-forward` serializes concurrent connections. The deployed load generator runs inside the cluster and provides true concurrency.
+
+. *Querying GPU metrics with `namespace="llm-challenge"`.* DCGM metrics carry `namespace="nvidia-gpu-operator"`. This is the same namespace enforcement concept from Chapter 4.

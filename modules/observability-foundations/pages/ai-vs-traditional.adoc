@@ -1,0 +1,76 @@
+= AI vs Traditional Monitoring
+:navtitle: AI vs Traditional Monitoring
+
+== Traditional Web Application Monitoring
+
+A typical web application on OpenShift -- a Java or Python REST API backed by a database -- has well-understood performance characteristics:
+
+* *CPU-bound or I/O-bound*: The application spends its time either computing or waiting on network/disk
+* *Horizontal scaling is straightforward*: If response times climb, you add more pods. Each replica is cheap (a few hundred MB of RAM, a fraction of a CPU core)
+* *Key metrics are simple*: HTTP request rate, error rate (5xx), response time (p95/p99), CPU and memory utilization
+* *Performance is predictable*: A request that took 200ms yesterday will take roughly 200ms today (assuming similar load and data)
+* *Failure modes are well-known*: Database connection pool exhaustion, memory leaks, thread pool saturation -- all detectable with standard Kubernetes metrics
+
+The monitoring recipe you already know: Pod CPU > 80% for 5 minutes? Scale up. Error rate > 1%? Page someone. Response time p99 > 2 seconds? Investigate the database.
+
+== AI Model Serving: A Different Beast
+
+Now consider a vLLM model server running on OpenShift AI.
+Almost every assumption changes:
+
+[cols="2,3,3", options="header"]
+|===
+|Dimension |Traditional App |AI Model Serving (LLM)
+
+|*Scarce resource*
+|CPU, memory
+|GPU (10-100x more expensive per unit)
+
+|*Scaling unit*
+|A pod (~256MB RAM, 0.5 CPU)
+|A pod with a GPU (~16-80GB VRAM, $2-10/hr)
+
+|*Response time*
+|Roughly constant per endpoint
+|Varies 10-100x depending on input/output length
+
+|*Failure modes*
+|OOM, CPU throttle, DB timeout
+|GPU thermal throttle, KV cache exhaustion, request queue saturation
+
+|*Cost model*
+|Compute hours
+|Tokens processed (input + output)
+
+|*Memory pressure*
+|Application heap, container RSS
+|Model weights + KV cache (fighting for the same GPU memory)
+|===
+
+== The Critical Difference
+
+In a traditional app, if your pod is using 12% CPU and 40% memory, you can be fairly confident it is not under stress.
+
+In an AI serving workload, your pod might show 12% CPU and 40% _container_ memory -- but the GPU inside is at 98% utilization, the KV cache is full, and 15 requests are queuing.
+*Container-level metrics are blind to GPU-level reality.*
+
+NOTE: `kubectl top pod` shows CPU and container memory via the Metrics API (sourced from cAdvisor/kubelet).
+It has zero visibility into GPU utilization, GPU memory, or inference-specific metrics like token throughput.
+You need a different metrics pipeline for that, which is what this course builds.
+
+== Key Takeaway
+
+Traditional CPU utilization and HTTP response time metrics are _necessary but not sufficient_ for AI workloads.
+You need GPU-level metrics, inference-specific metrics (TTFT, throughput), and memory pressure signals (KV cache usage) to understand what is actually happening.
+
+== References
+
+=== Red Hat Documentation
+
+* https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/serving_models/serving-large-models_serving-large-models[Red Hat OpenShift AI -- Serving Large Models^]
+* https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/index[OpenShift Container Platform -- Monitoring Overview^]
+
+=== Upstream Resources
+
+* https://docs.vllm.ai/en/stable/[vLLM Documentation^]
+* https://prometheus.io/docs/introduction/overview/[Prometheus Overview^]

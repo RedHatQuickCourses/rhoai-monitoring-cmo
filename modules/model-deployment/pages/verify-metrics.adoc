@@ -1,0 +1,335 @@
+= Verify the Metrics Pipeline
+:navtitle: Verify the Metrics Pipeline
+
+== Concepts
+
+In the previous exercise you deployed Granite 3.1 8B on the L4 GPU.
+The model is running and serving inference, but you have not yet verified that its metrics are flowing into Prometheus.
+
+In this exercise, you will:
+
+* Send inference requests and verify the model generates coherent text
+* Examine the raw Prometheus metrics that vLLM exposes
+* Examine the auto-created ServiceMonitor that connects vLLM metrics to Prometheus
+* Query vLLM inference metrics from the OpenShift Console
+* Confirm all three layers of observability are operational
+
+== Lab
+
+=== 1. Test the Model Endpoint
+
+Verify that the model is serving inference before worrying about metrics.
+
+Set up port-forwarding to the model pod:
+
+[source,console,subs="+quotes"]
+----
+$ **POD_NAME=$(oc get pods -n llm-serving -l serving.kserve.io/inferenceservice=granite-3-1-8b -o jsonpath='{.items[0].metadata.name}')**
+$ **oc port-forward pod/$POD_NAME 8080:8080 -n llm-serving &**
+----
+
+NOTE: KServe RawDeployment creates a *headless* predictor service (ClusterIP: None). You cannot port-forward to the service directly -- port-forward to the pod instead.
+
+Send a test inference request:
+
+[source,console,subs="+quotes"]
+----
+$ **curl -s http://localhost:8080/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "granite-3-1-8b",
+    "prompt": "OpenShift AI is",
+    "max_tokens": 50,
+    "temperature": 0.7
+  }' | python3 -m json.tool**
+----
+
+You should see a JSON response with coherent text in the `choices[0].text` field.
+Things to notice:
+
+* `"model": "granite-3-1-8b"` -- The model name matches the InferenceService name, thanks to `--served-model-name=\{{.Name}}` in the ServingRuntime.
+* `"finish_reason": "length"` -- The model was cut off at `max_tokens` (50). It would have generated more if allowed.
+* `"prompt_tokens": 4` -- "OpenShift AI is" is 4 tokens. This is what gets processed in the prefill phase.
+* `"completion_tokens": 50` -- 50 tokens generated in the decode phase.
+
+Try a chat-style request:
+
+[source,console,subs="+quotes"]
+----
+$ **curl -s http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "granite-3-1-8b",
+    "messages": [
+      {"role": "user", "content": "What is Kubernetes? Explain in 2 sentences."}
+    ],
+    "max_tokens": 100
+  }' | python3 -m json.tool**
+----
+
+You should get a clear, well-structured answer.
+
+=== 2. Examine Raw vLLM Metrics
+
+Before connecting Prometheus, look at the raw metrics that vLLM serves.
+
+[source,console,subs="+quotes"]
+----
+$ **oc exec $POD_NAME -c kserve-container -n llm-serving -- curl -s localhost:8080/metrics | head -80**
+----
+
+You will see Prometheus-format metrics, each on a line, with optional labels in curly braces.
+
+Explore specific metric categories:
+
+==== Saturation metrics (gauges)
+
+[source,console,subs="+quotes"]
+----
+$ **oc exec $POD_NAME -c kserve-container -n llm-serving -- curl -s localhost:8080/metrics | grep -E "^vllm:(num_requests|kv_cache)" | head -10**
+----
+
+At idle (no active requests), you should see `num_requests_running` = 0, `num_requests_waiting` = 0, and `kv_cache_usage_perc` = 0.0.
+
+==== Throughput metrics (counters)
+
+[source,console,subs="+quotes"]
+----
+$ **oc exec $POD_NAME -c kserve-container -n llm-serving -- curl -s localhost:8080/metrics | grep -E "^vllm:(prompt_tokens|generation_tokens|request_success|num_preemptions)" | head -10**
+----
+
+If you have sent test requests, you should see non-zero values for `prompt_tokens_total` and `generation_tokens_total`.
+
+==== Latency metrics (histograms)
+
+[source,console,subs="+quotes"]
+----
+$ **oc exec $POD_NAME -c kserve-container -n llm-serving -- curl -s localhost:8080/metrics | grep "vllm:e2e_request_latency_seconds" | head -20**
+----
+
+You will see many lines -- one per histogram bucket.
+Each line has an `le` (less than or equal) label indicating the bucket boundary.
+The `_sum` line shows the total latency, and the `_count` line shows the total number of requests.
+
+With Granite 8B, a 50-token completion might show 2-5 seconds of E2E latency -- real, measurable inference time that makes these metrics meaningful on dashboards.
+
+==== Count total metrics
+
+[source,console,subs="+quotes"]
+----
+$ **oc exec $POD_NAME -c kserve-container -n llm-serving -- curl -s localhost:8080/metrics | grep -v "^#" | wc -l**
+----
+
+You will likely see ~400 metric lines.
+vLLM exposes a rich set of metrics -- far more than you will use in dashboards.
+The ServiceMonitor scrapes all of them; you select which ones to visualize and alert on in the xref:dashboards:index.adoc[Dashboards] and xref:alerting:index.adoc[Alerting] chapters.
+
+=== 3. Examine the Auto-Created ServiceMonitor
+
+When you deployed the InferenceService, the KServe controller automatically created a ServiceMonitor.
+
+[source,console,subs="+quotes"]
+----
+$ **oc get servicemonitor -n llm-serving**
+NAME                     AGE
+granite-3-1-8b-metrics   10m
+----
+
+Examine the ServiceMonitor YAML:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get servicemonitor granite-3-1-8b-metrics -n llm-serving -o yaml**
+----
+
+Study the key fields:
+
+* `ownerReferences` -- The InferenceService owns this ServiceMonitor. If you delete the InferenceService, the ServiceMonitor is garbage-collected automatically.
+* `selector.matchLabels` -- Selects the dedicated `granite-3-1-8b-metrics` Service that KServe also auto-created.
+* `endpoints[0].port` -- Matches by port *name*, not port number. Using a port number instead of a name would silently fail -- this is the #1 ServiceMonitor debugging gotcha.
+
+Verify the matching Service exists:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get svc -n llm-serving -l name=granite-3-1-8b-metrics**
+NAME                     TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+granite-3-1-8b-metrics   ClusterIP   172.30.x.x     <none>        8080/TCP   10m
+----
+
+Compare with the predictor Service:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get svc -n llm-serving --show-labels**
+----
+
+Notice the two services KServe created:
+
+* `granite-3-1-8b-predictor` -- Headless service (ClusterIP: None) for inference traffic
+* `granite-3-1-8b-metrics` -- ClusterIP service for Prometheus scraping
+
+The ServiceMonitor targets the metrics Service, not the predictor Service.
+This separation keeps inference traffic and monitoring traffic on different network paths.
+
+=== 4. Verify Prometheus Is Scraping
+
+After the ServiceMonitor exists, Prometheus needs 30-60 seconds to discover the new target.
+
+==== 4a. Check via the OpenShift Console
+
+. Open the *OpenShift Web Console*
+. Navigate to *Observe > Targets* (Administrator perspective)
+. In the filter/search box, type `llm-serving`
+. You should see a target with:
+* *State*: `Up` (green)
+* *Namespace*: `llm-serving`
+* *Last Scrape*: Within the last 30 seconds
+
+[%collapsible]
+.Troubleshooting: Target not appearing
+====
+* *No target at all*: The ServiceMonitor's label selector does not match any Service. Go back to step 3 and verify the matching Service exists. Wait 60 seconds and refresh.
+* *Target shows `Down` (red)*: The endpoint is unreachable. Verify the pod's port 8080 is serving metrics (step 2).
+* *UWM not running*: Verify UWM is still running: `oc get pods -n openshift-user-workload-monitoring`
+====
+
+==== 4b. Query vLLM metrics in the Console
+
+Navigate to *Observe > Metrics* and query:
+
+----
+vllm:num_requests_running{namespace="llm-serving"}
+----
+
+You should see a time series showing 0 (since no requests are active right now).
+
+Try additional queries:
+
+----
+vllm:kv_cache_usage_perc{namespace="llm-serving"}
+----
+
+Should return 0.0 or very close to it at idle.
+
+----
+vllm:prompt_tokens_total{namespace="llm-serving"}
+----
+
+Should show a small value (the tokens from your test requests in step 1).
+
+=== 5. Watch Metrics Change Under Load
+
+Open two terminal windows or tabs:
+
+*Terminal 1* -- Watch the metric: In the OpenShift Console Metrics tab, query `vllm:num_requests_running{namespace="llm-serving"}` and set the refresh to 15 seconds.
+
+*Terminal 2* -- Send a request with long output:
+
+[source,console,subs="+quotes"]
+----
+$ **curl -s http://localhost:8080/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "granite-3-1-8b",
+    "prompt": "Write a detailed essay about the history of artificial intelligence:",
+    "max_tokens": 512,
+    "temperature": 0.7
+  }' > /dev/null &**
+----
+
+With Granite 8B, a 512-token completion takes several seconds -- long enough to be visible across multiple Prometheus scrape intervals.
+Watch `vllm:num_requests_running` jump to 1, and check `vllm:kv_cache_usage_perc` -- you should see it briefly rise above 0 as the KV cache fills for this request.
+After the request completes, both metrics return to 0.
+
+=== 6. Verify All Three Layers
+
+Confirm that all three observability layers are operational.
+
+==== Layer 1: Container/Platform Metrics
+
+----
+container_cpu_usage_seconds_total{namespace="llm-serving", pod=~"granite-3-1-8b.*"}
+----
+
+Should show CPU usage for the model pod. This has always been available -- no extra setup needed.
+
+==== Layer 2: GPU Hardware Metrics
+
+----
+DCGM_FI_DEV_GPU_UTIL
+----
+
+Should show GPU utilization from the DCGM exporter (set up in Chapter 1).
+
+==== Layer 3: Application/Inference Metrics
+
+----
+vllm:kv_cache_usage_perc{namespace="llm-serving"}
+----
+
+Should show the KV cache usage from vLLM (enabled by the auto-created ServiceMonitor).
+
+All three returning data?
+You have the complete observability pipeline operational.
+In the xref:dashboards:index.adoc[Dashboards] chapter, you will build Grafana dashboards that visualize these metrics, and in the xref:alerting:index.adoc[Alerting] chapter, you will create alerts that fire when they cross dangerous thresholds.
+
+=== 7. Stop Port-Forwarding
+
+When you are done testing, stop the background port-forward:
+
+[source,console,subs="+quotes"]
+----
+$ **kill %1**
+----
+
+Or to kill all port-forwards:
+
+[source,console,subs="+quotes"]
+----
+$ **pkill -f "oc port-forward"**
+----
+
+== Checkpoint
+
+[cols="2,3,2", options="header"]
+|===
+|Check |How to Verify |Expected Result
+
+|Inference works
+|Send curl request (step 1)
+|JSON response with coherent text
+
+|Raw metrics accessible
+|`oc exec <pod> -c kserve-container -n llm-serving -- curl -s localhost:8080/metrics \| head`
+|Prometheus-format metrics
+
+|ServiceMonitor auto-created
+|`oc get servicemonitor -n llm-serving`
+|`granite-3-1-8b-metrics` exists
+
+|Prometheus target up
+|Console > Observe > Targets
+|Target shows "Up"
+
+|vLLM metrics queryable
+|Query `vllm:num_requests_running{namespace="llm-serving"}`
+|Returns data
+
+|All 3 layers working
+|Query from each layer (step 6)
+|All three return data
+|===
+
+== Summary
+
+In this chapter, you:
+
+* Learned how prefill and decode phases map to different inference metrics
+* Explored the four categories of vLLM metrics and their Prometheus types
+* Created all three resources (HardwareProfile, ServingRuntime, InferenceService) to deploy Granite 3.1 8B
+* Examined the auto-created ServiceMonitor and the metrics scraping chain
+* Verified that all three layers of observability -- container, GPU, and inference metrics -- are now flowing into Prometheus
+
+Notice what is still missing: you have all the data flowing, but no way to visualize it in meaningful dashboards or alert when something goes wrong.
+In the next chapter, you will install the Grafana Operator, connect it to Thanos Querier, and build dashboards that turn these raw metrics into actionable views.

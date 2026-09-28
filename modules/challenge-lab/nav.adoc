@@ -1,0 +1,3 @@
+* xref:index.adoc[Challenge Lab]
+** xref:challenge.adoc[Performance Investigation]
+** xref:solution.adoc[Solution Walkthrough]

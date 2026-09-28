@@ -1,0 +1,299 @@
+= Create Alert Rules
+:navtitle: Create Alert Rules
+
+== Concepts
+
+In the previous lectures you learned what makes a useful alert, how a PrometheusRule CR is structured, and how to design alerts for both GPU infrastructure and inference application metrics.
+Now you put that knowledge into practice by deploying two PrometheusRule resources that define five alert rules across two namespaces.
+
+=== Why Two PrometheusRules in Two Namespaces?
+
+OpenShift's User Workload Monitoring enforces `enforcedNamespaceLabel` -- the Thanos Ruler silently injects `namespace="<rule-namespace>"` into every PromQL selector inside a PrometheusRule.
+This means a rule can only match metrics that carry its own namespace label.
+
+* DCGM GPU metrics carry `namespace="nvidia-gpu-operator"`
+* vLLM inference metrics carry `namespace="llm-serving"`
+
+Each set of rules must live in the namespace that matches its metrics.
+A single combined PrometheusRule in `llm-serving` would silently fail to match any GPU metrics -- no errors, just rules that never fire.
+
+[cols="2,2,2,2", options="header"]
+|===
+|PrometheusRule |Namespace |Evaluator |Console Source
+
+|`inference-slo-alerts`
+|`llm-serving`
+|UWM Thanos Ruler
+|Source: User
+
+|`gpu-health-alerts`
+|`nvidia-gpu-operator`
+|Platform Prometheus
+|Source: Platform
+|===
+
+WARNING: If you put GPU alert rules in the `llm-serving` namespace, UWM injects `namespace="llm-serving"` into the expression. Since DCGM metrics have `namespace="nvidia-gpu-operator"`, the selector matches zero series and the rules stay permanently Inactive. There is no error -- the rules simply never fire.
+
+=== Prerequisites
+
+Before starting, confirm:
+
+* Chapter 3 completed: Grafana operational with all three dashboards showing data
+* The Granite 3.1 8B model is running and serving inference (`oc get inferenceservice granite-3-1-8b -n llm-serving` shows READY = True)
+* You have `edit` permissions in both the `llm-serving` and `nvidia-gpu-operator` namespaces
+* You are in the `monitoring-cmo` directory
+
+=== Lab Files
+
+----
+alerts/
+├── prometheus-rules-vllm.yaml   # Inference SLO alerts (llm-serving namespace)
+├── prometheus-rules-gpu.yaml    # GPU health alerts (nvidia-gpu-operator namespace)
+└── load-test.sh                 # In-cluster load test script (used in the next exercise)
+----
+
+== Lab
+
+=== 1. Review the PrometheusRule YAMLs
+
+Before applying, read through each alert rule and understand what it does.
+
+Review the inference SLO alerts:
+
+[source,console,subs="+quotes"]
+----
+$ **cat alerts/prometheus-rules-vllm.yaml**
+----
+
+This file defines three alert rules in the `inference-slo` group, all in the `llm-serving` namespace:
+
+* *InferenceQueueBacklog* -- Fires when more than 5 requests are waiting in the inference queue for over 1 minute. Uses the `vllm:num_requests_waiting` gauge directly.
+* *HighTTFTLatency* -- Fires when the p95 Time to First Token exceeds 1 second for over 2 minutes. Uses `histogram_quantile` over a 5-minute rate window.
+* *KVCacheHighUsage* -- Fires when the KV cache utilization exceeds 70% for over 1 minute. Uses the `vllm:kv_cache_usage_perc` gauge.
+
+Now review the GPU health alerts:
+
+[source,console,subs="+quotes"]
+----
+$ **cat alerts/prometheus-rules-gpu.yaml**
+----
+
+This file defines two alert rules in the `gpu-health` group, in the `nvidia-gpu-operator` namespace:
+
+* *HighGPUUtilization* -- Fires when GPU utilization exceeds 80% for over 2 minutes. Uses the `DCGM_FI_DEV_GPU_UTIL` gauge.
+* *GPUTemperatureHigh* -- Fires when GPU temperature exceeds 70 C for over 1 minute. A critical-severity alert for genuine hardware risk.
+
+==== Five-Alert Summary
+
+[cols="1,2,3,1,1,1,2,2", options="header"]
+|===
+|# |Alert Name |Metric |Threshold |for |Severity |Namespace |Evaluator
+
+|1
+|HighGPUUtilization
+|`DCGM_FI_DEV_GPU_UTIL`
+|> 80%
+|2m
+|warning
+|nvidia-gpu-operator
+|Platform Prometheus
+
+|2
+|GPUTemperatureHigh
+|`DCGM_FI_DEV_GPU_TEMP`
+|> 70 C
+|1m
+|critical
+|nvidia-gpu-operator
+|Platform Prometheus
+
+|3
+|InferenceQueueBacklog
+|`vllm:num_requests_waiting`
+|> 5
+|1m
+|warning
+|llm-serving
+|UWM Thanos Ruler
+
+|4
+|HighTTFTLatency
+|TTFT p95 (histogram)
+|> 1s
+|2m
+|warning
+|llm-serving
+|UWM Thanos Ruler
+
+|5
+|KVCacheHighUsage
+|`vllm:kv_cache_usage_perc`
+|> 0.7
+|1m
+|warning
+|llm-serving
+|UWM Thanos Ruler
+|===
+
+TIP: Every threshold in this table corresponds to a threshold line on the Grafana dashboards from the xref:dashboards:index.adoc[Dashboards] chapter. The 80% GPU utilization line, the 70 C temperature line, the red zone at 5 requests waiting, the 70% KV cache line, and the 1-second TTFT line all match. When an alert fires, you open the dashboard and immediately see the metric crossing the corresponding threshold line.
+
+=== 2. Apply Both PrometheusRules
+
+Apply the inference SLO alerts to the `llm-serving` namespace:
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f alerts/prometheus-rules-vllm.yaml**
+prometheusrule.monitoring.coreos.com/inference-slo-alerts created
+----
+
+Apply the GPU health alerts to the `nvidia-gpu-operator` namespace:
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f alerts/prometheus-rules-gpu.yaml**
+prometheusrule.monitoring.coreos.com/gpu-health-alerts created
+----
+
+Verify both were created:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get prometheusrule inference-slo-alerts -n llm-serving**
+NAME                   AGE
+inference-slo-alerts   5s
+----
+
+[source,console,subs="+quotes"]
+----
+$ **oc get prometheusrule gpu-health-alerts -n nvidia-gpu-operator**
+NAME                 AGE
+gpu-health-alerts    3s
+----
+
+NOTE: GPU rules go in `nvidia-gpu-operator` because that namespace has the label `openshift.io/cluster-monitoring=true`. PrometheusRules in this namespace are evaluated by the *platform Prometheus* instance -- not UWM Thanos Ruler. Since DCGM metrics are scraped by platform Prometheus and carry `namespace="nvidia-gpu-operator"`, this is the only namespace where GPU alert rules can match their metrics.
+
+=== 3. Verify Rules Appear in the OpenShift Console
+
+. Open the *OpenShift Web Console*.
+. Switch to the *Administrator* perspective.
+. Navigate to *Observe > Alerting*.
+. Click on the *Alerting Rules* tab.
+. In the filter/search box, type `GPU` to find GPU health rules, then `Inference` or `KV` to find inference SLO rules.
+
+All 5 rules should appear, organized under two groups:
+
+* `gpu-health` (Source: Platform) -- HighGPUUtilization, GPUTemperatureHigh
+* `inference-slo` (Source: User) -- InferenceQueueBacklog, HighTTFTLatency, KVCacheHighUsage
+
+Click on any rule to see its details -- the expression, `for` duration, labels, and annotations.
+
+IMPORTANT: Notice the *Source* column. GPU health rules show *Source: Platform* because they are in the `nvidia-gpu-operator` namespace (evaluated by platform Prometheus). Inference SLO rules show *Source: User* because they are in `llm-serving` (evaluated by UWM Thanos Ruler). This confirms your rules are being evaluated by the correct Prometheus instance.
+
+=== 4. Verify All Rules Are Inactive
+
+. Switch to the *Alerts* tab (not Alerting Rules).
+. Change the filter to *All* if inactive alerts are hidden by default.
+. Search for your custom alert names.
+
+All alerts should show *Inactive* state.
+This is expected -- the model is idle, so no thresholds are being crossed.
+
+[%collapsible]
+.Troubleshooting: Rules not appearing in the Console
+====
+If your rules do not appear within 60 seconds:
+
+. Verify both PrometheusRules were created correctly:
++
+[source,console,subs="+quotes"]
+----
+$ **oc get prometheusrule inference-slo-alerts -n llm-serving -o yaml | head -20**
+$ **oc get prometheusrule gpu-health-alerts -n nvidia-gpu-operator -o yaml | head -20**
+----
+
+. Check that UWM Thanos Ruler is running (evaluates `llm-serving` rules):
++
+[source,console,subs="+quotes"]
+----
+$ **oc get pods -n openshift-user-workload-monitoring -l app.kubernetes.io/name=thanos-ruler**
+----
++
+If `thanos-ruler-user-workload-0` is not Running, inference SLO rules will not be evaluated.
+
+. Check that platform Prometheus is running (evaluates `nvidia-gpu-operator` rules):
++
+[source,console,subs="+quotes"]
+----
+$ **oc get pods -n openshift-monitoring -l app.kubernetes.io/name=prometheus**
+----
+
+. Check for YAML syntax errors:
++
+[source,console,subs="+quotes"]
+----
+$ **oc get events -n openshift-user-workload-monitoring --sort-by='.lastTimestamp' | tail -10**
+----
+
+. Verify the PromQL expressions are valid by pasting them into *Observe > Metrics* and running them. If an expression has a syntax error, it will fail there too.
+
+[cols="2,2,3", options="header"]
+|===
+|Symptom |Cause |Fix
+
+|Inference SLO rules not appearing
+|PrometheusRule not reconciled by UWM
+|Verify YAML: `oc get prometheusrule inference-slo-alerts -n llm-serving -o yaml`. Check for syntax errors. Confirm Thanos Ruler is running.
+
+|GPU health rules not appearing
+|PrometheusRule not reconciled by platform Prometheus
+|Verify YAML: `oc get prometheusrule gpu-health-alerts -n nvidia-gpu-operator -o yaml`. Check that `nvidia-gpu-operator` has `openshift.io/cluster-monitoring=true` label.
+
+|Rules exist but stay Inactive during load
+|Expression does not match actual metrics
+|Paste the `expr` into Observe > Metrics and run it during load. Does it return data? Check the `vllm:` prefix on metric names.
+
+|Only GPU rules work; inference SLO rules do not
+|vLLM ServiceMonitor not scraping
+|Check: `oc get servicemonitor -n llm-serving` (should show `granite-3-1-8b-metrics`) and verify metrics with `vllm:kv_cache_usage_perc{namespace="llm-serving"}` in Observe > Metrics.
+|===
+====
+
+== Checkpoint
+
+[cols="2,3,2", options="header"]
+|===
+|Check |How to Verify |Expected Result
+
+|vLLM PrometheusRule created
+|`oc get prometheusrule -n llm-serving`
+|`inference-slo-alerts` exists
+
+|GPU PrometheusRule created
+|`oc get prometheusrule -n nvidia-gpu-operator`
+|`gpu-health-alerts` exists
+
+|Inference SLO rules visible
+|Observe > Alerting > Alerting Rules
+|InferenceQueueBacklog, HighTTFTLatency, KVCacheHighUsage listed (Source: User)
+
+|GPU health rules visible
+|Observe > Alerting > Alerting Rules
+|HighGPUUtilization, GPUTemperatureHigh listed (Source: Platform)
+
+|All rules initially Inactive
+|Observe > Alerting > Alerts (filter: All)
+|All 5 alerts show Inactive
+|===
+
+== Summary
+
+In this exercise, you:
+
+* Reviewed two PrometheusRule YAMLs containing five alert rules covering GPU health and inference SLOs
+* Understood why namespace enforcement requires GPU rules in `nvidia-gpu-operator` and vLLM rules in `llm-serving`
+* Applied both PrometheusRules and verified they were created in the correct namespaces
+* Confirmed all five rules appear in the OpenShift Console Alerting UI with the correct Source designation (Platform vs User)
+* Verified all alerts are Inactive before any load is applied
+
+In the next exercise, you will generate concurrent load against the model and watch these alerts transition through the full lifecycle in real time.

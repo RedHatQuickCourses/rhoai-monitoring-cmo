@@ -1,0 +1,352 @@
+= Install and Connect Grafana
+:navtitle: Install Grafana
+
+== Concepts
+
+In the previous lectures you learned why the built-in OpenShift Console metrics tab is not enough for production observability -- it lacks templated variables, multi-panel layouts, gauges, and heatmaps.
+In this lab you install the community Grafana Operator, deploy a Grafana instance, create the RBAC resources that let Grafana authenticate with Thanos Querier, and connect the datasource.
+
+By the end of this lab, you will have:
+
+* Installed the Grafana Operator from OperatorHub
+* Deployed a Grafana instance with a TLS-secured Route
+* Created a ServiceAccount with `cluster-monitoring-view` permissions
+* Connected Grafana to Thanos Querier as a Prometheus datasource
+* Verified end-to-end connectivity with a live metric query
+
+=== Prerequisites
+
+Before starting, confirm:
+
+* Chapters 1 and 2 completed: UWM enabled, Granite 3.1 8B deployed, all three metric layers verified
+* You are logged in with cluster-admin privileges
+* You are in the `monitoring-cmo` directory
+
+=== Lab Files
+
+----
+grafana/
+├── grafana-subscription.yaml   # OperatorGroup + Subscription
+├── grafana-instance.yaml       # Grafana CR (instance, route, credentials)
+├── grafana-sa-rbac.yaml        # ServiceAccount + Secret + ClusterRoleBinding
+└── grafana-datasource.yaml     # GrafanaDatasource CR (Thanos Querier)
+----
+
+== Lab
+
+=== 1. Install the Grafana Operator
+
+==== 1a. Review the subscription manifest
+
+[source,console,subs="+quotes"]
+----
+$ **cat grafana/grafana-subscription.yaml**
+----
+
+This file contains two resources:
+
+* *OperatorGroup* -- Allows OLM to install the operator in the `llm-serving` namespace. The `targetNamespaces` field scopes the operator to watch only this namespace.
+* *Subscription* -- Subscribes to the `grafana-operator` package from the `community-operators` catalog on the `v5` channel. This installs Grafana Operator v5, which uses the `grafana.integreatly.org/v1beta1` API group.
+
+NOTE: The Grafana Operator is a community operator, not a Red Hat-supported product. It is widely used in OpenShift environments and is the standard way to manage Grafana instances declaratively.
+
+==== 1b. Apply the subscription
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f grafana/grafana-subscription.yaml**
+operatorgroup.operators.coreos.com/grafana-operatorgroup created
+subscription.operators.coreos.com/grafana-operator created
+----
+
+==== 1c. Wait for the ClusterServiceVersion to succeed
+
+The Operator Lifecycle Manager (OLM) processes the Subscription and creates a ClusterServiceVersion (CSV).
+Wait for the CSV to reach `Succeeded`:
+
+[source,console,subs="+quotes"]
+----
+$ **oc get csv -n llm-serving -w**
+NAME                        DISPLAY            VERSION   REPLACES                    PHASE
+grafana-operator.v5.x.x     Grafana Operator   5.x.x    grafana-operator.v5.x.x     Succeeded
+----
+
+Wait until the `PHASE` column shows `Succeeded`, then press `Ctrl+C`.
+This typically takes 30-90 seconds.
+
+==== 1d. Verify the operator pod is running
+
+[source,console,subs="+quotes"]
+----
+$ **oc get pods -n llm-serving -l app.kubernetes.io/name=grafana-operator**
+NAME                                READY   STATUS    RESTARTS   AGE
+grafana-operator-xxxxxxxxx-xxxxx    1/1     Running   0          60s
+----
+
+[%collapsible]
+.Troubleshooting: CSV stuck in Pending or InstallReady
+====
+If the CSV does not reach `Succeeded` after 2 minutes:
+
+. Check the InstallPlan:
++
+[source,console,subs="+quotes"]
+----
+$ **oc get installplan -n llm-serving**
+----
++
+If the InstallPlan shows `requiresApproval: true`, approve it manually:
++
+[source,console,subs="+quotes"]
+----
+$ **oc patch installplan <installplan-name> -n llm-serving --type merge -p '{"spec": {"approved": true}}'**
+----
+
+. Check for OperatorGroup conflicts:
++
+[source,console,subs="+quotes"]
+----
+$ **oc get operatorgroup -n llm-serving**
+----
++
+If there is more than one OperatorGroup in the namespace, OLM will refuse to install.
+Delete any extra OperatorGroups.
+
+. Check the OLM operator logs:
++
+[source,console,subs="+quotes"]
+----
+$ **oc logs -n openshift-operator-lifecycle-manager deployment/olm-operator --tail=30**
+----
+====
+
+=== 2. Deploy the Grafana Instance
+
+==== 2a. Review the instance manifest
+
+[source,console,subs="+quotes"]
+----
+$ **cat grafana/grafana-instance.yaml**
+----
+
+Key fields:
+
+* `labels.dashboards: grafana` -- The instance selector label. Datasources and dashboards use this label to target this specific Grafana instance.
+* `route.spec.tls.termination: edge` -- Creates an OpenShift Route with TLS termination at the router. Grafana is accessible via HTTPS.
+* `security.admin_user: admin` and `security.admin_password: redhat` -- Built-in admin credentials for this lab. In production, use OpenShift OAuth or an external identity provider.
+* `image: docker.io/grafana/grafana:11.4.0` -- Pins a specific Grafana version for reproducibility.
+
+==== 2b. Apply the Grafana instance
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f grafana/grafana-instance.yaml**
+grafana.grafana.integreatly.org/grafana created
+----
+
+==== 2c. Wait for the Grafana pod to start
+
+[source,console,subs="+quotes"]
+----
+$ **oc get pods -n llm-serving -l app=grafana -w**
+NAME                              READY   STATUS    RESTARTS   AGE
+grafana-deployment-xxxxx-xxxxx    1/1     Running   0          30s
+----
+
+Wait until the pod shows `Running` with `1/1` ready, then press `Ctrl+C`.
+
+==== 2d. Get the Grafana Route URL
+
+[source,console,subs="+quotes"]
+----
+$ **oc get route -n llm-serving -l app=grafana -o jsonpath='{.items[0].spec.host}{"\n"}'**
+grafana-route-llm-serving.apps.<cluster-domain>
+----
+
+==== 2e. Log in to Grafana
+
+. Open the Route URL in your browser (use `https://`).
+. Accept the self-signed certificate warning if prompted.
+. Log in with username `admin` and password `redhat`.
+. You should see the Grafana home page with no datasources or dashboards yet.
+
+TIP: You can also open Grafana directly from the terminal: +
+`open "https://$(oc get route -n llm-serving -l app=grafana -o jsonpath='{.items[0].spec.host}')"`
+
+=== 3. Create RBAC for Metrics Access
+
+Grafana needs a bearer token to authenticate with Thanos Querier.
+This step creates a dedicated ServiceAccount with read-only access to all cluster metrics.
+
+==== 3a. Review the RBAC manifest
+
+[source,console,subs="+quotes"]
+----
+$ **cat grafana/grafana-sa-rbac.yaml**
+----
+
+This file creates three resources:
+
+* *ServiceAccount `grafana-sa`* -- A dedicated identity for the Grafana datasource. Separate from the Grafana pod's own ServiceAccount so permissions are independently controlled.
+* *Secret `grafana-sa-token`* -- A long-lived token Secret. In OpenShift 4.x (Kubernetes 1.24+), ServiceAccounts no longer get auto-generated long-lived tokens, so you must create one explicitly with the `kubernetes.io/service-account-token` type and the `kubernetes.io/service-account.name` annotation.
+* *ClusterRoleBinding `grafana-cluster-monitoring-view`* -- Binds the built-in `cluster-monitoring-view` ClusterRole to the ServiceAccount. This grants read-only access to _all_ metrics in both platform and UWM Prometheus -- necessary because you need DCGM metrics from `nvidia-gpu-operator` and vLLM metrics from `llm-serving`.
+
+==== 3b. Apply the RBAC resources
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f grafana/grafana-sa-rbac.yaml**
+serviceaccount/grafana-sa created
+secret/grafana-sa-token created
+clusterrolebinding.rbac.authorization.k8s.io/grafana-cluster-monitoring-view created
+----
+
+==== 3c. Verify the token was generated
+
+The token controller automatically populates the Secret's `data.token` field.
+Verify that a token exists (the first few characters are enough):
+
+[source,console,subs="+quotes"]
+----
+$ **oc get secret grafana-sa-token -n llm-serving -o jsonpath='{.data.token}' | base64 --decode | head -c 40**
+eyJhbGciOiJSUzI1NiIsImtpZCI6Ik...
+----
+
+If you see a JWT-format string starting with `eyJ`, the token was generated successfully.
+
+==== 3d. Verify the ClusterRoleBinding
+
+[source,console,subs="+quotes"]
+----
+$ **oc get clusterrolebinding grafana-cluster-monitoring-view**
+NAME                              ROLE                                        AGE
+grafana-cluster-monitoring-view   ClusterRole/cluster-monitoring-view         10s
+----
+
+=== 4. Connect the Datasource
+
+==== 4a. Review the datasource manifest
+
+[source,console,subs="+quotes"]
+----
+$ **cat grafana/grafana-datasource.yaml**
+----
+
+Key fields:
+
+* `instanceSelector.matchLabels.dashboards: grafana` -- Targets the Grafana instance you created in step 2 (matching the `dashboards: grafana` label).
+* `url: \https://thanos-querier.openshift-monitoring.svc.cluster.local:9091` -- The in-cluster Thanos Querier endpoint. This provides a unified query interface for both platform Prometheus (DCGM, node metrics) and UWM Prometheus (vLLM metrics).
+* `type: prometheus` -- Thanos Querier exposes a Prometheus-compatible API, so Grafana treats it as a standard Prometheus datasource.
+* `httpHeaderName1: Authorization` -- Sends the bearer token as an HTTP Authorization header on every query request.
+* `valuesFrom` -- References the `grafana-sa-token` Secret. The Grafana Operator reads the token from the Secret and injects it into the datasource configuration. You do not hardcode the token in the YAML.
+* `tlsSkipVerify: true` -- Skips TLS certificate verification for the intra-cluster connection. Acceptable for a lab; in production, mount the cluster CA bundle instead.
+* `isDefault: true` -- Makes this the default datasource for all dashboards.
+* `timeInterval: 30s` -- Matches Prometheus' scrape interval, preventing Grafana from requesting data at a higher resolution than what exists.
+
+==== 4b. Apply the datasource
+
+[source,console,subs="+quotes"]
+----
+$ **oc apply -f grafana/grafana-datasource.yaml**
+grafanadatasource.grafana.integreatly.org/thanos-querier created
+----
+
+==== 4c. Test the datasource in Grafana
+
+. In the Grafana UI, navigate to *Connections > Data sources* (or use the left sidebar menu icon).
+. Click on *Prometheus - Thanos*.
+. Scroll to the bottom and click *Save & test*.
+. You should see a green banner: *"Successfully queried the Prometheus API."*
+
+[%collapsible]
+.Troubleshooting: Datasource test failures
+====
+[cols="2,2,3", options="header"]
+|===
+|Error |Cause |Fix
+
+|`401 Unauthorized`
+|Token is missing or malformed
+|Verify the Secret exists and has a token: +
+`oc get secret grafana-sa-token -n llm-serving -o jsonpath='{.data.token}' \| base64 --decode \| head -c 40` +
+If empty, delete and recreate the Secret.
+
+|`403 Forbidden`
+|ServiceAccount lacks the `cluster-monitoring-view` role
+|Verify the ClusterRoleBinding: +
+`oc get clusterrolebinding grafana-cluster-monitoring-view -o yaml` +
+Check that the subject references `grafana-sa` in `llm-serving`.
+
+|`Connection refused`
+|Thanos Querier is not running or the URL is wrong
+|Verify Thanos Querier pods: +
+`oc get pods -n openshift-monitoring -l app.kubernetes.io/name=thanos-query` +
+All pods should be Running.
+
+|`x509: certificate signed by unknown authority`
+|`tlsSkipVerify` is not set or not taking effect
+|Re-apply the datasource YAML. Verify the GrafanaDatasource CR has `tlsSkipVerify: true` in `jsonData`.
+
+|`Data source is not working: 502 Bad Gateway`
+|Grafana pod cannot reach `openshift-monitoring` namespace
+|Check network policies: +
+`oc get networkpolicy -n openshift-monitoring`
+|===
+====
+
+==== 4d. Run a test query
+
+Verify that Grafana can actually retrieve metrics:
+
+. In the Grafana UI, navigate to *Explore* (compass icon in the left sidebar).
+. Select *Prometheus - Thanos* as the datasource (top-left dropdown).
+. Switch to *Code* mode (toggle in the top-right of the query editor).
+. Enter the following query:
++
+----
+DCGM_FI_DEV_GPU_UTIL
+----
+. Click *Run query*.
+
+You should see a graph showing GPU utilization data.
+If the model is idle, the value will be near 0%.
+This confirms the complete pipeline: Grafana authenticates with Thanos Querier using the ServiceAccount token, Thanos queries platform Prometheus, and the DCGM metric data flows back to the Grafana panel.
+
+== Checkpoint
+
+[cols="2,3,2", options="header"]
+|===
+|Check |How to Verify |Expected Result
+
+|Grafana Operator installed
+|`oc get csv -n llm-serving`
+|Phase = Succeeded
+
+|Operator pod running
+|`oc get pods -n llm-serving -l app.kubernetes.io/name=grafana-operator`
+|1 pod Running
+
+|Grafana instance running
+|`oc get pods -n llm-serving -l app=grafana`
+|1 pod Running, 1/1
+
+|Route accessible
+|Open Route URL in browser
+|Grafana login page loads
+
+|RBAC configured
+|`oc get clusterrolebinding grafana-cluster-monitoring-view`
+|Binding exists
+
+|Token generated
+|`oc get secret grafana-sa-token -n llm-serving -o jsonpath='{.data.token}' \| base64 --decode \| head -c 20`
+|Returns JWT string
+
+|Datasource connected
+|Grafana UI > Data sources > Save & test
+|"Successfully queried the Prometheus API."
+
+|Test query works
+|Grafana Explore: `DCGM_FI_DEV_GPU_UTIL`
+|Returns GPU utilization data
+|===

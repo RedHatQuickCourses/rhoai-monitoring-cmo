@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" font-family="Red Hat Display, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="10" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#4a4a4a"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="10" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#3e8635"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="10" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#c9190b"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="450" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#151515">Alert Lifecycle: State Transitions</text>
+
+  <!-- State boxes -->
+  <!-- Inactive -->
+  <rect x="30" y="80" width="160" height="80" rx="8" fill="#f0f0f0" stroke="#6a6e73" stroke-width="2"/>
+  <text x="110" y="112" text-anchor="middle" font-size="16" font-weight="700" fill="#151515">Inactive</text>
+  <text x="110" y="134" text-anchor="middle" font-size="11" fill="#6a6e73">Expression = false</text>
+  <text x="110" y="148" text-anchor="middle" font-size="11" fill="#6a6e73">No alert active</text>
+
+  <!-- Pending -->
+  <rect x="270" y="80" width="160" height="80" rx="8" fill="#fdf7e7" stroke="#f0ab00" stroke-width="2"/>
+  <text x="350" y="112" text-anchor="middle" font-size="16" font-weight="700" fill="#795600">Pending</text>
+  <text x="350" y="134" text-anchor="middle" font-size="11" fill="#795600">Expression = true</text>
+  <text x="350" y="148" text-anchor="middle" font-size="11" fill="#795600">`for` not elapsed</text>
+
+  <!-- Firing -->
+  <rect x="510" y="80" width="160" height="80" rx="8" fill="#faeae8" stroke="#c9190b" stroke-width="2"/>
+  <text x="590" y="112" text-anchor="middle" font-size="16" font-weight="700" fill="#a30000">Firing</text>
+  <text x="590" y="134" text-anchor="middle" font-size="11" fill="#a30000">Expression = true</text>
+  <text x="590" y="148" text-anchor="middle" font-size="11" fill="#a30000">`for` elapsed → notify</text>
+
+  <!-- Resolved -->
+  <rect x="710" y="80" width="160" height="80" rx="8" fill="#e7f1e8" stroke="#3e8635" stroke-width="2"/>
+  <text x="790" y="112" text-anchor="middle" font-size="16" font-weight="700" fill="#1e4f18">Resolved</text>
+  <text x="790" y="134" text-anchor="middle" font-size="11" fill="#1e4f18">Expression = false</text>
+  <text x="790" y="148" text-anchor="middle" font-size="11" fill="#1e4f18">After firing</text>
+
+  <!-- Forward arrows -->
+  <!-- Inactive → Pending -->
+  <line x1="190" y1="120" x2="268" y2="120" stroke="#4a4a4a" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="229" y="112" text-anchor="middle" font-size="10" fill="#4a4a4a">expr</text>
+  <text x="229" y="124" text-anchor="middle" font-size="10" fill="#4a4a4a">= true</text>
+
+  <!-- Pending → Firing -->
+  <line x1="430" y1="120" x2="508" y2="120" stroke="#c9190b" stroke-width="2" marker-end="url(#arrow-red)"/>
+  <text x="469" y="112" text-anchor="middle" font-size="10" fill="#c9190b">`for`</text>
+  <text x="469" y="124" text-anchor="middle" font-size="10" fill="#c9190b">elapsed</text>
+
+  <!-- Firing → Resolved -->
+  <line x1="670" y1="120" x2="708" y2="120" stroke="#3e8635" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="689" y="110" text-anchor="middle" font-size="10" fill="#3e8635">expr</text>
+  <text x="689" y="122" text-anchor="middle" font-size="10" fill="#3e8635">= false</text>
+
+  <!-- Return arrows -->
+  <!-- Pending → Inactive (condition clears before for duration) -->
+  <path d="M 350 160 Q 350 200, 230 200 Q 110 200, 110 160" fill="none" stroke="#3e8635" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow-green)"/>
+  <text x="230" y="218" text-anchor="middle" font-size="10" fill="#3e8635">Condition clears before `for` duration</text>
+
+  <!-- Resolved → Inactive -->
+  <path d="M 790 160 Q 790 270, 450 270 Q 110 270, 110 160" fill="none" stroke="#6a6e73" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow)"/>
+  <text x="450" y="288" text-anchor="middle" font-size="10" fill="#6a6e73">Returns to baseline</text>
+
+  <!-- Legend -->
+  <rect x="30" y="300" width="12" height="3" fill="#4a4a4a"/>
+  <text x="48" y="305" font-size="10" fill="#6a6e73">Transition</text>
+  <rect x="120" y="300" width="12" height="3" fill="#6a6e73" stroke-dasharray="4,2"/>
+  <line x1="120" y1="301" x2="132" y2="301" stroke="#6a6e73" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="140" y="305" font-size="10" fill="#6a6e73">Return</text>
+</svg>

@@ -1,0 +1,7 @@
+* xref:index.adoc[Observability Dashboards]
+** xref:dashboard-design.adoc[Dashboard Design Principles]
+** xref:promql-fundamentals.adoc[PromQL Fundamentals]
+** xref:grafana-architecture.adoc[Grafana on OpenShift]
+** xref:install-grafana.adoc[Install Grafana]
+** xref:deploy-dashboards.adoc[Deploy Dashboards]
+** xref:explore-promql.adoc[Explore PromQL]

@@ -1,0 +1,37 @@
+= Observability Foundations
+:navtitle: Observability Foundations
+
+== Introduction
+
+Imagine you are an AI platform engineer.
+Your team deployed a large language model on OpenShift AI to power an internal chatbot.
+On Monday morning, users start complaining: "The chatbot is really slow today."
+Your manager asks: "Is it the model? The GPU? The network? Are we getting more traffic than usual?"
+
+You open the OpenShift console and see the pod is Running, CPU usage is 12%, memory looks fine.
+Everything looks green.
+But users are still waiting 30 seconds for a response.
+
+The answer is that *traditional Kubernetes metrics cannot tell you what is happening inside an AI inference workload*.
+The pod is running, but the GPU's KV cache is full, requests are queuing, and the model is bottlenecked on GPU memory.
+You would never know this from `cpu_usage` and `memory_working_set`.
+
+This is why AI model serving requires a different observability strategy -- and that is what this course is about.
+
+== What You Will Learn
+
+This chapter establishes the foundational concepts that every subsequent chapter builds on:
+
+* xref:ai-vs-traditional.adoc[AI vs Traditional Monitoring] -- Why AI model serving workloads need different monitoring than traditional web applications
+* xref:three-layers.adoc[Three Layers of Observability] -- A mental model for understanding the three layers of metrics you need for AI serving
+* xref:monitoring-stack.adoc[OpenShift Monitoring Stack] -- How Prometheus, Thanos Querier, ServiceMonitors, and DCGM Exporter work together
+* xref:enable-uwm.adoc[Enable User Workload Monitoring] -- Hands-on lab to enable UWM and verify metrics are flowing
+
+== Chapter Objectives
+
+By the end of this chapter, you will be able to:
+
+. Explain why container-level metrics (CPU, memory) are insufficient for AI model serving workloads
+. Describe the three layers of AI serving observability and what each layer reveals
+. Explain the role of Prometheus, Thanos Querier, ServiceMonitors, and DCGM Exporter in the OpenShift monitoring stack
+. Enable User Workload Monitoring and verify that GPU metrics are queryable from the OpenShift Console

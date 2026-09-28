@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" font-family="Red Hat Display, Helvetica, Arial, sans-serif">
+  <!-- Title -->
+  <text x="450" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#151515">Alert Severity Levels for AI Serving</text>
+
+  <!-- Column headers -->
+  <text x="120" y="65" text-anchor="middle" font-size="13" font-weight="700" fill="#6a6e73">SEVERITY</text>
+  <text x="370" y="65" text-anchor="middle" font-size="13" font-weight="700" fill="#6a6e73">RESPONSE</text>
+  <text x="700" y="65" text-anchor="middle" font-size="13" font-weight="700" fill="#6a6e73">AI SERVING EXAMPLES</text>
+
+  <!-- Separator -->
+  <line x1="30" y1="75" x2="870" y2="75" stroke="#d2d2d2" stroke-width="1"/>
+
+  <!-- Critical row -->
+  <rect x="30" y="85" width="180" height="90" rx="6" fill="#faeae8" stroke="#c9190b" stroke-width="2"/>
+  <circle cx="60" cy="120" r="14" fill="#c9190b"/>
+  <text x="60" y="125" text-anchor="middle" font-size="14" font-weight="700" fill="white">!</text>
+  <text x="130" y="118" text-anchor="middle" font-size="15" font-weight="700" fill="#a30000">Critical</text>
+  <text x="130" y="138" text-anchor="middle" font-size="11" fill="#a30000">Immediate risk</text>
+  <text x="130" y="155" text-anchor="middle" font-size="11" fill="#a30000">Hardware damage</text>
+  <text x="130" y="168" text-anchor="middle" font-size="11" fill="#a30000">or service outage</text>
+
+  <rect x="230" y="85" width="280" height="90" rx="6" fill="#faeae8" stroke="#c9190b" stroke-width="1"/>
+  <text x="370" y="115" text-anchor="middle" font-size="12" font-weight="600" fill="#a30000">Investigate immediately</text>
+  <text x="370" y="135" text-anchor="middle" font-size="11" fill="#a30000">Even outside business hours</text>
+  <text x="370" y="155" text-anchor="middle" font-size="11" fill="#6a6e73">Pages oncall engineer</text>
+
+  <rect x="530" y="85" width="340" height="90" rx="6" fill="white" stroke="#d2d2d2" stroke-width="1"/>
+  <text x="545" y="110" font-size="11" fill="#151515">• GPU temperature > 70°C sustained</text>
+  <text x="545" y="130" font-size="11" fill="#151515">• GPU framebuffer memory exhausted</text>
+  <text x="545" y="150" font-size="11" fill="#6a6e73">  Thermal throttling or OOM crash</text>
+  <text x="545" y="168" font-size="11" fill="#6a6e73">  immediate — cannot self-heal</text>
+
+  <!-- Warning row -->
+  <rect x="30" y="190" width="180" height="90" rx="6" fill="#fdf7e7" stroke="#f0ab00" stroke-width="2"/>
+  <circle cx="60" cy="225" r="14" fill="#f0ab00"/>
+  <text x="60" y="230" text-anchor="middle" font-size="14" font-weight="700" fill="white">⚠</text>
+  <text x="130" y="223" text-anchor="middle" font-size="15" font-weight="700" fill="#795600">Warning</text>
+  <text x="130" y="243" text-anchor="middle" font-size="11" fill="#795600">Degraded state</text>
+  <text x="130" y="260" text-anchor="middle" font-size="11" fill="#795600">May worsen if</text>
+  <text x="130" y="273" text-anchor="middle" font-size="11" fill="#795600">not addressed</text>
+
+  <rect x="230" y="190" width="280" height="90" rx="6" fill="#fdf7e7" stroke="#f0ab00" stroke-width="1"/>
+  <text x="370" y="220" text-anchor="middle" font-size="12" font-weight="600" fill="#795600">Investigate within business hours</text>
+  <text x="370" y="240" text-anchor="middle" font-size="11" fill="#795600">Before the next shift</text>
+  <text x="370" y="260" text-anchor="middle" font-size="11" fill="#6a6e73">Creates a ticket or Slack notification</text>
+
+  <rect x="530" y="190" width="340" height="90" rx="6" fill="white" stroke="#d2d2d2" stroke-width="1"/>
+  <text x="545" y="215" font-size="11" fill="#151515">• GPU utilization > 80% for 2m</text>
+  <text x="545" y="235" font-size="11" fill="#151515">• TTFT p95 > 1s (latency SLO breach)</text>
+  <text x="545" y="255" font-size="11" fill="#151515">• Queue backlog > 5 requests for 1m</text>
+  <text x="545" y="273" font-size="11" fill="#151515">• KV cache > 70% for 1m</text>
+
+  <!-- Info row -->
+  <rect x="30" y="295" width="180" height="90" rx="6" fill="#e7f1fa" stroke="#0066cc" stroke-width="2"/>
+  <circle cx="60" cy="330" r="14" fill="#0066cc"/>
+  <text x="60" y="336" text-anchor="middle" font-size="14" font-weight="700" fill="white">i</text>
+  <text x="130" y="328" text-anchor="middle" font-size="15" font-weight="700" fill="#004080">Info</text>
+  <text x="130" y="348" text-anchor="middle" font-size="11" fill="#004080">Operational pattern</text>
+  <text x="130" y="365" text-anchor="middle" font-size="11" fill="#004080">worth tracking</text>
+
+  <rect x="230" y="295" width="280" height="90" rx="6" fill="#e7f1fa" stroke="#0066cc" stroke-width="1"/>
+  <text x="370" y="325" text-anchor="middle" font-size="12" font-weight="600" fill="#004080">Review during regular check-ins</text>
+  <text x="370" y="345" text-anchor="middle" font-size="11" fill="#004080">No immediate action required</text>
+  <text x="370" y="365" text-anchor="middle" font-size="11" fill="#6a6e73">Logged for trend analysis</text>
+
+  <rect x="530" y="295" width="340" height="90" rx="6" fill="white" stroke="#d2d2d2" stroke-width="1"/>
+  <text x="545" y="320" font-size="11" fill="#151515">• Model replica scaled up/down</text>
+  <text x="545" y="340" font-size="11" fill="#151515">• GPU utilization above 50% for 10m</text>
+  <text x="545" y="360" font-size="11" fill="#6a6e73">  Normal operational patterns</text>
+  <text x="545" y="378" font-size="11" fill="#6a6e73">  No action unless trending</text>
+</svg>
