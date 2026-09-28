@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Three Layers of AI Serving Observability :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="ai-vs-traditional.html">
+    <link rel="next" href="monitoring-stack.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Observability Foundations</a></li>
+    <li><a href="three-layers.html">Three Layers of Observability</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Three Layers of AI Serving Observability</h1>
+<div class="sect1">
+<h2 id="_the_three_layer_model"><a class="anchor" href="#_the_three_layer_model"></a>The Three-Layer Model</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>AI serving observability has three layers.
+You need <strong>all three</strong> to understand what is happening with your model serving workloads.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/three-layers.svg" alt="Three layers of AI serving observability showing application and GPU and platform metrics with their sources" width="900">
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 25%;">
+<col style="width: 37.5%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Layer</th>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Metrics</th>
+<th class="tableblock halign-left valign-top">Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Layer 3</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Application / Inference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">TTFT, TPOT, E2E latency, token throughput, queue depth, KV cache usage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">vLLM runtime <code>/metrics</code> endpoint</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Layer 2</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Infrastructure / GPU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU utilization %, GPU temperature, GPU memory (used/free), GPU power draw</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NVIDIA DCGM Exporter (DaemonSet on every GPU node)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Layer 1</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Platform / Container</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CPU usage, container memory, pod restarts, pod status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">kubelet / cAdvisor (always available in OpenShift)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Each layer answers a different question:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Layer 1</strong> answers: "Are the pods running?"</p>
+</li>
+<li>
+<p><strong>Layer 2</strong> answers: "Is the hardware healthy?"</p>
+</li>
+<li>
+<p><strong>Layer 3</strong> answers: "Is the model performing well for users?"</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_you_need_all_three_layers"><a class="anchor" href="#_why_you_need_all_three_layers"></a>Why You Need All Three Layers</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_scenario_a_layer_1_only_container_metrics"><a class="anchor" href="#_scenario_a_layer_1_only_container_metrics"></a>Scenario A: Layer 1 Only (Container Metrics)</h3>
+<div class="paragraph">
+<p>You see the pod is Running, CPU at 10%, container memory at 4GB.
+Everything looks healthy.
+But users report 20-second response times.</p>
+</div>
+<div class="paragraph">
+<p>What is wrong?
+You have no idea&#8201;&#8212;&#8201;you cannot see GPU utilization (Layer 2) or inference queue depth (Layer 3).
+The GPU might be thermally throttling, or the KV cache might be full.
+Container metrics cannot tell you.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scenario_b_layer_2_only_gpu_metrics"><a class="anchor" href="#_scenario_b_layer_2_only_gpu_metrics"></a>Scenario B: Layer 2 Only (GPU Metrics)</h3>
+<div class="paragraph">
+<p>You see GPU utilization at 95%.
+Is this good or bad?</p>
+</div>
+<div class="paragraph">
+<p>It depends.
+If <code>num_requests_waiting</code> (Layer 3) is 0, the GPU is efficiently utilized&#8201;&#8212;&#8201;that is great.
+If <code>num_requests_waiting</code> is 50, the GPU is overwhelmed and users are suffering.
+GPU metrics alone cannot distinguish "healthy busy" from "drowning."</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scenario_c_layer_3_only_inference_metrics"><a class="anchor" href="#_scenario_c_layer_3_only_inference_metrics"></a>Scenario C: Layer 3 Only (Inference Metrics)</h3>
+<div class="paragraph">
+<p>You see TTFT (Time to First Token) has spiked to 10 seconds.
+Why?</p>
+</div>
+<div class="paragraph">
+<p>Maybe the GPU is thermal-throttling and running at reduced clock speed (Layer 2).
+Maybe the pod was OOM-killed and is restarting (Layer 1).
+Maybe a burst of long-prompt requests filled the KV cache (a combination of Layer 2 and Layer 3).
+Inference metrics tell you the symptom but not the root cause.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_key_takeaway"><a class="anchor" href="#_key_takeaway"></a>Key Takeaway</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Each layer answers a different question.
+Together, they give you the full picture.
+By the end of this course, you will have dashboards and alerts covering all three layers.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_red_hat_documentation"><a class="anchor" href="#_red_hat_documentation"></a>Red Hat Documentation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/monitoring_data_science_models/monitoring-model-performance_monitor" target="_blank" rel="noopener">Red Hat OpenShift AI&#8201;&#8212;&#8201;Monitoring Model Performance</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_upstream_resources"><a class="anchor" href="#_upstream_resources"></a>Upstream Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.vllm.ai/en/stable/serving/metrics.html" target="_blank" rel="noopener">vLLM&#8201;&#8212;&#8201;Production Metrics</a></p>
+</li>
+<li>
+<p><a href="https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/index.html" target="_blank" rel="noopener">NVIDIA DCGM User Guide</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="ai-vs-traditional.html">AI vs Traditional Monitoring</a></span>
+  <span class="next"><a href="monitoring-stack.html">OpenShift Monitoring Stack</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

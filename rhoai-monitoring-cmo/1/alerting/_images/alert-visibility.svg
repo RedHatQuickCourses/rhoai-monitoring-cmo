@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 380" font-family="Red Hat Text, Liberation Sans, sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#4a4a4a"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="780" height="380" rx="6" fill="#fafafa" stroke="#d0d0d0"/>
+
+  <!-- Title -->
+  <text x="390" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Alert Visibility Across OpenShift Console and Grafana</text>
+
+  <!-- Row 1: PrometheusRule CRs -->
+  <rect x="50" y="50" width="200" height="50" rx="4" fill="#e8eaf6" stroke="#283593" stroke-width="1.5"/>
+  <text x="150" y="72" text-anchor="middle" font-weight="bold" font-size="12" fill="#283593">PrometheusRule CRs</text>
+  <text x="150" y="88" text-anchor="middle" font-size="10" fill="#666">alert definitions (expr, for)</text>
+
+  <!-- Arrow to Prometheus -->
+  <line x1="250" y1="75" x2="310" y2="75" stroke="#4a4a4a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="280" y="68" text-anchor="middle" font-size="9" fill="#888">evaluated by</text>
+
+  <!-- Row 1: Prometheus -->
+  <rect x="315" y="50" width="180" height="50" rx="4" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.5"/>
+  <text x="405" y="72" text-anchor="middle" font-weight="bold" font-size="12" fill="#6a1b9a">Prometheus</text>
+  <text x="405" y="88" text-anchor="middle" font-size="10" fill="#666">UWM + Platform</text>
+
+  <!-- Arrow to Alertmanager -->
+  <line x1="495" y1="75" x2="555" y2="75" stroke="#4a4a4a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="525" y="68" text-anchor="middle" font-size="9" fill="#888">fires to</text>
+
+  <!-- Row 1: Alertmanager -->
+  <rect x="560" y="50" width="180" height="50" rx="4" fill="#fce4ec" stroke="#c62828" stroke-width="1.5"/>
+  <text x="650" y="72" text-anchor="middle" font-weight="bold" font-size="12" fill="#c62828">Alertmanager</text>
+  <text x="650" y="88" text-anchor="middle" font-size="10" fill="#666">openshift-monitoring</text>
+
+  <!-- Alert lifecycle box -->
+  <rect x="50" y="130" width="460" height="55" rx="4" fill="#fff" stroke="#666" stroke-width="1"/>
+  <text x="60" y="150" font-weight="bold" font-size="12" fill="#333">Alert Lifecycle:</text>
+  <!-- State boxes -->
+  <rect x="60" y="158" width="70" height="20" rx="3" fill="#e0e0e0" stroke="#9e9e9e"/>
+  <text x="95" y="173" text-anchor="middle" font-size="10" fill="#333">Inactive</text>
+  <text x="142" y="173" font-size="12" fill="#888">&#x2192;</text>
+  <rect x="155" y="158" width="70" height="20" rx="3" fill="#fff9c4" stroke="#f9a825"/>
+  <text x="190" y="173" text-anchor="middle" font-size="10" fill="#f57f17">Pending</text>
+  <text x="237" y="173" font-size="12" fill="#888">&#x2192;</text>
+  <rect x="250" y="158" width="70" height="20" rx="3" fill="#ffcdd2" stroke="#c62828"/>
+  <text x="285" y="173" text-anchor="middle" font-size="10" fill="#c62828">Firing</text>
+  <text x="332" y="173" font-size="12" fill="#888">&#x2192;</text>
+  <rect x="345" y="158" width="70" height="20" rx="3" fill="#c8e6c9" stroke="#2e7d32"/>
+  <text x="380" y="173" text-anchor="middle" font-size="10" fill="#2e7d32">Resolved</text>
+  <!-- for duration label -->
+  <path d="M 160,155 L 160,148 L 315,148 L 315,155" fill="none" stroke="#999" stroke-width="1"/>
+  <text x="237" y="145" text-anchor="middle" font-size="9" fill="#999">for duration elapses</text>
+
+  <!-- Divider line -->
+  <line x1="50" y1="210" x2="730" y2="210" stroke="#d0d0d0" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="390" y="225" text-anchor="middle" font-size="11" font-weight="bold" fill="#888">Where to View</text>
+
+  <!-- OpenShift Console box -->
+  <rect x="50" y="240" width="330" height="120" rx="5" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+  <text x="215" y="262" text-anchor="middle" font-weight="bold" fill="#2e7d32">OpenShift Console</text>
+  <text x="215" y="280" text-anchor="middle" font-size="11" fill="#333">Observe > Alerting</text>
+
+  <rect x="65" y="290" width="145" height="40" rx="3" fill="#fff" stroke="#666" stroke-width="1"/>
+  <text x="137" y="307" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">Alerting Rules</text>
+  <text x="137" y="322" text-anchor="middle" font-size="9" fill="#888">rule definitions + status</text>
+
+  <rect x="220" y="290" width="145" height="40" rx="3" fill="#fff" stroke="#666" stroke-width="1"/>
+  <text x="292" y="307" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">Alerts</text>
+  <text x="292" y="322" text-anchor="middle" font-size="9" fill="#888">Pending / Firing state</text>
+
+  <!-- Arrow from Alertmanager to Console -->
+  <path d="M 620,100 Q 500,200 215,235" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- Grafana box -->
+  <rect x="400" y="240" width="340" height="120" rx="5" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="570" y="262" text-anchor="middle" font-weight="bold" fill="#e65100">Grafana</text>
+
+  <rect x="415" y="275" width="150" height="55" rx="3" fill="#fff" stroke="#666" stroke-width="1"/>
+  <text x="490" y="292" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">Dashboard Panels</text>
+  <text x="490" y="307" text-anchor="middle" font-size="9" fill="#888">metric graphs showing</text>
+  <text x="490" y="319" text-anchor="middle" font-size="9" fill="#888">the spike that fired alert</text>
+
+  <rect x="575" y="275" width="150" height="55" rx="3" fill="#fff" stroke="#666" stroke-width="1"/>
+  <text x="650" y="292" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">Active Notifications</text>
+  <text x="650" y="307" text-anchor="middle" font-size="9" fill="#888">Alertmanager datasource</text>
+  <text x="650" y="319" text-anchor="middle" font-size="9" fill="#888">firing alert groups</text>
+
+  <!-- Arrow from Alertmanager to Grafana -->
+  <path d="M 680,100 Q 700,200 650,235" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- Legend -->
+  <text x="390" y="375" text-anchor="middle" font-size="10" fill="#888">Alerts tell you something is wrong. Dashboard panels tell you what and why.</text>
+</svg>

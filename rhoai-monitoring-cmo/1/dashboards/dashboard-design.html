@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Dashboard Design Principles :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="index.html">
+    <link rel="next" href="promql-fundamentals.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Observability Dashboards</a></li>
+    <li><a href="dashboard-design.html">Dashboard Design Principles</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Dashboard Design Principles</h1>
+<div class="sect1">
+<h2 id="_two_types_of_dashboards"><a class="anchor" href="#_two_types_of_dashboards"></a>Two Types of Dashboards</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Not every dashboard serves the same purpose.
+In practice, teams need two distinct types, and conflating them produces dashboards that are poor at both jobs.</p>
+</div>
+<div class="sect2">
+<h3 id="_health_overview_dashboards"><a class="anchor" href="#_health_overview_dashboards"></a>Health Overview Dashboards</h3>
+<div class="paragraph">
+<p>A health overview dashboard is designed for a wall screen or a quick glance during your morning standup.
+It answers one question: <strong>"Is everything OK right now?"</strong></p>
+</div>
+<div class="paragraph">
+<p>Characteristics:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Large, color-coded panels&#8201;&#8212;&#8201;green/yellow/red at a distance</p>
+</li>
+<li>
+<p>Few panels (5-10) showing only the most critical signals</p>
+</li>
+<li>
+<p>Current values, not detailed time series</p>
+</li>
+<li>
+<p>No interaction required&#8201;&#8212;&#8201;readable from across the room</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_investigation_dashboards"><a class="anchor" href="#_investigation_dashboards"></a>Investigation Dashboards</h3>
+<div class="paragraph">
+<p>An investigation dashboard is designed for the engineer who just got paged at 2 AM.
+It answers the follow-up question: <strong>"What exactly is wrong and where?"</strong></p>
+</div>
+<div class="paragraph">
+<p>Characteristics:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Dense time-series graphs with multiple series overlaid</p>
+</li>
+<li>
+<p>Percentile breakdowns (p50, p95, p99) not just averages</p>
+</li>
+<li>
+<p>Drill-down variables (select a specific pod, GPU, or model)</p>
+</li>
+<li>
+<p>Often organized by the timeline of an incident: symptom at the top, potential causes below</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The two types work as a pair.
+The health overview tells you <em>something is wrong</em>.
+The investigation dashboard tells you <em>what and why</em>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_dashboards_and_alerts_work_as_a_pair"><a class="anchor" href="#_dashboards_and_alerts_work_as_a_pair"></a>Dashboards and Alerts Work as a Pair</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Dashboards and alerts are complementary tools that serve different purposes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Alerts push</strong>: They wake you up when something crosses a threshold. An alert says "the p99 latency exceeded 5 seconds for 10 minutes&#8201;&#8212;&#8201;act now."</p>
+</li>
+<li>
+<p><strong>Dashboards pull</strong>: You open them to understand context. A dashboard says "here is what the latency, GPU utilization, and queue depth looked like over the last hour."</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When an alert fires, the first thing the on-call engineer does is open the relevant dashboard.
+This means your alert thresholds and your dashboard panels should use the <strong>same PromQL expressions</strong>.
+If an alert fires on <code>histogram_quantile(0.99, &#8230;&#8203;)</code> but your dashboard shows only averages, the engineer cannot see the problem the alert detected.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Design your alerts and dashboards together. Every alerting rule you create in <a href="../alerting/index.html" class="xref page">the Alerting chapter</a> should have a corresponding dashboard panel that makes the alert condition visible.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_use_method_for_resources"><a class="anchor" href="#_the_use_method_for_resources"></a>The USE Method: For Resources</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <strong>USE Method</strong> was developed by Brendan Gregg at Netflix.
+It provides a systematic checklist for analyzing the health of any <strong>resource</strong>&#8201;&#8212;&#8201;a CPU, a disk, a network interface, or a GPU.</p>
+</div>
+<div class="paragraph">
+<p>For every resource, check three things:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 42.8571%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Signal</th>
+<th class="tableblock halign-left valign-top">Definition</th>
+<th class="tableblock halign-left valign-top">Question It Answers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">*U*tilization</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Percentage of the resource&#8217;s capacity currently in use</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How busy is it?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">*S*aturation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Work that is queued because the resource is at capacity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Is demand exceeding supply?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">*E*rrors</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Count of error events on the resource</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Is something broken?</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_applying_use_to_gpus"><a class="anchor" href="#_applying_use_to_gpus"></a>Applying USE to GPUs</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">USE Signal</th>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Utilization</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_GPU_UTIL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU compute utilization as a percentage (0-100)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Saturation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:num_requests_waiting</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests queued because the GPU cannot start processing them yet (KV cache full or compute busy)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Errors</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_GPU_TEMP</code> &gt; 70C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Thermal throttling&#8201;&#8212;&#8201;the GPU reduces clock speed to avoid damage, degrading inference performance</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+GPU "errors" in the USE sense are not always hard failures. Thermal throttling is a soft error that degrades performance without crashing the pod. Your dashboards should surface these pre-failure conditions.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_red_method_for_services"><a class="anchor" href="#_the_red_method_for_services"></a>The RED Method: For Services</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <strong>RED Method</strong> was developed by Tom Wilkie at Grafana Labs.
+It provides a framework for monitoring <strong>services</strong>&#8201;&#8212;&#8201;anything that handles requests from users or other services.</p>
+</div>
+<div class="paragraph">
+<p>For every service, track three things:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 42.8571%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Signal</th>
+<th class="tableblock halign-left valign-top">Definition</th>
+<th class="tableblock halign-left valign-top">Question It Answers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">*R*ate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of requests per second the service is handling</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How much traffic is it receiving?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">*E*rrors</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of those requests that are failing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How many requests are not succeeding?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">*D*uration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time each request takes to complete</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How fast is it responding?</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_applying_red_to_vllm_inference"><a class="anchor" href="#_applying_red_to_vllm_inference"></a>Applying RED to vLLM Inference</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">RED Signal</th>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>rate(vllm:request_success_total[5m])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Successful inference requests per second over a 5-minute window</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Errors</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:request_success_total</code> with <code>finished_reason="length"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests that were truncated because they hit the max output token limit&#8201;&#8212;&#8201;the model could not finish its response</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Duration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:e2e_request_latency_seconds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">End-to-end latency histogram from request arrival to final token</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+The <code>finished_reason="length"</code> label is subtle but important. These requests did not fail with an HTTP error&#8201;&#8212;&#8201;they returned 200 OK. But the response was cut short because the model hit its output limit. Users received incomplete answers. Only application-level metrics can detect this.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_mapping_methods_to_our_three_dashboards"><a class="anchor" href="#_mapping_methods_to_our_three_dashboards"></a>Mapping Methods to Our Three Dashboards</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following diagram shows how USE and RED methods map to specific metrics across the three dashboards:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/use-red-mapping.svg" alt="USE and RED methods mapped to AI serving metrics across Node Health and GPU Health and vLLM Inference dashboards" width="900">
+</div>
+</div>
+<div class="paragraph">
+<p>In the exercises later in this chapter, you will deploy three dashboards.
+Each one applies USE, RED, or both:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Dashboard</th>
+<th class="tableblock halign-left valign-top">Method</th>
+<th class="tableblock halign-left valign-top">Key Panels</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Node Health</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">USE for compute nodes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CPU utilization, memory saturation, filesystem errors, network throughput</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>GPU Health</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">USE for GPUs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU utilization, GPU memory used vs. total, GPU temperature, power draw</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>vLLM Inference</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RED + saturation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Request rate, error rate by reason, e2e latency percentiles, queue depth, KV cache usage</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Notice that the vLLM Inference dashboard blends both methods.
+It uses RED for the service-level view (rate, errors, duration) but adds the saturation signal (<code>num_requests_waiting</code>, <code>kv_cache_usage_perc</code>) from the USE method.
+This is common in practice&#8201;&#8212;&#8201;strict adherence to one method is less important than covering the signals that matter.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_design_principles"><a class="anchor" href="#_design_principles"></a>Design Principles</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Beyond USE and RED, several design principles make dashboards useful under pressure:</p>
+</div>
+<div class="paragraph">
+<p><strong>Put saturation signals at the top.</strong>
+Queue depth and KV cache usage are the earliest indicators of trouble.
+By the time utilization or latency degrades, requests have already been waiting.
+The top row of your dashboard should show the signals that move first.</p>
+</div>
+<div class="paragraph">
+<p><strong>Tie thresholds to alerts.</strong>
+If you have an alert that fires when <code>kv_cache_usage_perc &gt; 0.90</code> for 10 minutes, add a horizontal threshold line at 90% on the KV cache panel.
+The on-call engineer can instantly see whether the current value is near, at, or past the alert threshold.</p>
+</div>
+<div class="paragraph">
+<p><strong>Show percentiles, not averages.</strong>
+An average latency of 2 seconds might mean every request takes 2 seconds&#8201;&#8212;&#8201;or it might mean 99% of requests take 200ms and 1% take 180 seconds.
+The average hides the experience of the worst-affected users.
+Always show p50 (the median experience), p95 (the tail that catches early problems), and p99 (the worst 1% that trigger alerts).</p>
+</div>
+<div class="paragraph">
+<p><strong>Use consistent time windows.</strong>
+If one panel uses a <code>[1m]</code> rate window and another uses <code>[15m]</code>, their graphs move at different speeds during an incident, creating confusion.
+Pick a standard window&#8201;&#8212;&#8201;<code>[5m]</code> is a good default for operational dashboards&#8201;&#8212;&#8201;and use it across all panels.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_books_and_articles"><a class="anchor" href="#_books_and_articles"></a>Books and Articles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.brendangregg.com/usemethod.html" target="_blank" rel="noopener">Brendan Gregg&#8201;&#8212;&#8201;The USE Method</a></p>
+</li>
+<li>
+<p><a href="https://grafana.com/blog/2018/08/02/the-red-method-how-to-instrument-your-services/" target="_blank" rel="noopener">Tom Wilkie&#8201;&#8212;&#8201;The RED Method: How to Instrument Your Services</a></p>
+</li>
+<li>
+<p><a href="https://sre.google/sre-book/monitoring-distributed-systems/" target="_blank" rel="noopener">Google SRE Book&#8201;&#8212;&#8201;Chapter 6: Monitoring Distributed Systems</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_red_hat_documentation"><a class="anchor" href="#_red_hat_documentation"></a>Red Hat Documentation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/monitoring_data_science_models/monitoring-model-performance_monitor" target="_blank" rel="noopener">Red Hat OpenShift AI&#8201;&#8212;&#8201;Monitoring Model Performance</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_upstream_resources"><a class="anchor" href="#_upstream_resources"></a>Upstream Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.vllm.ai/en/stable/serving/metrics.html" target="_blank" rel="noopener">vLLM&#8201;&#8212;&#8201;Production Metrics</a></p>
+</li>
+<li>
+<p><a href="https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/index.html" target="_blank" rel="noopener">NVIDIA DCGM User Guide</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="index.html">Observability Dashboards</a></span>
+  <span class="next"><a href="promql-fundamentals.html">PromQL Fundamentals</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

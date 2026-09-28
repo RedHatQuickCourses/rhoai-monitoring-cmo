@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Install and Connect Grafana :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="grafana-architecture.html">
+    <link rel="next" href="deploy-dashboards.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Observability Dashboards</a></li>
+    <li><a href="install-grafana.html">Install Grafana</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Install and Connect Grafana</h1>
+<div class="sect1">
+<h2 id="_concepts"><a class="anchor" href="#_concepts"></a>Concepts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the previous lectures you learned why the built-in OpenShift Console metrics tab is not enough for production observability&#8201;&#8212;&#8201;it lacks templated variables, multi-panel layouts, gauges, and heatmaps.
+In this lab you install the community Grafana Operator, deploy a Grafana instance, create the RBAC resources that let Grafana authenticate with Thanos Querier, and connect the datasource.</p>
+</div>
+<div class="paragraph">
+<p>By the end of this lab, you will have:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Installed the Grafana Operator from OperatorHub</p>
+</li>
+<li>
+<p>Deployed a Grafana instance with a TLS-secured Route</p>
+</li>
+<li>
+<p>Created a ServiceAccount with <code>cluster-monitoring-view</code> permissions</p>
+</li>
+<li>
+<p>Connected Grafana to Thanos Querier as a Prometheus datasource</p>
+</li>
+<li>
+<p>Verified end-to-end connectivity with a live metric query</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="paragraph">
+<p>Before starting, confirm:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Chapters 1 and 2 completed: UWM enabled, Granite 3.1 8B deployed, all three metric layers verified</p>
+</li>
+<li>
+<p>You are logged in with cluster-admin privileges</p>
+</li>
+<li>
+<p>You are in the <code>monitoring-cmo</code> directory</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_lab_files"><a class="anchor" href="#_lab_files"></a>Lab Files</h3>
+<div class="listingblock">
+<div class="content">
+<pre>grafana/
+├── grafana-subscription.yaml   # OperatorGroup + Subscription
+├── grafana-instance.yaml       # Grafana CR (instance, route, credentials)
+├── grafana-sa-rbac.yaml        # ServiceAccount + Secret + ClusterRoleBinding
+└── grafana-datasource.yaml     # GrafanaDatasource CR (Thanos Querier)</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lab"><a class="anchor" href="#_lab"></a>Lab</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_install_the_grafana_operator"><a class="anchor" href="#_1_install_the_grafana_operator"></a>1. Install the Grafana Operator</h3>
+<div class="sect3">
+<h4 id="_1a_review_the_subscription_manifest"><a class="anchor" href="#_1a_review_the_subscription_manifest"></a>1a. Review the subscription manifest</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>cat grafana/grafana-subscription.yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This file contains two resources:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>OperatorGroup</strong>&#8201;&#8212;&#8201;Allows OLM to install the operator in the <code>llm-serving</code> namespace. The <code>targetNamespaces</code> field scopes the operator to watch only this namespace.</p>
+</li>
+<li>
+<p><strong>Subscription</strong>&#8201;&#8212;&#8201;Subscribes to the <code>grafana-operator</code> package from the <code>community-operators</code> catalog on the <code>v5</code> channel. This installs Grafana Operator v5, which uses the <code>grafana.integreatly.org/v1beta1</code> API group.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The Grafana Operator is a community operator, not a Red Hat-supported product. It is widely used in OpenShift environments and is the standard way to manage Grafana instances declaratively.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_1b_apply_the_subscription"><a class="anchor" href="#_1b_apply_the_subscription"></a>1b. Apply the subscription</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f grafana/grafana-subscription.yaml</strong>
+operatorgroup.operators.coreos.com/grafana-operatorgroup created
+subscription.operators.coreos.com/grafana-operator created</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_1c_wait_for_the_clusterserviceversion_to_succeed"><a class="anchor" href="#_1c_wait_for_the_clusterserviceversion_to_succeed"></a>1c. Wait for the ClusterServiceVersion to succeed</h4>
+<div class="paragraph">
+<p>The Operator Lifecycle Manager (OLM) processes the Subscription and creates a ClusterServiceVersion (CSV).
+Wait for the CSV to reach <code>Succeeded</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get csv -n llm-serving -w</strong>
+NAME                        DISPLAY            VERSION   REPLACES                    PHASE
+grafana-operator.v5.x.x     Grafana Operator   5.x.x    grafana-operator.v5.x.x     Succeeded</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Wait until the <code>PHASE</code> column shows <code>Succeeded</code>, then press <code>Ctrl+C</code>.
+This typically takes 30-90 seconds.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_1d_verify_the_operator_pod_is_running"><a class="anchor" href="#_1d_verify_the_operator_pod_is_running"></a>1d. Verify the operator pod is running</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get pods -n llm-serving -l app.kubernetes.io/name=grafana-operator</strong>
+NAME                                READY   STATUS    RESTARTS   AGE
+grafana-operator-xxxxxxxxx-xxxxx    1/1     Running   0          60s</code></pre>
+</div>
+</div>
+<details>
+<summary class="title">Troubleshooting: CSV stuck in Pending or InstallReady</summary>
+<div class="content">
+<div class="paragraph">
+<p>If the CSV does not reach <code>Succeeded</code> after 2 minutes:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Check the InstallPlan:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get installplan -n llm-serving</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If the InstallPlan shows <code>requiresApproval: true</code>, approve it manually:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc patch installplan &lt;installplan-name&gt; -n llm-serving --type merge -p '{"spec": {"approved": true}}'</strong></code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Check for OperatorGroup conflicts:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get operatorgroup -n llm-serving</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If there is more than one OperatorGroup in the namespace, OLM will refuse to install.
+Delete any extra OperatorGroups.</p>
+</div>
+</li>
+<li>
+<p>Check the OLM operator logs:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc logs -n openshift-operator-lifecycle-manager deployment/olm-operator --tail=30</strong></code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</details>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_deploy_the_grafana_instance"><a class="anchor" href="#_2_deploy_the_grafana_instance"></a>2. Deploy the Grafana Instance</h3>
+<div class="sect3">
+<h4 id="_2a_review_the_instance_manifest"><a class="anchor" href="#_2a_review_the_instance_manifest"></a>2a. Review the instance manifest</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>cat grafana/grafana-instance.yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Key fields:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>labels.dashboards: grafana</code>&#8201;&#8212;&#8201;The instance selector label. Datasources and dashboards use this label to target this specific Grafana instance.</p>
+</li>
+<li>
+<p><code>route.spec.tls.termination: edge</code>&#8201;&#8212;&#8201;Creates an OpenShift Route with TLS termination at the router. Grafana is accessible via HTTPS.</p>
+</li>
+<li>
+<p><code>security.admin_user: admin</code> and <code>security.admin_password: redhat</code>&#8201;&#8212;&#8201;Built-in admin credentials for this lab. In production, use OpenShift OAuth or an external identity provider.</p>
+</li>
+<li>
+<p><code>image: docker.io/grafana/grafana:11.4.0</code>&#8201;&#8212;&#8201;Pins a specific Grafana version for reproducibility.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_2b_apply_the_grafana_instance"><a class="anchor" href="#_2b_apply_the_grafana_instance"></a>2b. Apply the Grafana instance</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f grafana/grafana-instance.yaml</strong>
+grafana.grafana.integreatly.org/grafana created</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_2c_wait_for_the_grafana_pod_to_start"><a class="anchor" href="#_2c_wait_for_the_grafana_pod_to_start"></a>2c. Wait for the Grafana pod to start</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get pods -n llm-serving -l app=grafana -w</strong>
+NAME                              READY   STATUS    RESTARTS   AGE
+grafana-deployment-xxxxx-xxxxx    1/1     Running   0          30s</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Wait until the pod shows <code>Running</code> with <code>1/1</code> ready, then press <code>Ctrl+C</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_2d_get_the_grafana_route_url"><a class="anchor" href="#_2d_get_the_grafana_route_url"></a>2d. Get the Grafana Route URL</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get route -n llm-serving -l app=grafana -o jsonpath='{.items[0].spec.host}{"\n"}'</strong>
+grafana-route-llm-serving.apps.&lt;cluster-domain&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_2e_log_in_to_grafana"><a class="anchor" href="#_2e_log_in_to_grafana"></a>2e. Log in to Grafana</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open the Route URL in your browser (use <code>https://</code>).</p>
+</li>
+<li>
+<p>Accept the self-signed certificate warning if prompted.</p>
+</li>
+<li>
+<p>Log in with username <code>admin</code> and password <code>redhat</code>.</p>
+</li>
+<li>
+<p>You should see the Grafana home page with no datasources or dashboards yet.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can also open Grafana directly from the terminal:<br>
+<code>open "https://$(oc get route -n llm-serving -l app=grafana -o jsonpath='{.items[0].spec.host}')"</code>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_create_rbac_for_metrics_access"><a class="anchor" href="#_3_create_rbac_for_metrics_access"></a>3. Create RBAC for Metrics Access</h3>
+<div class="paragraph">
+<p>Grafana needs a bearer token to authenticate with Thanos Querier.
+This step creates a dedicated ServiceAccount with read-only access to all cluster metrics.</p>
+</div>
+<div class="sect3">
+<h4 id="_3a_review_the_rbac_manifest"><a class="anchor" href="#_3a_review_the_rbac_manifest"></a>3a. Review the RBAC manifest</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>cat grafana/grafana-sa-rbac.yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This file creates three resources:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>ServiceAccount <code>grafana-sa</code></strong>&#8201;&#8212;&#8201;A dedicated identity for the Grafana datasource. Separate from the Grafana pod&#8217;s own ServiceAccount so permissions are independently controlled.</p>
+</li>
+<li>
+<p><strong>Secret <code>grafana-sa-token</code></strong>&#8201;&#8212;&#8201;A long-lived token Secret. In OpenShift 4.x (Kubernetes 1.24+), ServiceAccounts no longer get auto-generated long-lived tokens, so you must create one explicitly with the <code>kubernetes.io/service-account-token</code> type and the <code>kubernetes.io/service-account.name</code> annotation.</p>
+</li>
+<li>
+<p><strong>ClusterRoleBinding <code>grafana-cluster-monitoring-view</code></strong>&#8201;&#8212;&#8201;Binds the built-in <code>cluster-monitoring-view</code> ClusterRole to the ServiceAccount. This grants read-only access to <em>all</em> metrics in both platform and UWM Prometheus&#8201;&#8212;&#8201;necessary because you need DCGM metrics from <code>nvidia-gpu-operator</code> and vLLM metrics from <code>llm-serving</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_3b_apply_the_rbac_resources"><a class="anchor" href="#_3b_apply_the_rbac_resources"></a>3b. Apply the RBAC resources</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f grafana/grafana-sa-rbac.yaml</strong>
+serviceaccount/grafana-sa created
+secret/grafana-sa-token created
+clusterrolebinding.rbac.authorization.k8s.io/grafana-cluster-monitoring-view created</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_3c_verify_the_token_was_generated"><a class="anchor" href="#_3c_verify_the_token_was_generated"></a>3c. Verify the token was generated</h4>
+<div class="paragraph">
+<p>The token controller automatically populates the Secret&#8217;s <code>data.token</code> field.
+Verify that a token exists (the first few characters are enough):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get secret grafana-sa-token -n llm-serving -o jsonpath='{.data.token}' | base64 --decode | head -c 40</strong>
+eyJhbGciOiJSUzI1NiIsImtpZCI6Ik...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you see a JWT-format string starting with <code>eyJ</code>, the token was generated successfully.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_3d_verify_the_clusterrolebinding"><a class="anchor" href="#_3d_verify_the_clusterrolebinding"></a>3d. Verify the ClusterRoleBinding</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get clusterrolebinding grafana-cluster-monitoring-view</strong>
+NAME                              ROLE                                        AGE
+grafana-cluster-monitoring-view   ClusterRole/cluster-monitoring-view         10s</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_connect_the_datasource"><a class="anchor" href="#_4_connect_the_datasource"></a>4. Connect the Datasource</h3>
+<div class="sect3">
+<h4 id="_4a_review_the_datasource_manifest"><a class="anchor" href="#_4a_review_the_datasource_manifest"></a>4a. Review the datasource manifest</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>cat grafana/grafana-datasource.yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Key fields:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>instanceSelector.matchLabels.dashboards: grafana</code>&#8201;&#8212;&#8201;Targets the Grafana instance you created in step 2 (matching the <code>dashboards: grafana</code> label).</p>
+</li>
+<li>
+<p><code>url: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091</code>&#8201;&#8212;&#8201;The in-cluster Thanos Querier endpoint. This provides a unified query interface for both platform Prometheus (DCGM, node metrics) and UWM Prometheus (vLLM metrics).</p>
+</li>
+<li>
+<p><code>type: prometheus</code>&#8201;&#8212;&#8201;Thanos Querier exposes a Prometheus-compatible API, so Grafana treats it as a standard Prometheus datasource.</p>
+</li>
+<li>
+<p><code>httpHeaderName1: Authorization</code>&#8201;&#8212;&#8201;Sends the bearer token as an HTTP Authorization header on every query request.</p>
+</li>
+<li>
+<p><code>valuesFrom</code>&#8201;&#8212;&#8201;References the <code>grafana-sa-token</code> Secret. The Grafana Operator reads the token from the Secret and injects it into the datasource configuration. You do not hardcode the token in the YAML.</p>
+</li>
+<li>
+<p><code>tlsSkipVerify: true</code>&#8201;&#8212;&#8201;Skips TLS certificate verification for the intra-cluster connection. Acceptable for a lab; in production, mount the cluster CA bundle instead.</p>
+</li>
+<li>
+<p><code>isDefault: true</code>&#8201;&#8212;&#8201;Makes this the default datasource for all dashboards.</p>
+</li>
+<li>
+<p><code>timeInterval: 30s</code>&#8201;&#8212;&#8201;Matches Prometheus' scrape interval, preventing Grafana from requesting data at a higher resolution than what exists.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_4b_apply_the_datasource"><a class="anchor" href="#_4b_apply_the_datasource"></a>4b. Apply the datasource</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f grafana/grafana-datasource.yaml</strong>
+grafanadatasource.grafana.integreatly.org/thanos-querier created</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_4c_test_the_datasource_in_grafana"><a class="anchor" href="#_4c_test_the_datasource_in_grafana"></a>4c. Test the datasource in Grafana</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>In the Grafana UI, navigate to <strong>Connections &gt; Data sources</strong> (or use the left sidebar menu icon).</p>
+</li>
+<li>
+<p>Click on <strong>Prometheus - Thanos</strong>.</p>
+</li>
+<li>
+<p>Scroll to the bottom and click <strong>Save &amp; test</strong>.</p>
+</li>
+<li>
+<p>You should see a green banner: <strong>"Successfully queried the Prometheus API."</strong></p>
+</li>
+</ol>
+</div>
+<details>
+<summary class="title">Troubleshooting: Datasource test failures</summary>
+<div class="content">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Error</th>
+<th class="tableblock halign-left valign-top">Cause</th>
+<th class="tableblock halign-left valign-top">Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>401 Unauthorized</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Token is missing or malformed</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Verify the Secret exists and has a token:<br>
+<code>oc get secret grafana-sa-token -n llm-serving -o jsonpath='{.data.token}' | base64 --decode | head -c 40</code><br>
+If empty, delete and recreate the Secret.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>403 Forbidden</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ServiceAccount lacks the <code>cluster-monitoring-view</code> role</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Verify the ClusterRoleBinding:<br>
+<code>oc get clusterrolebinding grafana-cluster-monitoring-view -o yaml</code><br>
+Check that the subject references <code>grafana-sa</code> in <code>llm-serving</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Connection refused</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Thanos Querier is not running or the URL is wrong</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Verify Thanos Querier pods:<br>
+<code>oc get pods -n openshift-monitoring -l app.kubernetes.io/name=thanos-query</code><br>
+All pods should be Running.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>x509: certificate signed by unknown authority</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tlsSkipVerify</code> is not set or not taking effect</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Re-apply the datasource YAML. Verify the GrafanaDatasource CR has <code>tlsSkipVerify: true</code> in <code>jsonData</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Data source is not working: 502 Bad Gateway</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana pod cannot reach <code>openshift-monitoring</code> namespace</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check network policies:<br>
+<code>oc get networkpolicy -n openshift-monitoring</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+</div>
+<div class="sect3">
+<h4 id="_4d_run_a_test_query"><a class="anchor" href="#_4d_run_a_test_query"></a>4d. Run a test query</h4>
+<div class="paragraph">
+<p>Verify that Grafana can actually retrieve metrics:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>In the Grafana UI, navigate to <strong>Explore</strong> (compass icon in the left sidebar).</p>
+</li>
+<li>
+<p>Select <strong>Prometheus - Thanos</strong> as the datasource (top-left dropdown).</p>
+</li>
+<li>
+<p>Switch to <strong>Code</strong> mode (toggle in the top-right of the query editor).</p>
+</li>
+<li>
+<p>Enter the following query:</p>
+<div class="listingblock">
+<div class="content">
+<pre>DCGM_FI_DEV_GPU_UTIL</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Click <strong>Run query</strong>.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>You should see a graph showing GPU utilization data.
+If the model is idle, the value will be near 0%.
+This confirms the complete pipeline: Grafana authenticates with Thanos Querier using the ServiceAccount token, Thanos queries platform Prometheus, and the DCGM metric data flows back to the Grafana panel.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 42.8571%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Check</th>
+<th class="tableblock halign-left valign-top">How to Verify</th>
+<th class="tableblock halign-left valign-top">Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana Operator installed</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get csv -n llm-serving</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Phase = Succeeded</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operator pod running</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get pods -n llm-serving -l app.kubernetes.io/name=grafana-operator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1 pod Running</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana instance running</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get pods -n llm-serving -l app=grafana</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1 pod Running, 1/1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Route accessible</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open Route URL in browser</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana login page loads</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RBAC configured</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get clusterrolebinding grafana-cluster-monitoring-view</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Binding exists</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Token generated</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get secret grafana-sa-token -n llm-serving -o jsonpath='{.data.token}' | base64 --decode | head -c 20</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns JWT string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Datasource connected</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana UI &gt; Data sources &gt; Save &amp; test</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"Successfully queried the Prometheus API."</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Test query works</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana Explore: <code>DCGM_FI_DEV_GPU_UTIL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns GPU utilization data</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="grafana-architecture.html">Grafana on OpenShift</a></span>
+  <span class="next"><a href="deploy-dashboards.html">Deploy Dashboards</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

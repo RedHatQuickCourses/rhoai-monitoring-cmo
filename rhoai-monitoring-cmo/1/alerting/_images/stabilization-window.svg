@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 360" font-family="Red Hat Text, Helvetica Neue, Arial, sans-serif">
+
+  <!-- Background -->
+  <rect x="0" y="0" width="880" height="360" rx="8" fill="#f9f9f9" stroke="#d2d2d2" stroke-width="1.5"/>
+
+  <!-- Title -->
+  <text x="440" y="25" text-anchor="middle" font-size="15" font-weight="700" fill="#151515">How the <tspan font-family="Red Hat Mono, Consolas, monospace" font-size="14">for</tspan> Field Filters Transient Spikes</text>
+
+  <!-- Scenario labels -->
+  <text x="214" y="43" text-anchor="middle" font-size="12" font-weight="600" fill="#4d4d4d">Transient Spike</text>
+  <text x="584" y="43" text-anchor="middle" font-size="12" font-weight="600" fill="#4d4d4d">Sustained Breach</text>
+
+  <!-- Y-axis -->
+  <line x1="80" y1="55" x2="80" y2="295" stroke="#4d4d4d" stroke-width="1.5"/>
+
+  <!-- X-axis -->
+  <line x1="80" y1="295" x2="775" y2="295" stroke="#4d4d4d" stroke-width="1.5"/>
+
+  <!-- Y-axis label (rotated) -->
+  <text transform="rotate(-90 18 175)" x="18" y="175" text-anchor="middle" font-size="11" fill="#4d4d4d">GPU Utilization</text>
+
+  <!-- X-axis label -->
+  <text x="783" y="299" text-anchor="start" font-size="10" fill="#4d4d4d">Time &#x2192;</text>
+
+  <!-- Gridlines and Y-axis tick labels -->
+  <!-- 0% -->
+  <text x="72" y="299" text-anchor="end" font-size="10" fill="#6a6e73">0%</text>
+
+  <!-- 20% -->
+  <line x1="80" y1="247" x2="775" y2="247" stroke="#e8e8e8" stroke-width="0.75"/>
+  <text x="72" y="251" text-anchor="end" font-size="10" fill="#6a6e73">20%</text>
+
+  <!-- 40% -->
+  <line x1="80" y1="199" x2="775" y2="199" stroke="#e8e8e8" stroke-width="0.75"/>
+  <text x="72" y="203" text-anchor="end" font-size="10" fill="#6a6e73">40%</text>
+
+  <!-- 60% -->
+  <line x1="80" y1="151" x2="775" y2="151" stroke="#e8e8e8" stroke-width="0.75"/>
+  <text x="72" y="155" text-anchor="end" font-size="10" fill="#6a6e73">60%</text>
+
+  <!-- 80% — threshold line doubles as gridline -->
+  <text x="72" y="107" text-anchor="end" font-size="10" fill="#6a6e73">80%</text>
+
+  <!-- 100% -->
+  <line x1="80" y1="55" x2="775" y2="55" stroke="#e8e8e8" stroke-width="0.75"/>
+  <text x="72" y="59" text-anchor="end" font-size="10" fill="#6a6e73">100%</text>
+
+  <!-- Threshold dashed line at 80% (y=103) -->
+  <line x1="80" y1="103" x2="775" y2="103" stroke="#c9190b" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="780" y="107" font-size="10" fill="#c9190b" font-weight="600">threshold (80%)</text>
+
+  <!-- Vertical separator between scenarios -->
+  <line x1="395" y1="55" x2="395" y2="295" stroke="#d2d2d2" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- ============================================ -->
+  <!-- SCENARIO 1: TRANSIENT SPIKE (8 bars)         -->
+  <!-- Utilization spikes above 80% for ~30s only   -->
+  <!-- ============================================ -->
+
+  <!-- Baseline bars (blue) -->
+  <rect x="115" y="175" width="22" height="120" rx="2" fill="#0066cc" opacity="0.8"/>
+  <rect x="140" y="163" width="22" height="132" rx="2" fill="#0066cc" opacity="0.8"/>
+  <!-- Rising -->
+  <rect x="165" y="127" width="22" height="168" rx="2" fill="#0066cc" opacity="0.8"/>
+  <!-- Above threshold — PENDING -->
+  <rect x="190" y="79"  width="22" height="216" rx="2" fill="#f0ab00" opacity="0.85"/>
+  <rect x="215" y="91"  width="22" height="204" rx="2" fill="#f0ab00" opacity="0.85"/>
+  <!-- Falling back below threshold -->
+  <rect x="240" y="139" width="22" height="156" rx="2" fill="#0066cc" opacity="0.8"/>
+  <!-- Return to baseline -->
+  <rect x="265" y="175" width="22" height="120" rx="2" fill="#0066cc" opacity="0.8"/>
+  <rect x="290" y="175" width="22" height="120" rx="2" fill="#0066cc" opacity="0.8"/>
+
+  <!-- PENDING state badge above transient yellow bars -->
+  <rect x="185" y="57" width="58" height="16" rx="3" fill="#fdf7e7" stroke="#f0ab00" stroke-width="1"/>
+  <text x="214" y="69" text-anchor="middle" font-size="10" font-weight="700" fill="#795600">PENDING</text>
+
+  <!-- ============================================ -->
+  <!-- SCENARIO 2: SUSTAINED BREACH (12 bars)       -->
+  <!-- Utilization crosses 80% and stays above >2m  -->
+  <!-- ============================================ -->
+
+  <!-- Baseline bars (blue) -->
+  <rect x="435" y="175" width="22" height="120" rx="2" fill="#0066cc" opacity="0.8"/>
+  <rect x="460" y="163" width="22" height="132" rx="2" fill="#0066cc" opacity="0.8"/>
+  <!-- Rising -->
+  <rect x="485" y="127" width="22" height="168" rx="2" fill="#0066cc" opacity="0.8"/>
+  <!-- Above threshold — PENDING (for: 2m counting down) -->
+  <rect x="510" y="84"  width="22" height="211" rx="2" fill="#f0ab00" opacity="0.85"/>
+  <rect x="535" y="74"  width="22" height="221" rx="2" fill="#f0ab00" opacity="0.85"/>
+  <rect x="560" y="89"  width="22" height="206" rx="2" fill="#f0ab00" opacity="0.85"/>
+  <rect x="585" y="79"  width="22" height="216" rx="2" fill="#f0ab00" opacity="0.85"/>
+  <!-- for: 2m elapsed — now FIRING (red) -->
+  <rect x="610" y="84"  width="22" height="211" rx="2" fill="#c9190b" opacity="0.85"/>
+  <rect x="635" y="74"  width="22" height="221" rx="2" fill="#c9190b" opacity="0.85"/>
+  <rect x="660" y="87"  width="22" height="208" rx="2" fill="#c9190b" opacity="0.85"/>
+  <rect x="685" y="79"  width="22" height="216" rx="2" fill="#c9190b" opacity="0.85"/>
+  <rect x="710" y="81"  width="22" height="214" rx="2" fill="#c9190b" opacity="0.85"/>
+
+  <!-- Transition dashed line between PENDING and FIRING -->
+  <line x1="609" y1="57" x2="609" y2="295" stroke="#4d4d4d" stroke-width="1" stroke-dasharray="3,3"/>
+
+  <!-- PENDING state badge above sustained yellow bars -->
+  <rect x="530" y="57" width="58" height="16" rx="3" fill="#fdf7e7" stroke="#f0ab00" stroke-width="1"/>
+  <text x="559" y="69" text-anchor="middle" font-size="10" font-weight="700" fill="#795600">PENDING</text>
+
+  <!-- FIRING state badge above sustained red bars -->
+  <rect x="648" y="57" width="46" height="16" rx="3" fill="#faeae8" stroke="#c9190b" stroke-width="1"/>
+  <text x="671" y="69" text-anchor="middle" font-size="10" font-weight="700" fill="#a30000">FIRING</text>
+
+  <!-- ============================================ -->
+  <!-- BELOW-CHART ANNOTATIONS                      -->
+  <!-- ============================================ -->
+
+  <!-- Transient: duration bracket under yellow bars -->
+  <line x1="190" y1="302" x2="237" y2="302" stroke="#795600" stroke-width="1.5"/>
+  <line x1="190" y1="299" x2="190" y2="305" stroke="#795600" stroke-width="1.5"/>
+  <line x1="237" y1="299" x2="237" y2="305" stroke="#795600" stroke-width="1.5"/>
+  <text x="214" y="316" text-anchor="middle" font-size="10" font-weight="600" fill="#795600">~30 sec</text>
+
+  <!-- Transient: outcome text -->
+  <text x="214" y="332" text-anchor="middle" font-size="11" font-weight="600" fill="#3e8635">Alert resets</text>
+  <text x="214" y="345" text-anchor="middle" font-size="10" fill="#6a6e73">(spike &lt; <tspan font-family="Red Hat Mono, Consolas, monospace" font-size="9">for</tspan>: 2 min)</text>
+
+  <!-- Sustained: duration bracket under PENDING bars -->
+  <line x1="510" y1="302" x2="607" y2="302" stroke="#795600" stroke-width="1.5"/>
+  <line x1="510" y1="299" x2="510" y2="305" stroke="#795600" stroke-width="1.5"/>
+  <line x1="607" y1="299" x2="607" y2="305" stroke="#795600" stroke-width="1.5"/>
+  <text x="559" y="316" text-anchor="middle" font-size="10" font-weight="600" fill="#795600"><tspan font-family="Red Hat Mono, Consolas, monospace" font-size="9">for</tspan>: 2 min</text>
+
+  <!-- Sustained: outcome text -->
+  <text x="630" y="332" text-anchor="middle" font-size="11" font-weight="600" fill="#c9190b"><tspan font-family="Red Hat Mono, Consolas, monospace" font-size="10">for</tspan>: 2 min elapsed &#x2192; FIRING</text>
+  <text x="630" y="345" text-anchor="middle" font-size="10" fill="#6a6e73">Notifications sent</text>
+
+  <!-- ============================================ -->
+  <!-- LEGEND                                        -->
+  <!-- ============================================ -->
+
+  <rect x="95"  y="353" width="10" height="6" rx="1" fill="#0066cc" opacity="0.8"/>
+  <text x="110" y="359" font-size="9" fill="#6a6e73">Below threshold</text>
+
+  <rect x="210" y="353" width="10" height="6" rx="1" fill="#f0ab00" opacity="0.85"/>
+  <text x="225" y="359" font-size="9" fill="#6a6e73">PENDING (above threshold)</text>
+
+  <rect x="385" y="353" width="10" height="6" rx="1" fill="#c9190b" opacity="0.85"/>
+  <text x="400" y="359" font-size="9" fill="#6a6e73">FIRING (above threshold)</text>
+
+  <line x1="555" y1="356" x2="580" y2="356" stroke="#c9190b" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="586" y="359" font-size="9" fill="#6a6e73">Threshold</text>
+
+</svg>

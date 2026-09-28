@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Create Alert Rules :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="alert-design.html">
+    <link rel="next" href="load-test.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Alerting</a></li>
+    <li><a href="create-alerts.html">Create Alert Rules</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Create Alert Rules</h1>
+<div class="sect1">
+<h2 id="_concepts"><a class="anchor" href="#_concepts"></a>Concepts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the previous lectures you learned what makes a useful alert, how a PrometheusRule CR is structured, and how to design alerts for both GPU infrastructure and inference application metrics.
+Now you put that knowledge into practice by deploying two PrometheusRule resources that define five alert rules across two namespaces.</p>
+</div>
+<div class="sect2">
+<h3 id="_why_two_prometheusrules_in_two_namespaces"><a class="anchor" href="#_why_two_prometheusrules_in_two_namespaces"></a>Why Two PrometheusRules in Two Namespaces?</h3>
+<div class="paragraph">
+<p>OpenShift&#8217;s User Workload Monitoring enforces <code>enforcedNamespaceLabel</code>&#8201;&#8212;&#8201;the Thanos Ruler silently injects <code>namespace="&lt;rule-namespace&gt;"</code> into every PromQL selector inside a PrometheusRule.
+This means a rule can only match metrics that carry its own namespace label.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>DCGM GPU metrics carry <code>namespace="nvidia-gpu-operator"</code></p>
+</li>
+<li>
+<p>vLLM inference metrics carry <code>namespace="llm-serving"</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Each set of rules must live in the namespace that matches its metrics.
+A single combined PrometheusRule in <code>llm-serving</code> would silently fail to match any GPU metrics&#8201;&#8212;&#8201;no errors, just rules that never fire.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">PrometheusRule</th>
+<th class="tableblock halign-left valign-top">Namespace</th>
+<th class="tableblock halign-left valign-top">Evaluator</th>
+<th class="tableblock halign-left valign-top">Console Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>inference-slo-alerts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>llm-serving</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UWM Thanos Ruler</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Source: User</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>gpu-health-alerts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nvidia-gpu-operator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Platform Prometheus</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Source: Platform</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+If you put GPU alert rules in the <code>llm-serving</code> namespace, UWM injects <code>namespace="llm-serving"</code> into the expression. Since DCGM metrics have <code>namespace="nvidia-gpu-operator"</code>, the selector matches zero series and the rules stay permanently Inactive. There is no error&#8201;&#8212;&#8201;the rules simply never fire.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="paragraph">
+<p>Before starting, confirm:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Chapter 3 completed: Grafana operational with all three dashboards showing data</p>
+</li>
+<li>
+<p>The Granite 3.1 8B model is running and serving inference (<code>oc get inferenceservice granite-3-1-8b -n llm-serving</code> shows READY = True)</p>
+</li>
+<li>
+<p>You have <code>edit</code> permissions in both the <code>llm-serving</code> and <code>nvidia-gpu-operator</code> namespaces</p>
+</li>
+<li>
+<p>You are in the <code>monitoring-cmo</code> directory</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_lab_files"><a class="anchor" href="#_lab_files"></a>Lab Files</h3>
+<div class="listingblock">
+<div class="content">
+<pre>alerts/
+├── prometheus-rules-vllm.yaml   # Inference SLO alerts (llm-serving namespace)
+├── prometheus-rules-gpu.yaml    # GPU health alerts (nvidia-gpu-operator namespace)
+└── load-test.sh                 # In-cluster load test script (used in the next exercise)</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lab"><a class="anchor" href="#_lab"></a>Lab</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_review_the_prometheusrule_yamls"><a class="anchor" href="#_1_review_the_prometheusrule_yamls"></a>1. Review the PrometheusRule YAMLs</h3>
+<div class="paragraph">
+<p>Before applying, read through each alert rule and understand what it does.</p>
+</div>
+<div class="paragraph">
+<p>Review the inference SLO alerts:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>cat alerts/prometheus-rules-vllm.yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This file defines three alert rules in the <code>inference-slo</code> group, all in the <code>llm-serving</code> namespace:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>InferenceQueueBacklog</strong>&#8201;&#8212;&#8201;Fires when more than 5 requests are waiting in the inference queue for over 1 minute. Uses the <code>vllm:num_requests_waiting</code> gauge directly.</p>
+</li>
+<li>
+<p><strong>HighTTFTLatency</strong>&#8201;&#8212;&#8201;Fires when the p95 Time to First Token exceeds 1 second for over 2 minutes. Uses <code>histogram_quantile</code> over a 5-minute rate window.</p>
+</li>
+<li>
+<p><strong>KVCacheHighUsage</strong>&#8201;&#8212;&#8201;Fires when the KV cache utilization exceeds 70% for over 1 minute. Uses the <code>vllm:kv_cache_usage_perc</code> gauge.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Now review the GPU health alerts:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>cat alerts/prometheus-rules-gpu.yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This file defines two alert rules in the <code>gpu-health</code> group, in the <code>nvidia-gpu-operator</code> namespace:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>HighGPUUtilization</strong>&#8201;&#8212;&#8201;Fires when GPU utilization exceeds 80% for over 2 minutes. Uses the <code>DCGM_FI_DEV_GPU_UTIL</code> gauge.</p>
+</li>
+<li>
+<p><strong>GPUTemperatureHigh</strong>&#8201;&#8212;&#8201;Fires when GPU temperature exceeds 70 C for over 1 minute. A critical-severity alert for genuine hardware risk.</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_five_alert_summary"><a class="anchor" href="#_five_alert_summary"></a>Five-Alert Summary</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 7.6923%;">
+<col style="width: 15.3846%;">
+<col style="width: 23.0769%;">
+<col style="width: 7.6923%;">
+<col style="width: 7.6923%;">
+<col style="width: 7.6923%;">
+<col style="width: 15.3846%;">
+<col style="width: 15.3847%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">#</th>
+<th class="tableblock halign-left valign-top">Alert Name</th>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">Threshold</th>
+<th class="tableblock halign-left valign-top">for</th>
+<th class="tableblock halign-left valign-top">Severity</th>
+<th class="tableblock halign-left valign-top">Namespace</th>
+<th class="tableblock halign-left valign-top">Evaluator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HighGPUUtilization</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_GPU_UTIL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&gt; 80%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2m</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">warning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nvidia-gpu-operator</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Platform Prometheus</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPUTemperatureHigh</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_GPU_TEMP</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&gt; 70 C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1m</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">critical</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nvidia-gpu-operator</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Platform Prometheus</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">InferenceQueueBacklog</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:num_requests_waiting</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&gt; 5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1m</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">warning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">llm-serving</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UWM Thanos Ruler</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HighTTFTLatency</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">TTFT p95 (histogram)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&gt; 1s</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2m</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">warning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">llm-serving</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UWM Thanos Ruler</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KVCacheHighUsage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:kv_cache_usage_perc</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&gt; 0.7</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1m</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">warning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">llm-serving</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UWM Thanos Ruler</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Every threshold in this table corresponds to a threshold line on the Grafana dashboards from the <a href="../dashboards/index.html" class="xref page">Dashboards</a> chapter. The 80% GPU utilization line, the 70 C temperature line, the red zone at 5 requests waiting, the 70% KV cache line, and the 1-second TTFT line all match. When an alert fires, you open the dashboard and immediately see the metric crossing the corresponding threshold line.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_apply_both_prometheusrules"><a class="anchor" href="#_2_apply_both_prometheusrules"></a>2. Apply Both PrometheusRules</h3>
+<div class="paragraph">
+<p>Apply the inference SLO alerts to the <code>llm-serving</code> namespace:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f alerts/prometheus-rules-vllm.yaml</strong>
+prometheusrule.monitoring.coreos.com/inference-slo-alerts created</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Apply the GPU health alerts to the <code>nvidia-gpu-operator</code> namespace:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f alerts/prometheus-rules-gpu.yaml</strong>
+prometheusrule.monitoring.coreos.com/gpu-health-alerts created</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify both were created:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get prometheusrule inference-slo-alerts -n llm-serving</strong>
+NAME                   AGE
+inference-slo-alerts   5s</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get prometheusrule gpu-health-alerts -n nvidia-gpu-operator</strong>
+NAME                 AGE
+gpu-health-alerts    3s</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+GPU rules go in <code>nvidia-gpu-operator</code> because that namespace has the label <code>openshift.io/cluster-monitoring=true</code>. PrometheusRules in this namespace are evaluated by the <strong>platform Prometheus</strong> instance&#8201;&#8212;&#8201;not UWM Thanos Ruler. Since DCGM metrics are scraped by platform Prometheus and carry <code>namespace="nvidia-gpu-operator"</code>, this is the only namespace where GPU alert rules can match their metrics.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_verify_rules_appear_in_the_openshift_console"><a class="anchor" href="#_3_verify_rules_appear_in_the_openshift_console"></a>3. Verify Rules Appear in the OpenShift Console</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open the <strong>OpenShift Web Console</strong>.</p>
+</li>
+<li>
+<p>Switch to the <strong>Administrator</strong> perspective.</p>
+</li>
+<li>
+<p>Navigate to <strong>Observe &gt; Alerting</strong>.</p>
+</li>
+<li>
+<p>Click on the <strong>Alerting Rules</strong> tab.</p>
+</li>
+<li>
+<p>In the filter/search box, type <code>GPU</code> to find GPU health rules, then <code>Inference</code> or <code>KV</code> to find inference SLO rules.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>All 5 rules should appear, organized under two groups:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>gpu-health</code> (Source: Platform)&#8201;&#8212;&#8201;HighGPUUtilization, GPUTemperatureHigh</p>
+</li>
+<li>
+<p><code>inference-slo</code> (Source: User)&#8201;&#8212;&#8201;InferenceQueueBacklog, HighTTFTLatency, KVCacheHighUsage</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Click on any rule to see its details&#8201;&#8212;&#8201;the expression, <code>for</code> duration, labels, and annotations.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Notice the <strong>Source</strong> column. GPU health rules show <strong>Source: Platform</strong> because they are in the <code>nvidia-gpu-operator</code> namespace (evaluated by platform Prometheus). Inference SLO rules show <strong>Source: User</strong> because they are in <code>llm-serving</code> (evaluated by UWM Thanos Ruler). This confirms your rules are being evaluated by the correct Prometheus instance.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_verify_all_rules_are_inactive"><a class="anchor" href="#_4_verify_all_rules_are_inactive"></a>4. Verify All Rules Are Inactive</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Switch to the <strong>Alerts</strong> tab (not Alerting Rules).</p>
+</li>
+<li>
+<p>Change the filter to <strong>All</strong> if inactive alerts are hidden by default.</p>
+</li>
+<li>
+<p>Search for your custom alert names.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>All alerts should show <strong>Inactive</strong> state.
+This is expected&#8201;&#8212;&#8201;the model is idle, so no thresholds are being crossed.</p>
+</div>
+<details>
+<summary class="title">Troubleshooting: Rules not appearing in the Console</summary>
+<div class="content">
+<div class="paragraph">
+<p>If your rules do not appear within 60 seconds:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Verify both PrometheusRules were created correctly:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get prometheusrule inference-slo-alerts -n llm-serving -o yaml | head -20</strong>
+$ <strong>oc get prometheusrule gpu-health-alerts -n nvidia-gpu-operator -o yaml | head -20</strong></code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Check that UWM Thanos Ruler is running (evaluates <code>llm-serving</code> rules):</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get pods -n openshift-user-workload-monitoring -l app.kubernetes.io/name=thanos-ruler</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If <code>thanos-ruler-user-workload-0</code> is not Running, inference SLO rules will not be evaluated.</p>
+</div>
+</li>
+<li>
+<p>Check that platform Prometheus is running (evaluates <code>nvidia-gpu-operator</code> rules):</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get pods -n openshift-monitoring -l app.kubernetes.io/name=prometheus</strong></code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Check for YAML syntax errors:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get events -n openshift-user-workload-monitoring --sort-by='.lastTimestamp' | tail -10</strong></code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify the PromQL expressions are valid by pasting them into <strong>Observe &gt; Metrics</strong> and running them. If an expression has a syntax error, it will fail there too.</p>
+</li>
+</ol>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Symptom</th>
+<th class="tableblock halign-left valign-top">Cause</th>
+<th class="tableblock halign-left valign-top">Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inference SLO rules not appearing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PrometheusRule not reconciled by UWM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Verify YAML: <code>oc get prometheusrule inference-slo-alerts -n llm-serving -o yaml</code>. Check for syntax errors. Confirm Thanos Ruler is running.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU health rules not appearing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PrometheusRule not reconciled by platform Prometheus</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Verify YAML: <code>oc get prometheusrule gpu-health-alerts -n nvidia-gpu-operator -o yaml</code>. Check that <code>nvidia-gpu-operator</code> has <code>openshift.io/cluster-monitoring=true</code> label.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rules exist but stay Inactive during load</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Expression does not match actual metrics</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Paste the <code>expr</code> into Observe &gt; Metrics and run it during load. Does it return data? Check the <code>vllm:</code> prefix on metric names.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Only GPU rules work; inference SLO rules do not</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">vLLM ServiceMonitor not scraping</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check: <code>oc get servicemonitor -n llm-serving</code> (should show <code>granite-3-1-8b-metrics</code>) and verify metrics with <code>vllm:kv_cache_usage_perc{namespace="llm-serving"}</code> in Observe &gt; Metrics.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 42.8571%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Check</th>
+<th class="tableblock halign-left valign-top">How to Verify</th>
+<th class="tableblock halign-left valign-top">Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">vLLM PrometheusRule created</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get prometheusrule -n llm-serving</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>inference-slo-alerts</code> exists</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU PrometheusRule created</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get prometheusrule -n nvidia-gpu-operator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>gpu-health-alerts</code> exists</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inference SLO rules visible</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Observe &gt; Alerting &gt; Alerting Rules</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">InferenceQueueBacklog, HighTTFTLatency, KVCacheHighUsage listed (Source: User)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU health rules visible</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Observe &gt; Alerting &gt; Alerting Rules</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HighGPUUtilization, GPUTemperatureHigh listed (Source: Platform)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">All rules initially Inactive</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Observe &gt; Alerting &gt; Alerts (filter: All)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">All 5 alerts show Inactive</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_summary"><a class="anchor" href="#_summary"></a>Summary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this exercise, you:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Reviewed two PrometheusRule YAMLs containing five alert rules covering GPU health and inference SLOs</p>
+</li>
+<li>
+<p>Understood why namespace enforcement requires GPU rules in <code>nvidia-gpu-operator</code> and vLLM rules in <code>llm-serving</code></p>
+</li>
+<li>
+<p>Applied both PrometheusRules and verified they were created in the correct namespaces</p>
+</li>
+<li>
+<p>Confirmed all five rules appear in the OpenShift Console Alerting UI with the correct Source designation (Platform vs User)</p>
+</li>
+<li>
+<p>Verified all alerts are Inactive before any load is applied</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In the next exercise, you will generate concurrent load against the model and watch these alerts transition through the full lifecycle in real time.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="alert-design.html">Alert Design for AI Serving</a></span>
+  <span class="next"><a href="load-test.html">Load Test and Observe</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

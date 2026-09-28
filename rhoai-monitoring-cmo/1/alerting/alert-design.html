@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Alert Design for AI Serving :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="prometheus-rules.html">
+    <link rel="next" href="create-alerts.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Alerting</a></li>
+    <li><a href="alert-design.html">Alert Design for AI Serving</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Alert Design for AI Serving</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Knowing how to write a PrometheusRule is not the same as knowing what to alert on.
+The previous page covered the mechanics&#8201;&#8212;&#8201;YAML structure, the <code>for</code> field, namespace enforcement.
+This page covers the strategy: which metrics deserve alerts, what thresholds to use, and how alerts connect to the dashboards you built in <a href="../dashboards/index.html" class="xref page">the Dashboards chapter</a>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/alert-visibility.svg" alt="Alert visibility across OpenShift Console and Grafana showing alert lifecycle and where to view alerts" width="780">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_two_categories_of_alerts"><a class="anchor" href="#_two_categories_of_alerts"></a>Two Categories of Alerts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <a href="../observability-foundations/three-layers.html" class="xref page">three observability layers</a> from the foundations chapter map directly to two alert categories.
+Layer 2 (platform infrastructure) produces infrastructure alerts.
+Layer 3 (application telemetry) produces application alerts.
+You need both.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_infrastructure_alerts_gpu_health_layer_2"><a class="anchor" href="#_infrastructure_alerts_gpu_health_layer_2"></a>Infrastructure Alerts: GPU Health (Layer 2)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Infrastructure alerts tell you about the hardware.
+They fire regardless of what application is running on the GPU.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 30%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 30%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Alert</th>
+<th class="tableblock halign-left valign-top">Expression</th>
+<th class="tableblock halign-left valign-top">for</th>
+<th class="tableblock halign-left valign-top">Severity</th>
+<th class="tableblock halign-left valign-top">Action When It Fires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HighGPUUtilization</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_GPU_UTIL &gt; 80</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2m</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">warning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check traffic volume, consider scaling replicas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPUTemperatureHigh</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_GPU_TEMP &gt; 70</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1m</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">critical</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check datacenter cooling, reduce workload immediately</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>HighGPUUtilization</strong> uses a 2-minute stabilization window because GPU utilization naturally spikes during inference requests.
+A single large prompt can push utilization above 80% for several seconds.
+The 2-minute window filters out these per-request spikes and fires only when the GPU is <em>sustained</em> above the threshold&#8201;&#8212;&#8201;indicating the model server is approaching saturation.</p>
+</div>
+<div class="paragraph">
+<p><strong>GPUTemperatureHigh</strong> is the only <code>critical</code> alert in our lab.
+GPU overheating can cause thermal throttling (reduced clock speeds and degraded inference performance) and in extreme cases hardware damage.
+The 1-minute stabilization window is shorter because temperature problems are genuine emergencies&#8201;&#8212;&#8201;you want to know quickly.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The 70C threshold is conservative for NVIDIA GPUs, which can operate safely up to 83-90C depending on the model. In a production environment, you would adjust this threshold based on your specific GPU hardware and datacenter cooling capacity.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_application_alerts_inference_slos_layer_3"><a class="anchor" href="#_application_alerts_inference_slos_layer_3"></a>Application Alerts: Inference SLOs (Layer 3)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Application alerts tell you about the user experience.
+They are specific to the vLLM model server and the metrics it exposes.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 18.1818%;">
+<col style="width: 36.3636%;">
+<col style="width: 9.0909%;">
+<col style="width: 9.0909%;">
+<col style="width: 27.2728%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Alert</th>
+<th class="tableblock halign-left valign-top">Expression</th>
+<th class="tableblock halign-left valign-top">for</th>
+<th class="tableblock halign-left valign-top">Severity</th>
+<th class="tableblock halign-left valign-top">Action When It Fires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">InferenceQueueBacklog</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:num_requests_waiting &gt; 5</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1m</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">warning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scale replicas or throttle incoming traffic</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HighTTFTLatency</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>histogram_quantile(0.95, sum by(le) (rate(vllm:time_to_first_token_seconds_bucket[5m]))) &gt; 1</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2m</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">warning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Investigate GPU saturation or excessive prompt lengths</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KVCacheHighUsage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:kv_cache_usage_perc &gt; 0.7</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1m</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">warning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reduce <code>max_model_len</code>, scale replicas, or shed load</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>InferenceQueueBacklog</strong> is the most direct measure of user impact.
+When requests are waiting in the queue, users are experiencing delay beyond the model&#8217;s actual inference time.
+A model with 200 requests running and 0 waiting is healthy&#8201;&#8212;&#8201;the GPU is efficiently utilized.
+A model with 200 running and 50 waiting is saturated&#8201;&#8212;&#8201;users are suffering.</p>
+</div>
+<div class="paragraph">
+<p><strong>HighTTFTLatency</strong> alerts on the p95 time to first token.
+This is what users perceive as "how long until the model starts responding."
+The p95 threshold means 1 in 20 requests is slower than 1 second&#8201;&#8212;&#8201;a meaningful fraction of users are having a poor experience.</p>
+</div>
+<div class="paragraph">
+<p><strong>KVCacheHighUsage</strong> is an early warning signal.
+When the KV cache fills up, vLLM cannot admit new requests for processing, and they begin queuing.
+Alerting at 70% gives you time to act before the cache reaches 100% and queue backlog alerts begin firing.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Notice how KVCacheHighUsage is designed as an <em>early warning</em> that fires before InferenceQueueBacklog. The KV cache fills up first, then requests start queuing. If you only alert on queue backlog, you find out about the problem after users are already affected. If you also alert on KV cache usage, you get advance notice.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_both_categories_matter"><a class="anchor" href="#_why_both_categories_matter"></a>Why Both Categories Matter</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Infrastructure and application alerts can tell opposite stories.
+Consider three scenarios:</p>
+</div>
+<div class="sect2">
+<h3 id="_scenario_a_gpu_busy_no_user_impact"><a class="anchor" href="#_scenario_a_gpu_busy_no_user_impact"></a>Scenario A: GPU Busy, No User Impact</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>GPU utilization at 95%&#8201;&#8212;&#8201;HighGPUUtilization fires</p>
+</li>
+<li>
+<p>Requests waiting: 0&#8201;&#8212;&#8201;No application alert fires</p>
+</li>
+<li>
+<p><strong>Diagnosis: HEALTHY</strong>&#8201;&#8212;&#8201;the GPU is efficiently utilized with no users waiting</p>
+</li>
+<li>
+<p>Action: None&#8201;&#8212;&#8201;this is the ideal state for cost efficiency</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scenario_b_gpu_idle_users_suffering"><a class="anchor" href="#_scenario_b_gpu_idle_users_suffering"></a>Scenario B: GPU Idle, Users Suffering</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>GPU utilization at 40%&#8201;&#8212;&#8201;No infrastructure alert fires</p>
+</li>
+<li>
+<p>Requests waiting: 10&#8201;&#8212;&#8201;InferenceQueueBacklog fires</p>
+</li>
+<li>
+<p><strong>Diagnosis: UNHEALTHY</strong>&#8201;&#8212;&#8201;the bottleneck is <em>not</em> the GPU</p>
+</li>
+<li>
+<p>Action: Investigate CPU, network, or KV cache as the real bottleneck</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scenario_c_gpu_saturated_users_affected"><a class="anchor" href="#_scenario_c_gpu_saturated_users_affected"></a>Scenario C: GPU Saturated, Users Affected</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>GPU utilization at 95%&#8201;&#8212;&#8201;HighGPUUtilization fires</p>
+</li>
+<li>
+<p>Requests waiting: 15, KV cache at 93%&#8201;&#8212;&#8201;InferenceQueueBacklog and KVCacheHighUsage fire</p>
+</li>
+<li>
+<p><strong>Diagnosis: GPU is saturated AND users are affected</strong></p>
+</li>
+<li>
+<p>Action: Scale out (add GPU replicas) or shed load</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If you only had infrastructure alerts, you would alert on Scenario A (wasting the on-call engineer&#8217;s time) and miss Scenario B (where users are actually suffering).
+If you only had application alerts, you would catch B and C but miss early warning signs from infrastructure trends.
+You need both categories to understand what is happening and why.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_alert_dashboard_connection"><a class="anchor" href="#_the_alert_dashboard_connection"></a>The Alert-Dashboard Connection</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Alerts and dashboards are designed to work as a pair.
+When an alert fires, the first thing the on-call engineer does is open the relevant dashboard.
+This means your alert thresholds and your dashboard panels must use the same metrics and the same thresholds.</p>
+</div>
+<div class="sect2">
+<h3 id="_the_investigation_workflow"><a class="anchor" href="#_the_investigation_workflow"></a>The Investigation Workflow</h3>
+<div class="paragraph">
+<p>The typical response to a firing alert follows this sequence:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Alert fires</strong>&#8201;&#8212;&#8201;The engineer sees "HighGPUUtilization" in the OpenShift Console or receives a Slack or PagerDuty notification</p>
+</li>
+<li>
+<p><strong>Open GPU Health dashboard</strong>&#8201;&#8212;&#8201;The engineer sees GPU at 92%, temperature at 68C (safe), power at 65W. Conclusion: GPU is busy but hardware is OK</p>
+</li>
+<li>
+<p><strong>Open vLLM Inference dashboard</strong>&#8201;&#8212;&#8201;The engineer sees 15 requests waiting, KV cache at 88%, TTFT p95 at 5 seconds. Conclusion: a traffic spike is saturating the model</p>
+</li>
+<li>
+<p><strong>Take action</strong>&#8201;&#8212;&#8201;Scale up replicas (if GPU nodes have capacity), implement request rate limiting, or reduce <code>max_model_len</code> to allow more concurrent requests</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_threshold_dashboard_alignment"><a class="anchor" href="#_threshold_dashboard_alignment"></a>Threshold-Dashboard Alignment</h3>
+<div class="paragraph">
+<p>Each alert threshold matches a threshold line on the corresponding Grafana dashboard:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Alert</th>
+<th class="tableblock halign-left valign-top">Threshold</th>
+<th class="tableblock halign-left valign-top">Dashboard</th>
+<th class="tableblock halign-left valign-top">Visual Indicator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HighGPUUtilization</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">80%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU Health</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Orange threshold line at 80% on the utilization panel</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPUTemperatureHigh</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">70C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU Health</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Red threshold line at 70C on the temperature panel</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">InferenceQueueBacklog</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5 requests</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">vLLM Inference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Red zone at 5 on the requests waiting panel</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KVCacheHighUsage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">70%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">vLLM Inference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Orange threshold line at 0.7 on the KV cache panel</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HighTTFTLatency</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1 second</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">vLLM Inference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Red threshold line at 1s on the TTFT panel</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>When the alert fires, the engineer opens the dashboard and immediately sees the metric crossing the same threshold line.
+There is no guessing about "what threshold did this alert use?"&#8201;&#8212;&#8201;it is visually obvious.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+If you change an alert threshold, update the corresponding dashboard panel threshold at the same time. An alert that fires at 80% GPU utilization while the dashboard shows a red line at 95% creates confusion during incident response.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_beyond_the_lab_alertmanagerconfig"><a class="anchor" href="#_beyond_the_lab_alertmanagerconfig"></a>Beyond the Lab: AlertmanagerConfig</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the exercises for this chapter, you will observe alerts in the OpenShift Console.
+In production, you would want alerts to reach engineers wherever they are&#8201;&#8212;&#8201;Slack, PagerDuty, email, or Microsoft Teams.</p>
+</div>
+<div class="paragraph">
+<p>This is the role of <strong>Alertmanager</strong>, which is already running in the <code>openshift-monitoring</code> namespace.
+Alertmanager performs four functions:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Receives</strong> firing alerts from Prometheus</p>
+</li>
+<li>
+<p><strong>Groups</strong> related alerts so you do not get 50 separate notifications for one incident</p>
+</li>
+<li>
+<p><strong>Routes</strong> alerts based on labels (severity, team, namespace) to the right notification channel</p>
+</li>
+<li>
+<p><strong>Delivers</strong> notifications to configured receivers (Slack webhook, PagerDuty API key, email SMTP)</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>For user-namespace alerts, configuration is done via <code>AlertmanagerConfig</code> custom resources.
+Here is an example for reference&#8201;&#8212;&#8201;this is not part of the lab exercises:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: monitoring.coreos.com/v1beta1
+kind: AlertmanagerConfig
+metadata:
+  name: slack-notifications
+  namespace: llm-serving
+spec:
+  route:
+    receiver: slack-channel
+    matchers:
+      - name: severity
+        value: warning
+  receivers:
+    - name: slack-channel
+      slackConfigs:
+        - channel: "#ai-platform-alerts"
+          apiURL:
+            name: slack-webhook-secret
+            key: url</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This example routes all <code>warning</code> alerts from the <code>llm-serving</code> namespace to a Slack channel.
+You would create a separate route for <code>critical</code> alerts to send them to PagerDuty for immediate paging.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+AlertmanagerConfig is not part of the lab exercises because it requires a Slack workspace or PagerDuty account. However, it is the natural next step after this course. The path from "alert fires" to "human gets notified" runs through Alertmanager, and configuring it is essential for production use.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_books_and_articles"><a class="anchor" href="#_books_and_articles"></a>Books and Articles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://sre.google/sre-book/monitoring-distributed-systems/" target="_blank" rel="noopener">Google SRE Book&#8201;&#8212;&#8201;Chapter 6: Monitoring Distributed Systems</a></p>
+</li>
+<li>
+<p><a href="https://sre.google/workbook/alerting-on-slos/" target="_blank" rel="noopener">Google SRE Workbook&#8201;&#8212;&#8201;Alerting on SLOs</a></p>
+</li>
+<li>
+<p><a href="https://grafana.com/blog/2018/08/02/the-red-method-how-to-instrument-your-services/" target="_blank" rel="noopener">Tom Wilkie&#8201;&#8212;&#8201;The RED Method: How to Instrument Your Services</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_red_hat_documentation"><a class="anchor" href="#_red_hat_documentation"></a>Red Hat Documentation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/managing-alerts#applying-a-custom-alertmanager-configuration_managing-alerts" target="_blank" rel="noopener">OpenShift&#8201;&#8212;&#8201;Applying a Custom Alertmanager Configuration</a></p>
+</li>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/managing-alerts#creating-alerting-rules-for-user-defined-projects_managing-alerts" target="_blank" rel="noopener">OpenShift&#8201;&#8212;&#8201;Creating Alerting Rules for User-Defined Projects</a></p>
+</li>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/monitoring_data_science_models/monitoring-model-performance_monitor" target="_blank" rel="noopener">Red Hat OpenShift AI&#8201;&#8212;&#8201;Monitoring Model Performance</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_upstream_resources"><a class="anchor" href="#_upstream_resources"></a>Upstream Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://prometheus.io/docs/practices/alerting/" target="_blank" rel="noopener">Prometheus&#8201;&#8212;&#8201;Alerting Best Practices</a></p>
+</li>
+<li>
+<p><a href="https://prometheus.io/docs/alerting/latest/configuration/" target="_blank" rel="noopener">Prometheus&#8201;&#8212;&#8201;Alertmanager Configuration</a></p>
+</li>
+<li>
+<p><a href="https://docs.vllm.ai/en/stable/serving/metrics.html" target="_blank" rel="noopener">vLLM&#8201;&#8212;&#8201;Production Metrics</a></p>
+</li>
+<li>
+<p><a href="https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/index.html" target="_blank" rel="noopener">NVIDIA DCGM User Guide</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="prometheus-rules.html">Anatomy of a PrometheusRule</a></span>
+  <span class="next"><a href="create-alerts.html">Create Alert Rules</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

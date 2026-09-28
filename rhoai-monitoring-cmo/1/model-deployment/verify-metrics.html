@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Verify the Metrics Pipeline :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="deploy-model.html">
+    <link rel="next" href="../dashboards/index.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Model Deployment and Metrics</a></li>
+    <li><a href="verify-metrics.html">Verify the Metrics Pipeline</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Verify the Metrics Pipeline</h1>
+<div class="sect1">
+<h2 id="_concepts"><a class="anchor" href="#_concepts"></a>Concepts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the previous exercise you deployed Granite 3.1 8B on the L4 GPU.
+The model is running and serving inference, but you have not yet verified that its metrics are flowing into Prometheus.</p>
+</div>
+<div class="paragraph">
+<p>In this exercise, you will:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Send inference requests and verify the model generates coherent text</p>
+</li>
+<li>
+<p>Examine the raw Prometheus metrics that vLLM exposes</p>
+</li>
+<li>
+<p>Examine the auto-created ServiceMonitor that connects vLLM metrics to Prometheus</p>
+</li>
+<li>
+<p>Query vLLM inference metrics from the OpenShift Console</p>
+</li>
+<li>
+<p>Confirm all three layers of observability are operational</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lab"><a class="anchor" href="#_lab"></a>Lab</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_test_the_model_endpoint"><a class="anchor" href="#_1_test_the_model_endpoint"></a>1. Test the Model Endpoint</h3>
+<div class="paragraph">
+<p>Verify that the model is serving inference before worrying about metrics.</p>
+</div>
+<div class="paragraph">
+<p>Set up port-forwarding to the model pod:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>POD_NAME=$(oc get pods -n llm-serving -l serving.kserve.io/inferenceservice=granite-3-1-8b -o jsonpath='{.items[0].metadata.name}')</strong>
+$ <strong>oc port-forward pod/$POD_NAME 8080:8080 -n llm-serving &amp;</strong></code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+KServe RawDeployment creates a <strong>headless</strong> predictor service (ClusterIP: None). You cannot port-forward to the service directly&#8201;&#8212;&#8201;port-forward to the pod instead.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Send a test inference request:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>curl -s http://localhost:8080/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "granite-3-1-8b",
+    "prompt": "OpenShift AI is",
+    "max_tokens": 50,
+    "temperature": 0.7
+  }' | python3 -m json.tool</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see a JSON response with coherent text in the <code>choices[0].text</code> field.
+Things to notice:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>"model": "granite-3-1-8b"</code>&#8201;&#8212;&#8201;The model name matches the InferenceService name, thanks to <code>--served-model-name=\{{.Name}}</code> in the ServingRuntime.</p>
+</li>
+<li>
+<p><code>"finish_reason": "length"</code>&#8201;&#8212;&#8201;The model was cut off at <code>max_tokens</code> (50). It would have generated more if allowed.</p>
+</li>
+<li>
+<p><code>"prompt_tokens": 4</code>&#8201;&#8212;&#8201;"OpenShift AI is" is 4 tokens. This is what gets processed in the prefill phase.</p>
+</li>
+<li>
+<p><code>"completion_tokens": 50</code>&#8201;&#8212;&#8201;50 tokens generated in the decode phase.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Try a chat-style request:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>curl -s http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "granite-3-1-8b",
+    "messages": [
+      {"role": "user", "content": "What is Kubernetes? Explain in 2 sentences."}
+    ],
+    "max_tokens": 100
+  }' | python3 -m json.tool</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should get a clear, well-structured answer.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_examine_raw_vllm_metrics"><a class="anchor" href="#_2_examine_raw_vllm_metrics"></a>2. Examine Raw vLLM Metrics</h3>
+<div class="paragraph">
+<p>Before connecting Prometheus, look at the raw metrics that vLLM serves.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc exec $POD_NAME -c kserve-container -n llm-serving -- curl -s localhost:8080/metrics | head -80</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You will see Prometheus-format metrics, each on a line, with optional labels in curly braces.</p>
+</div>
+<div class="paragraph">
+<p>Explore specific metric categories:</p>
+</div>
+<div class="sect3">
+<h4 id="_saturation_metrics_gauges"><a class="anchor" href="#_saturation_metrics_gauges"></a>Saturation metrics (gauges)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc exec $POD_NAME -c kserve-container -n llm-serving -- curl -s localhost:8080/metrics | grep -E "^vllm:(num_requests|kv_cache)" | head -10</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At idle (no active requests), you should see <code>num_requests_running</code> = 0, <code>num_requests_waiting</code> = 0, and <code>kv_cache_usage_perc</code> = 0.0.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_throughput_metrics_counters"><a class="anchor" href="#_throughput_metrics_counters"></a>Throughput metrics (counters)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc exec $POD_NAME -c kserve-container -n llm-serving -- curl -s localhost:8080/metrics | grep -E "^vllm:(prompt_tokens|generation_tokens|request_success|num_preemptions)" | head -10</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you have sent test requests, you should see non-zero values for <code>prompt_tokens_total</code> and <code>generation_tokens_total</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_latency_metrics_histograms"><a class="anchor" href="#_latency_metrics_histograms"></a>Latency metrics (histograms)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc exec $POD_NAME -c kserve-container -n llm-serving -- curl -s localhost:8080/metrics | grep "vllm:e2e_request_latency_seconds" | head -20</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You will see many lines&#8201;&#8212;&#8201;one per histogram bucket.
+Each line has an <code>le</code> (less than or equal) label indicating the bucket boundary.
+The <code>_sum</code> line shows the total latency, and the <code>_count</code> line shows the total number of requests.</p>
+</div>
+<div class="paragraph">
+<p>With Granite 8B, a 50-token completion might show 2-5 seconds of E2E latency&#8201;&#8212;&#8201;real, measurable inference time that makes these metrics meaningful on dashboards.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_count_total_metrics"><a class="anchor" href="#_count_total_metrics"></a>Count total metrics</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc exec $POD_NAME -c kserve-container -n llm-serving -- curl -s localhost:8080/metrics | grep -v "^#" | wc -l</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You will likely see ~400 metric lines.
+vLLM exposes a rich set of metrics&#8201;&#8212;&#8201;far more than you will use in dashboards.
+The ServiceMonitor scrapes all of them; you select which ones to visualize and alert on in the <a href="../dashboards/index.html" class="xref page">Dashboards</a> and <a href="../alerting/index.html" class="xref page">Alerting</a> chapters.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_examine_the_auto_created_servicemonitor"><a class="anchor" href="#_3_examine_the_auto_created_servicemonitor"></a>3. Examine the Auto-Created ServiceMonitor</h3>
+<div class="paragraph">
+<p>When you deployed the InferenceService, the KServe controller automatically created a ServiceMonitor.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get servicemonitor -n llm-serving</strong>
+NAME                     AGE
+granite-3-1-8b-metrics   10m</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Examine the ServiceMonitor YAML:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get servicemonitor granite-3-1-8b-metrics -n llm-serving -o yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Study the key fields:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ownerReferences</code>&#8201;&#8212;&#8201;The InferenceService owns this ServiceMonitor. If you delete the InferenceService, the ServiceMonitor is garbage-collected automatically.</p>
+</li>
+<li>
+<p><code>selector.matchLabels</code>&#8201;&#8212;&#8201;Selects the dedicated <code>granite-3-1-8b-metrics</code> Service that KServe also auto-created.</p>
+</li>
+<li>
+<p><code>endpoints[0].port</code>&#8201;&#8212;&#8201;Matches by port <strong>name</strong>, not port number. Using a port number instead of a name would silently fail&#8201;&#8212;&#8201;this is the #1 ServiceMonitor debugging gotcha.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Verify the matching Service exists:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get svc -n llm-serving -l name=granite-3-1-8b-metrics</strong>
+NAME                     TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+granite-3-1-8b-metrics   ClusterIP   172.30.x.x     &lt;none&gt;        8080/TCP   10m</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Compare with the predictor Service:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get svc -n llm-serving --show-labels</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice the two services KServe created:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>granite-3-1-8b-predictor</code>&#8201;&#8212;&#8201;Headless service (ClusterIP: None) for inference traffic</p>
+</li>
+<li>
+<p><code>granite-3-1-8b-metrics</code>&#8201;&#8212;&#8201;ClusterIP service for Prometheus scraping</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The ServiceMonitor targets the metrics Service, not the predictor Service.
+This separation keeps inference traffic and monitoring traffic on different network paths.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_verify_prometheus_is_scraping"><a class="anchor" href="#_4_verify_prometheus_is_scraping"></a>4. Verify Prometheus Is Scraping</h3>
+<div class="paragraph">
+<p>After the ServiceMonitor exists, Prometheus needs 30-60 seconds to discover the new target.</p>
+</div>
+<div class="sect3">
+<h4 id="_4a_check_via_the_openshift_console"><a class="anchor" href="#_4a_check_via_the_openshift_console"></a>4a. Check via the OpenShift Console</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open the <strong>OpenShift Web Console</strong></p>
+</li>
+<li>
+<p>Navigate to <strong>Observe &gt; Targets</strong> (Administrator perspective)</p>
+</li>
+<li>
+<p>In the filter/search box, type <code>llm-serving</code></p>
+</li>
+<li>
+<p>You should see a target with:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>State</strong>: <code>Up</code> (green)</p>
+</li>
+<li>
+<p><strong>Namespace</strong>: <code>llm-serving</code></p>
+</li>
+<li>
+<p><strong>Last Scrape</strong>: Within the last 30 seconds</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<details>
+<summary class="title">Troubleshooting: Target not appearing</summary>
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>No target at all</strong>: The ServiceMonitor&#8217;s label selector does not match any Service. Go back to step 3 and verify the matching Service exists. Wait 60 seconds and refresh.</p>
+</li>
+<li>
+<p><strong>Target shows <code>Down</code> (red)</strong>: The endpoint is unreachable. Verify the pod&#8217;s port 8080 is serving metrics (step 2).</p>
+</li>
+<li>
+<p><strong>UWM not running</strong>: Verify UWM is still running: <code>oc get pods -n openshift-user-workload-monitoring</code></p>
+</li>
+</ul>
+</div>
+</div>
+</details>
+</div>
+<div class="sect3">
+<h4 id="_4b_query_vllm_metrics_in_the_console"><a class="anchor" href="#_4b_query_vllm_metrics_in_the_console"></a>4b. Query vLLM metrics in the Console</h4>
+<div class="paragraph">
+<p>Navigate to <strong>Observe &gt; Metrics</strong> and query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>vllm:num_requests_running{namespace="llm-serving"}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see a time series showing 0 (since no requests are active right now).</p>
+</div>
+<div class="paragraph">
+<p>Try additional queries:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>vllm:kv_cache_usage_perc{namespace="llm-serving"}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Should return 0.0 or very close to it at idle.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>vllm:prompt_tokens_total{namespace="llm-serving"}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Should show a small value (the tokens from your test requests in step 1).</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_watch_metrics_change_under_load"><a class="anchor" href="#_5_watch_metrics_change_under_load"></a>5. Watch Metrics Change Under Load</h3>
+<div class="paragraph">
+<p>Open two terminal windows or tabs:</p>
+</div>
+<div class="paragraph">
+<p><strong>Terminal 1</strong>&#8201;&#8212;&#8201;Watch the metric: In the OpenShift Console Metrics tab, query <code>vllm:num_requests_running{namespace="llm-serving"}</code> and set the refresh to 15 seconds.</p>
+</div>
+<div class="paragraph">
+<p><strong>Terminal 2</strong>&#8201;&#8212;&#8201;Send a request with long output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>curl -s http://localhost:8080/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "granite-3-1-8b",
+    "prompt": "Write a detailed essay about the history of artificial intelligence:",
+    "max_tokens": 512,
+    "temperature": 0.7
+  }' &gt; /dev/null &amp;</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With Granite 8B, a 512-token completion takes several seconds&#8201;&#8212;&#8201;long enough to be visible across multiple Prometheus scrape intervals.
+Watch <code>vllm:num_requests_running</code> jump to 1, and check <code>vllm:kv_cache_usage_perc</code>&#8201;&#8212;&#8201;you should see it briefly rise above 0 as the KV cache fills for this request.
+After the request completes, both metrics return to 0.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_6_verify_all_three_layers"><a class="anchor" href="#_6_verify_all_three_layers"></a>6. Verify All Three Layers</h3>
+<div class="paragraph">
+<p>Confirm that all three observability layers are operational.</p>
+</div>
+<div class="sect3">
+<h4 id="_layer_1_containerplatform_metrics"><a class="anchor" href="#_layer_1_containerplatform_metrics"></a>Layer 1: Container/Platform Metrics</h4>
+<div class="listingblock">
+<div class="content">
+<pre>container_cpu_usage_seconds_total{namespace="llm-serving", pod=~"granite-3-1-8b.*"}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Should show CPU usage for the model pod. This has always been available&#8201;&#8212;&#8201;no extra setup needed.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_layer_2_gpu_hardware_metrics"><a class="anchor" href="#_layer_2_gpu_hardware_metrics"></a>Layer 2: GPU Hardware Metrics</h4>
+<div class="listingblock">
+<div class="content">
+<pre>DCGM_FI_DEV_GPU_UTIL</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Should show GPU utilization from the DCGM exporter (set up in Chapter 1).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_layer_3_applicationinference_metrics"><a class="anchor" href="#_layer_3_applicationinference_metrics"></a>Layer 3: Application/Inference Metrics</h4>
+<div class="listingblock">
+<div class="content">
+<pre>vllm:kv_cache_usage_perc{namespace="llm-serving"}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Should show the KV cache usage from vLLM (enabled by the auto-created ServiceMonitor).</p>
+</div>
+<div class="paragraph">
+<p>All three returning data?
+You have the complete observability pipeline operational.
+In the <a href="../dashboards/index.html" class="xref page">Dashboards</a> chapter, you will build Grafana dashboards that visualize these metrics, and in the <a href="../alerting/index.html" class="xref page">Alerting</a> chapter, you will create alerts that fire when they cross dangerous thresholds.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_7_stop_port_forwarding"><a class="anchor" href="#_7_stop_port_forwarding"></a>7. Stop Port-Forwarding</h3>
+<div class="paragraph">
+<p>When you are done testing, stop the background port-forward:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>kill %1</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or to kill all port-forwards:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>pkill -f "oc port-forward"</strong></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 42.8571%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Check</th>
+<th class="tableblock halign-left valign-top">How to Verify</th>
+<th class="tableblock halign-left valign-top">Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inference works</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Send curl request (step 1)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">JSON response with coherent text</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Raw metrics accessible</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc exec &lt;pod&gt; -c kserve-container -n llm-serving&#8201;&#8212;&#8201;curl -s localhost:8080/metrics | head</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prometheus-format metrics</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ServiceMonitor auto-created</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get servicemonitor -n llm-serving</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>granite-3-1-8b-metrics</code> exists</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prometheus target up</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Console &gt; Observe &gt; Targets</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Target shows "Up"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">vLLM metrics queryable</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query <code>vllm:num_requests_running{namespace="llm-serving"}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns data</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">All 3 layers working</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query from each layer (step 6)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">All three return data</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_summary"><a class="anchor" href="#_summary"></a>Summary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this chapter, you:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Learned how prefill and decode phases map to different inference metrics</p>
+</li>
+<li>
+<p>Explored the four categories of vLLM metrics and their Prometheus types</p>
+</li>
+<li>
+<p>Created all three resources (HardwareProfile, ServingRuntime, InferenceService) to deploy Granite 3.1 8B</p>
+</li>
+<li>
+<p>Examined the auto-created ServiceMonitor and the metrics scraping chain</p>
+</li>
+<li>
+<p>Verified that all three layers of observability&#8201;&#8212;&#8201;container, GPU, and inference metrics&#8201;&#8212;&#8201;are now flowing into Prometheus</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Notice what is still missing: you have all the data flowing, but no way to visualize it in meaningful dashboards or alert when something goes wrong.
+In the next chapter, you will install the Grafana Operator, connect it to Thanos Querier, and build dashboards that turn these raw metrics into actionable views.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="deploy-model.html">Deploy the Model</a></span>
+  <span class="next"><a href="../dashboards/index.html">Observability Dashboards</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

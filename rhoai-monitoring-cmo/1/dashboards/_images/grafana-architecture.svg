@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 520" font-family="Red Hat Text, Liberation Sans, sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#4a4a4a"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="780" height="520" rx="6" fill="#fafafa" stroke="#d0d0d0"/>
+
+  <!-- Title -->
+  <text x="390" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Grafana Operator Custom Resource Architecture</text>
+
+  <!-- user-grafana namespace box -->
+  <rect x="30" y="45" width="720" height="430" rx="5" fill="#f0f4ff" stroke="#6b8dd6" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="45" y="65" font-size="12" fill="#6b8dd6" font-weight="bold">namespace: user-grafana</text>
+
+  <!-- Grafana Operator box -->
+  <rect x="50" y="80" width="200" height="60" rx="4" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="150" y="102" text-anchor="middle" font-weight="bold" fill="#e65100">Grafana Operator</text>
+  <text x="150" y="118" text-anchor="middle" font-size="11" fill="#666">(Subscription CR)</text>
+  <text x="150" y="132" text-anchor="middle" font-size="10" fill="#999">community-operators / v5</text>
+
+  <!-- Grafana CR box -->
+  <rect x="290" y="80" width="200" height="60" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+  <text x="390" y="102" text-anchor="middle" font-weight="bold" fill="#2e7d32">Grafana CR</text>
+  <text x="390" y="118" text-anchor="middle" font-size="11" fill="#666">grafana.integreatly.org/v1beta1</text>
+  <text x="390" y="132" text-anchor="middle" font-size="10" fill="#999">label: dashboards=grafana</text>
+
+  <!-- Arrow: Operator -> Grafana CR -->
+  <line x1="250" y1="110" x2="285" y2="110" stroke="#4a4a4a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="267" y="103" text-anchor="middle" font-size="9" fill="#888">reconciles</text>
+
+  <!-- Pod box -->
+  <rect x="530" y="75" width="200" height="70" rx="4" fill="#fff" stroke="#666" stroke-width="1"/>
+  <text x="630" y="93" text-anchor="middle" font-weight="bold" font-size="12" fill="#333">Grafana Pod</text>
+  <!-- Two containers inside -->
+  <rect x="540" y="100" width="85" height="35" rx="3" fill="#e3f2fd" stroke="#1565c0"/>
+  <text x="582" y="117" text-anchor="middle" font-size="10" fill="#1565c0">grafana</text>
+  <text x="582" y="129" text-anchor="middle" font-size="9" fill="#999">:3000</text>
+  <rect x="635" y="100" width="85" height="35" rx="3" fill="#fce4ec" stroke="#c62828"/>
+  <text x="677" y="117" text-anchor="middle" font-size="10" fill="#c62828">oauth-proxy</text>
+  <text x="677" y="129" text-anchor="middle" font-size="9" fill="#999">:9091</text>
+
+  <!-- Arrow: Grafana CR -> Pod -->
+  <line x1="490" y1="110" x2="525" y2="110" stroke="#4a4a4a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="507" y="103" text-anchor="middle" font-size="9" fill="#888">creates</text>
+
+  <!-- Row 2: GrafanaDatasource -->
+  <rect x="50" y="175" width="310" height="85" rx="4" fill="#e8eaf6" stroke="#283593" stroke-width="1.5"/>
+  <text x="205" y="197" text-anchor="middle" font-weight="bold" fill="#283593">GrafanaDatasource CR</text>
+  <text x="205" y="215" text-anchor="middle" font-size="11" fill="#666">prometheus-grafanadatasource</text>
+  <text x="70" y="235" font-size="10" fill="#555">url: thanos-querier.openshift-monitoring.svc:9091</text>
+  <text x="70" y="250" font-size="10" fill="#555">auth: Bearer token from grafana-auth-secret</text>
+
+  <!-- instanceSelector arrow from Datasource to Grafana CR -->
+  <path d="M 360,195 Q 390,170 390,145" fill="none" stroke="#283593" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <text x="400" y="170" font-size="9" fill="#283593">instanceSelector</text>
+
+  <!-- Secret box -->
+  <rect x="400" y="185" width="180" height="55" rx="4" fill="#fff" stroke="#666" stroke-width="1"/>
+  <text x="490" y="207" text-anchor="middle" font-weight="bold" font-size="12" fill="#333">grafana-auth-secret</text>
+  <text x="490" y="222" text-anchor="middle" font-size="10" fill="#888">type: service-account-token</text>
+  <text x="490" y="234" text-anchor="middle" font-size="10" fill="#888">SA: grafana-sa</text>
+
+  <!-- Arrow: Secret -> Datasource -->
+  <line x1="400" y1="215" x2="365" y2="215" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="382" y="210" text-anchor="middle" font-size="9" fill="#888">valuesFrom</text>
+
+  <!-- Row 3: GrafanaFolder + GrafanaDashboard -->
+  <rect x="50" y="295" width="200" height="55" rx="4" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.5"/>
+  <text x="150" y="317" text-anchor="middle" font-weight="bold" fill="#6a1b9a">GrafanaFolder CR</text>
+  <text x="150" y="337" text-anchor="middle" font-size="10" fill="#666">RHOAI Single Model Serving</text>
+
+  <rect x="290" y="295" width="320" height="55" rx="4" fill="#e0f2f1" stroke="#00695c" stroke-width="1.5"/>
+  <text x="450" y="317" text-anchor="middle" font-weight="bold" fill="#00695c">GrafanaDashboard CR</text>
+  <text x="450" y="337" text-anchor="middle" font-size="10" fill="#666">nvidia-gpu-vllm-metrics-dashboard (embedded JSON)</text>
+
+  <!-- instanceSelector arrows from Folder/Dashboard to Grafana CR -->
+  <path d="M 150,295 Q 150,160 290,140" fill="none" stroke="#6a1b9a" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <path d="M 450,295 Q 500,160 490,140" fill="none" stroke="#00695c" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+
+  <!-- Arrow: Dashboard -> Folder -->
+  <line x1="290" y1="322" x2="255" y2="322" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="272" y="315" text-anchor="middle" font-size="9" fill="#888">folder:</text>
+
+  <!-- Row 4: RBAC -->
+  <rect x="50" y="385" width="310" height="55" rx="4" fill="#ffebee" stroke="#b71c1c" stroke-width="1.5"/>
+  <text x="205" y="407" text-anchor="middle" font-weight="bold" fill="#b71c1c">ClusterRoleBindings</text>
+  <text x="70" y="427" font-size="10" fill="#555">cluster-monitoring-view  (Thanos query access)</text>
+  <text x="70" y="440" font-size="10" fill="#555">grafana-proxy-cluster  (OAuth token reviews)</text>
+
+  <!-- Arrow: RBAC -> Secret/SA -->
+  <path d="M 360,405 Q 460,380 490,245" fill="none" stroke="#b71c1c" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <text x="470" y="310" font-size="9" fill="#b71c1c" transform="rotate(-70,470,310)">binds grafana-sa</text>
+
+  <!-- External: Thanos Querier -->
+  <rect x="620" y="185" width="120" height="55" rx="4" fill="#e0e0e0" stroke="#616161" stroke-width="1.5"/>
+  <text x="680" y="207" text-anchor="middle" font-weight="bold" font-size="11" fill="#333">Thanos Querier</text>
+  <text x="680" y="222" text-anchor="middle" font-size="9" fill="#888">openshift-monitoring</text>
+  <text x="680" y="234" text-anchor="middle" font-size="9" fill="#888">:9091</text>
+
+  <!-- Arrow: Datasource -> Thanos -->
+  <line x1="580" y1="215" x2="615" y2="215" stroke="#4a4a4a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- External: Route -->
+  <rect x="620" y="385" width="120" height="45" rx="4" fill="#e0e0e0" stroke="#616161" stroke-width="1.5"/>
+  <text x="680" y="405" text-anchor="middle" font-weight="bold" font-size="11" fill="#333">Route</text>
+  <text x="680" y="420" text-anchor="middle" font-size="9" fill="#888">TLS reencrypt</text>
+
+  <!-- Arrow: Route -> Pod (oauth-proxy) -->
+  <path d="M 680,385 Q 680,300 677,140" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="695" y="260" font-size="9" fill="#888" transform="rotate(-90,695,260)">HTTPS :9091</text>
+
+  <!-- Legend -->
+  <text x="50" y="495" font-size="10" fill="#888">Dashed arrows = instanceSelector label matching (dashboards: grafana)</text>
+</svg>

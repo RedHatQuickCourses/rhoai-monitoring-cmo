@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="620" viewBox="0 0 900 620" font-family="'Red Hat Text', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <style>
+      .layer-label { font-size: 15px; font-weight: 700; fill: #ffffff; }
+      .layer-sub { font-size: 12px; fill: #ffffff; opacity: 0.9; }
+      .metric-name { font-size: 11.5px; font-family: 'Red Hat Mono', 'Courier New', monospace; fill: #1a1a1a; }
+      .metric-desc { font-size: 11px; fill: #4d4d4d; }
+      .source-label { font-size: 12px; font-weight: 600; fill: #1a1a1a; }
+      .source-sub { font-size: 11px; fill: #6a6a6a; }
+      .header { font-size: 18px; font-weight: 700; fill: #1a1a1a; }
+      .arrow-text { font-size: 10.5px; fill: #6a6a6a; font-style: italic; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="620" rx="8" fill="#f9f9f9" stroke="#d2d2d2" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="450" y="36" text-anchor="middle" class="header">Three Layers of AI Serving Observability</text>
+
+  <!-- ════════════════ Layer 3: Application / Inference (top) ════════════════ -->
+  <rect x="30" y="58" width="540" height="150" rx="6" fill="#0066cc"/>
+  <text x="50" y="82" class="layer-label">Layer 3: Application / Inference Metrics</text>
+  <text x="50" y="100" class="layer-sub">What is the model doing? How fast? How many requests?</text>
+
+  <!-- Metrics boxes inside Layer 3 -->
+  <rect x="46" y="112" width="244" height="84" rx="4" fill="#ffffff" opacity="0.95"/>
+  <text x="58" y="131" class="metric-name">vllm:e2e_request_latency_seconds</text>
+  <text x="58" y="146" class="metric-desc">End-to-end request latency</text>
+  <text x="58" y="163" class="metric-name">vllm:time_to_first_token_seconds</text>
+  <text x="58" y="178" class="metric-desc">Time to first token (TTFT)</text>
+
+  <rect x="310" y="112" width="244" height="84" rx="4" fill="#ffffff" opacity="0.95"/>
+  <text x="322" y="131" class="metric-name">vllm:num_requests_waiting</text>
+  <text x="322" y="146" class="metric-desc">Queued requests (saturation)</text>
+  <text x="322" y="163" class="metric-name">vllm:kv_cache_usage_perc</text>
+  <text x="322" y="178" class="metric-desc">KV cache memory pressure</text>
+
+  <!-- Source box for Layer 3 -->
+  <rect x="620" y="58" width="250" height="150" rx="6" fill="#ffffff" stroke="#0066cc" stroke-width="2"/>
+  <text x="745" y="96" text-anchor="middle" class="source-label">vLLM Runtime</text>
+  <text x="745" y="116" text-anchor="middle" class="source-sub">Prometheus /metrics</text>
+  <text x="745" y="134" text-anchor="middle" class="source-sub">endpoint on port 8000</text>
+  <!-- Icon: gear -->
+  <circle cx="745" cy="168" r="16" fill="none" stroke="#0066cc" stroke-width="2"/>
+  <circle cx="745" cy="168" r="4" fill="#0066cc"/>
+  <line x1="745" y1="150" x2="745" y2="155" stroke="#0066cc" stroke-width="2"/>
+  <line x1="745" y1="181" x2="745" y2="186" stroke="#0066cc" stroke-width="2"/>
+  <line x1="727" y1="168" x2="732" y2="168" stroke="#0066cc" stroke-width="2"/>
+  <line x1="758" y1="168" x2="763" y2="168" stroke="#0066cc" stroke-width="2"/>
+
+  <!-- Arrow between Layer 3 and source -->
+  <line x1="575" y1="133" x2="615" y2="133" stroke="#0066cc" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- ════════════════ Layer 2: GPU / Infrastructure (middle) ════════════════ -->
+  <rect x="30" y="228" width="540" height="150" rx="6" fill="#a30000"/>
+  <text x="50" y="252" class="layer-label">Layer 2: GPU / Infrastructure Metrics</text>
+  <text x="50" y="270" class="layer-sub">Is the GPU healthy? How hot? How much memory?</text>
+
+  <!-- Metrics boxes inside Layer 2 -->
+  <rect x="46" y="282" width="244" height="84" rx="4" fill="#ffffff" opacity="0.95"/>
+  <text x="58" y="301" class="metric-name">DCGM_FI_DEV_GPU_UTIL</text>
+  <text x="58" y="316" class="metric-desc">GPU compute utilization (%)</text>
+  <text x="58" y="333" class="metric-name">DCGM_FI_DEV_GPU_TEMP</text>
+  <text x="58" y="348" class="metric-desc">GPU temperature (Celsius)</text>
+
+  <rect x="310" y="282" width="244" height="84" rx="4" fill="#ffffff" opacity="0.95"/>
+  <text x="322" y="301" class="metric-name">DCGM_FI_DEV_FB_USED</text>
+  <text x="322" y="316" class="metric-desc">GPU VRAM used (MB)</text>
+  <text x="322" y="333" class="metric-name">DCGM_FI_DEV_POWER_USAGE</text>
+  <text x="322" y="348" class="metric-desc">GPU power draw (Watts)</text>
+
+  <!-- Source box for Layer 2 -->
+  <rect x="620" y="228" width="250" height="150" rx="6" fill="#ffffff" stroke="#a30000" stroke-width="2"/>
+  <text x="745" y="266" text-anchor="middle" class="source-label">NVIDIA DCGM Exporter</text>
+  <text x="745" y="286" text-anchor="middle" class="source-sub">DaemonSet on GPU nodes</text>
+  <text x="745" y="304" text-anchor="middle" class="source-sub">port 9400</text>
+  <!-- Icon: chip/GPU -->
+  <rect x="725" y="320" width="40" height="30" rx="3" fill="none" stroke="#a30000" stroke-width="2"/>
+  <line x1="730" y1="328" x2="760" y2="328" stroke="#a30000" stroke-width="1.5"/>
+  <line x1="730" y1="338" x2="760" y2="338" stroke="#a30000" stroke-width="1.5"/>
+  <line x1="722" y1="326" x2="725" y2="326" stroke="#a30000" stroke-width="2"/>
+  <line x1="722" y1="336" x2="725" y2="336" stroke="#a30000" stroke-width="2"/>
+  <line x1="722" y1="346" x2="725" y2="346" stroke="#a30000" stroke-width="2"/>
+  <line x1="765" y1="326" x2="768" y2="326" stroke="#a30000" stroke-width="2"/>
+  <line x1="765" y1="336" x2="768" y2="336" stroke="#a30000" stroke-width="2"/>
+  <line x1="765" y1="346" x2="768" y2="346" stroke="#a30000" stroke-width="2"/>
+
+  <!-- Arrow between Layer 2 and source -->
+  <line x1="575" y1="303" x2="615" y2="303" stroke="#a30000" stroke-width="2" marker-end="url(#arrowRed)"/>
+
+  <!-- ════════════════ Layer 1: Platform / Container (bottom) ════════════════ -->
+  <rect x="30" y="398" width="540" height="150" rx="6" fill="#4d4d4d"/>
+  <text x="50" y="422" class="layer-label">Layer 1: Platform / Container Metrics</text>
+  <text x="50" y="440" class="layer-sub">Is the pod running? How much CPU/memory?</text>
+
+  <!-- Metrics boxes inside Layer 1 -->
+  <rect x="46" y="452" width="244" height="84" rx="4" fill="#ffffff" opacity="0.95"/>
+  <text x="58" y="471" class="metric-name">container_cpu_usage_seconds</text>
+  <text x="58" y="486" class="metric-desc">Container CPU usage</text>
+  <text x="58" y="503" class="metric-name">container_memory_working_set</text>
+  <text x="58" y="518" class="metric-desc">Container memory usage</text>
+
+  <rect x="310" y="452" width="244" height="84" rx="4" fill="#ffffff" opacity="0.95"/>
+  <text x="322" y="471" class="metric-name">kube_pod_status_phase</text>
+  <text x="322" y="486" class="metric-desc">Pod lifecycle phase</text>
+  <text x="322" y="503" class="metric-name">node_cpu_seconds_total</text>
+  <text x="322" y="518" class="metric-desc">Node CPU utilization</text>
+
+  <!-- Source box for Layer 1 -->
+  <rect x="620" y="398" width="250" height="150" rx="6" fill="#ffffff" stroke="#4d4d4d" stroke-width="2"/>
+  <text x="745" y="436" text-anchor="middle" class="source-label">kubelet / cAdvisor</text>
+  <text x="745" y="456" text-anchor="middle" class="source-sub">Built into every node</text>
+  <text x="745" y="474" text-anchor="middle" class="source-sub">+ kube-state-metrics</text>
+  <!-- Icon: container -->
+  <rect x="727" y="492" width="36" height="28" rx="2" fill="none" stroke="#4d4d4d" stroke-width="2"/>
+  <rect x="730" y="498" width="8" height="8" rx="1" fill="#4d4d4d"/>
+  <rect x="742" y="498" width="8" height="8" rx="1" fill="#4d4d4d"/>
+  <rect x="754" y="498" width="8" height="8" rx="1" fill="#4d4d4d"/>
+
+  <!-- Arrow between Layer 1 and source -->
+  <line x1="575" y1="473" x2="615" y2="473" stroke="#4d4d4d" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+  <!-- ════════════════ Vertical annotation ════════════════ -->
+  <text x="450" y="580" text-anchor="middle" class="arrow-text">All three layers are needed — no single layer answers every question about AI workload health</text>
+
+  <!-- Vertical brace arrows between layers -->
+  <line x1="15" y1="70" x2="15" y2="536" stroke="#b3b3b3" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="10" y="310" text-anchor="middle" class="arrow-text" transform="rotate(-90, 10, 310)">Increasing application specificity →</text>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0066cc"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#a30000"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4d4d4d"/>
+    </marker>
+  </defs>
+
+  <!-- Footer line -->
+  <line x1="30" y1="595" x2="870" y2="595" stroke="#d2d2d2" stroke-width="1"/>
+  <text x="450" y="612" text-anchor="middle" font-size="10" fill="#999999">Sources: kubelet/cAdvisor (Layer 1) · NVIDIA DCGM Exporter (Layer 2) · vLLM /metrics endpoint (Layer 3)</text>
+</svg>

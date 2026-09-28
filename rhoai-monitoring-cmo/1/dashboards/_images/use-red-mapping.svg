@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="Red Hat Text, Helvetica Neue, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4a4a4a"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="560" fill="#f8f9fa" rx="8"/>
+
+  <!-- Title -->
+  <text x="450" y="32" text-anchor="middle" font-size="16" font-weight="700" fill="#151515">USE and RED Methods Mapped to AI Serving Metrics</text>
+
+  <!-- ========== Column 1: Node Health (USE) ========== -->
+  <rect x="15" y="55" width="255" height="440" rx="6" fill="none" stroke="#8BC1F7" stroke-width="2"/>
+  <rect x="15" y="55" width="255" height="30" rx="6" fill="#E7F1FA" stroke="#8BC1F7" stroke-width="2"/>
+  <text x="142" y="76" text-anchor="middle" font-size="13" font-weight="700" fill="#004080">USE — Node Health</text>
+
+  <!-- U: Utilization (Node) -->
+  <rect x="25" y="95" width="235" height="110" rx="4" fill="#ffffff" stroke="#8BC1F7" stroke-width="1.5"/>
+  <rect x="25" y="95" width="55" height="110" rx="4" fill="#E7F1FA" stroke="#8BC1F7" stroke-width="1.5"/>
+  <text x="52" y="142" text-anchor="middle" font-size="22" font-weight="700" fill="#004080">U</text>
+  <text x="52" y="162" text-anchor="middle" font-size="9" fill="#004080">Utilization</text>
+  <text x="90" y="120" font-size="11" fill="#151515" font-weight="600">How busy is the node?</text>
+  <text x="90" y="140" font-size="10" fill="#6A6E73">CPU usage percentage</text>
+  <text x="90" y="157" font-size="10" fill="#6A6E73">Memory usage percentage</text>
+
+  <!-- S: Saturation (Node) -->
+  <rect x="25" y="215" width="235" height="100" rx="4" fill="#ffffff" stroke="#8BC1F7" stroke-width="1.5"/>
+  <rect x="25" y="215" width="55" height="100" rx="4" fill="#E7F1FA" stroke="#8BC1F7" stroke-width="1.5"/>
+  <text x="52" y="257" text-anchor="middle" font-size="22" font-weight="700" fill="#004080">S</text>
+  <text x="52" y="277" text-anchor="middle" font-size="9" fill="#004080">Saturation</text>
+  <text x="90" y="240" font-size="11" fill="#151515" font-weight="600">Is storage keeping up?</text>
+  <text x="90" y="260" font-size="10" fill="#6A6E73">Disk I/O throughput</text>
+  <text x="90" y="277" font-size="10" fill="#6A6E73">Filesystem capacity %</text>
+
+  <!-- E: Errors (Node) -->
+  <rect x="25" y="325" width="235" height="110" rx="4" fill="#ffffff" stroke="#8BC1F7" stroke-width="1.5"/>
+  <rect x="25" y="325" width="55" height="110" rx="4" fill="#E7F1FA" stroke="#8BC1F7" stroke-width="1.5"/>
+  <text x="52" y="372" text-anchor="middle" font-size="22" font-weight="700" fill="#004080">E</text>
+  <text x="52" y="392" text-anchor="middle" font-size="9" fill="#004080">Errors</text>
+  <text x="90" y="350" font-size="11" fill="#151515" font-weight="600">Network health?</text>
+  <text x="90" y="370" font-size="10" fill="#6A6E73">Network I/O traffic</text>
+  <text x="90" y="387" font-size="10" fill="#6A6E73">Errors and dropped packets</text>
+
+  <!-- Dashboard label: Node Health -->
+  <rect x="57" y="455" width="170" height="26" rx="4" fill="#E7F1FA" stroke="#8BC1F7" stroke-width="1"/>
+  <text x="142" y="472" text-anchor="middle" font-size="11" font-weight="600" fill="#004080">Node Health Dashboard</text>
+
+  <!-- ========== Column 2: GPU Health (USE) ========== -->
+  <rect x="280" y="55" width="255" height="440" rx="6" fill="none" stroke="#8BC1F7" stroke-width="2"/>
+  <rect x="280" y="55" width="255" height="30" rx="6" fill="#E7F1FA" stroke="#8BC1F7" stroke-width="2"/>
+  <text x="407" y="76" text-anchor="middle" font-size="13" font-weight="700" fill="#004080">USE — GPU Health</text>
+
+  <!-- U: Utilization (GPU) -->
+  <rect x="290" y="95" width="235" height="110" rx="4" fill="#ffffff" stroke="#8BC1F7" stroke-width="1.5"/>
+  <rect x="290" y="95" width="55" height="110" rx="4" fill="#E7F1FA" stroke="#8BC1F7" stroke-width="1.5"/>
+  <text x="317" y="142" text-anchor="middle" font-size="22" font-weight="700" fill="#004080">U</text>
+  <text x="317" y="162" text-anchor="middle" font-size="9" fill="#004080">Utilization</text>
+  <text x="355" y="120" font-size="11" fill="#151515" font-weight="600">How busy is the GPU?</text>
+  <text x="355" y="140" font-size="10" fill="#6A6E73" font-family="monospace">DCGM_FI_DEV_GPU_UTIL</text>
+
+  <!-- S: Saturation (GPU) -->
+  <rect x="290" y="215" width="235" height="100" rx="4" fill="#ffffff" stroke="#8BC1F7" stroke-width="1.5"/>
+  <rect x="290" y="215" width="55" height="100" rx="4" fill="#E7F1FA" stroke="#8BC1F7" stroke-width="1.5"/>
+  <text x="317" y="257" text-anchor="middle" font-size="22" font-weight="700" fill="#004080">S</text>
+  <text x="317" y="277" text-anchor="middle" font-size="9" fill="#004080">Saturation</text>
+  <text x="355" y="240" font-size="11" fill="#151515" font-weight="600">Is the GPU overloaded?</text>
+  <text x="355" y="260" font-size="10" fill="#6A6E73" font-family="monospace">DCGM_FI_DEV_FB_USED/FREE</text>
+  <text x="355" y="277" font-size="10" fill="#6A6E73" font-family="monospace">DCGM_FI_DEV_GPU_TEMP</text>
+
+  <!-- E: Errors (GPU) -->
+  <rect x="290" y="325" width="235" height="110" rx="4" fill="#ffffff" stroke="#8BC1F7" stroke-width="1.5"/>
+  <rect x="290" y="325" width="55" height="110" rx="4" fill="#E7F1FA" stroke="#8BC1F7" stroke-width="1.5"/>
+  <text x="317" y="372" text-anchor="middle" font-size="22" font-weight="700" fill="#004080">E</text>
+  <text x="317" y="392" text-anchor="middle" font-size="9" fill="#004080">Errors</text>
+  <text x="355" y="350" font-size="11" fill="#151515" font-weight="600">GPU hardware errors?</text>
+  <text x="355" y="370" font-size="10" fill="#6A6E73" font-family="monospace">DCGM_FI_DEV_XID_ERRORS</text>
+
+  <!-- Dashboard label: GPU Health -->
+  <rect x="322" y="455" width="170" height="26" rx="4" fill="#E7F1FA" stroke="#8BC1F7" stroke-width="1"/>
+  <text x="407" y="472" text-anchor="middle" font-size="11" font-weight="600" fill="#004080">GPU Health Dashboard</text>
+
+  <!-- ========== Column 3: vLLM Inference (RED) ========== -->
+  <rect x="545" y="55" width="342" height="440" rx="6" fill="none" stroke="#BDE2B9" stroke-width="2"/>
+  <rect x="545" y="55" width="342" height="30" rx="6" fill="#E6FAE6" stroke="#BDE2B9" stroke-width="2"/>
+  <text x="716" y="76" text-anchor="middle" font-size="13" font-weight="700" fill="#1E4F18">RED — vLLM Inference</text>
+
+  <!-- R: Rate -->
+  <rect x="555" y="95" width="322" height="110" rx="4" fill="#ffffff" stroke="#BDE2B9" stroke-width="1.5"/>
+  <rect x="555" y="95" width="60" height="110" rx="4" fill="#E6FAE6" stroke="#BDE2B9" stroke-width="1.5"/>
+  <text x="585" y="142" text-anchor="middle" font-size="22" font-weight="700" fill="#1E4F18">R</text>
+  <text x="585" y="162" text-anchor="middle" font-size="9" fill="#1E4F18">Rate</text>
+  <text x="625" y="120" font-size="11" fill="#151515" font-weight="600">How many requests per second?</text>
+  <text x="625" y="140" font-size="10" fill="#6A6E73" font-family="monospace">rate(vllm:request_success_total[5m])</text>
+  <text x="625" y="157" font-size="10" fill="#6A6E73" font-family="monospace">rate(vllm:prompt_tokens_total[5m])</text>
+  <text x="625" y="174" font-size="10" fill="#6A6E73" font-family="monospace">rate(vllm:generation_tokens_total[5m])</text>
+  <text x="625" y="191" font-size="10" fill="#6A6E73" font-family="monospace">vllm:num_requests_running</text>
+
+  <!-- E: Errors -->
+  <rect x="555" y="215" width="322" height="100" rx="4" fill="#ffffff" stroke="#BDE2B9" stroke-width="1.5"/>
+  <rect x="555" y="215" width="60" height="100" rx="4" fill="#E6FAE6" stroke="#BDE2B9" stroke-width="1.5"/>
+  <text x="585" y="257" text-anchor="middle" font-size="22" font-weight="700" fill="#1E4F18">E</text>
+  <text x="585" y="277" text-anchor="middle" font-size="9" fill="#1E4F18">Errors</text>
+  <text x="625" y="240" font-size="11" fill="#151515" font-weight="600">What is the error rate?</text>
+  <text x="625" y="260" font-size="10" fill="#6A6E73" font-family="monospace">vllm:num_preemptions_total</text>
+  <text x="625" y="277" font-size="10" fill="#6A6E73" font-family="monospace">(request timeouts / failures)</text>
+  <text x="625" y="294" font-size="10" fill="#6A6E73" font-style="italic">No explicit error counter in vLLM</text>
+
+  <!-- D: Duration -->
+  <rect x="555" y="325" width="322" height="110" rx="4" fill="#ffffff" stroke="#BDE2B9" stroke-width="1.5"/>
+  <rect x="555" y="325" width="60" height="110" rx="4" fill="#E6FAE6" stroke="#BDE2B9" stroke-width="1.5"/>
+  <text x="585" y="372" text-anchor="middle" font-size="22" font-weight="700" fill="#1E4F18">D</text>
+  <text x="585" y="392" text-anchor="middle" font-size="9" fill="#1E4F18">Duration</text>
+  <text x="625" y="350" font-size="11" fill="#151515" font-weight="600">How long do requests take?</text>
+  <text x="625" y="370" font-size="10" fill="#6A6E73" font-family="monospace">vllm:e2e_request_latency_seconds</text>
+  <text x="625" y="387" font-size="10" fill="#6A6E73" font-family="monospace">vllm:time_to_first_token_seconds</text>
+  <text x="625" y="404" font-size="10" fill="#6A6E73" font-family="monospace">vllm:inter_token_latency_seconds</text>
+  <text x="625" y="421" font-size="10" fill="#6A6E73" font-family="monospace">vllm:request_queue_time_seconds</text>
+
+  <!-- Dashboard label: vLLM Inference -->
+  <rect x="616" y="455" width="200" height="26" rx="4" fill="#E6FAE6" stroke="#BDE2B9" stroke-width="1"/>
+  <text x="716" y="472" text-anchor="middle" font-size="11" font-weight="600" fill="#1E4F18">vLLM Inference Dashboard</text>
+
+  <!-- Cross-layer link -->
+  <text x="450" y="535" text-anchor="middle" font-size="10" fill="#6A6E73" font-style="italic">KV cache and queue metrics bridge both methods — saturation (USE) causes duration increases (RED)</text>
+</svg>

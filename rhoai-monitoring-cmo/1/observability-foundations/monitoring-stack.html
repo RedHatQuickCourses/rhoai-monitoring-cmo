@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>The OpenShift Monitoring Stack :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="three-layers.html">
+    <link rel="next" href="enable-uwm.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Observability Foundations</a></li>
+    <li><a href="monitoring-stack.html">OpenShift Monitoring Stack</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">The OpenShift Monitoring Stack</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now that you understand <em>what</em> you need to monitor, this section teaches <em>how</em> OpenShift collects, stores, and exposes metrics.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_prometheus_the_metrics_engine"><a class="anchor" href="#_prometheus_the_metrics_engine"></a>Prometheus: The Metrics Engine</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Prometheus is the foundation of all monitoring in OpenShift.
+Every metric you see in the OpenShift Console under <strong>Observe &gt; Metrics</strong> comes from Prometheus.</p>
+</div>
+<div class="paragraph">
+<p>Prometheus uses a <strong>pull model</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Prometheus reaches out to your applications and pulls metrics from their HTTP endpoints (typically <code>/metrics</code>)</p>
+</li>
+<li>
+<p>Your application does not need to know Prometheus exists&#8201;&#8212;&#8201;it just exposes metrics in Prometheus text format</p>
+</li>
+<li>
+<p>By default, Prometheus scrapes every 30 seconds</p>
+</li>
+<li>
+<p>Every scraped metric value is stored with a timestamp and a set of labels in a time-series database</p>
+</li>
+<li>
+<p>Labels are key-value pairs that let you filter, aggregate, and group metrics in queries</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_two_prometheus_instances_in_openshift"><a class="anchor" href="#_two_prometheus_instances_in_openshift"></a>Two Prometheus Instances in OpenShift</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>OpenShift runs <strong>two separate Prometheus instances</strong>, each with a distinct role:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 22.2222%;">
+<col style="width: 33.3333%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Instance</th>
+<th class="tableblock halign-left valign-top">Namespace</th>
+<th class="tableblock halign-left valign-top">What It Monitors</th>
+<th class="tableblock halign-left valign-top">Managed By</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Platform Monitoring</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>openshift-monitoring</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OpenShift infrastructure: API server, etcd, kubelets, node metrics, DCGM (GPU metrics)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Red Hat / cluster-admin (pre-configured and always running)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>User Workload Monitoring (UWM)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>openshift-user-workload-monitoring</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Your applications: model servers, custom services, anything defined with a ServiceMonitor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You (must be explicitly enabled)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_why_the_separation_matters"><a class="anchor" href="#_why_the_separation_matters"></a>Why the Separation Matters</h3>
+<div class="paragraph">
+<p>This is a deliberate architectural decision:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Blast radius isolation</strong>: If a buggy user application emits millions of metrics and overwhelms Prometheus, it will not take down the platform monitoring that keeps OpenShift itself healthy. The platform Prometheus is protected.</p>
+</li>
+<li>
+<p><strong>RBAC boundaries</strong>: Platform monitoring data (etcd internals, API server metrics) contains sensitive cluster information. UWM lets platform engineers query their own application metrics without needing cluster-admin access to platform metrics.</p>
+</li>
+<li>
+<p><strong>Independent scaling</strong>: User workloads may generate far more metrics than the platform itself. UWM can be independently configured with different retention, resource limits, and storage backends.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+User Workload Monitoring is <strong>disabled by default</strong> in OpenShift.
+Until you enable it, Prometheus completely ignores your application pods&#8201;&#8212;&#8201;even if they expose a <code>/metrics</code> endpoint.
+The first thing you will do in the <a href="enable-uwm.html" class="xref page">hands-on lab</a> is enable UWM.
+Without this step, none of the vLLM inference metrics collected in later chapters will work.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_thanos_querier_the_unified_view"><a class="anchor" href="#_thanos_querier_the_unified_view"></a>Thanos Querier: The Unified View</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Thanos Querier sits in front of both Prometheus instances and provides a single query endpoint.
+When you type a PromQL query in the OpenShift Console&#8217;s Metrics tab, you are actually querying Thanos&#8201;&#8212;&#8201;which fans out the query to both Prometheus instances and merges the results.</p>
+</div>
+<div class="paragraph">
+<p>This is why you can query both <code>DCGM_FI_DEV_GPU_UTIL</code> (from platform Prometheus) and <code>vllm:kv_cache_usage_perc</code> (from UWM Prometheus) in the same Grafana dashboard&#8201;&#8212;&#8201;Thanos unifies them.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+You do not need to configure Thanos directly&#8201;&#8212;&#8201;it is deployed and managed by OpenShift.
+But understanding that it exists helps explain why GPU metrics (scraped by platform monitoring) and vLLM metrics (scraped by UWM) can appear on the same dashboard.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_does_openshift_come_with_grafana"><a class="anchor" href="#_does_openshift_come_with_grafana"></a>Does OpenShift Come with Grafana?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>No.
+OpenShift Container Platform ships with <strong>Prometheus, Alertmanager, and a built-in console metrics UI</strong>&#8201;&#8212;&#8201;but <strong>no Grafana</strong>.</p>
+</div>
+<div class="paragraph">
+<p>The console&#8217;s Observe &gt; Dashboards page provides some pre-built views (etcd, API server, node stats), but these are baked into the console code&#8201;&#8212;&#8201;they cannot be customized, shared, or extended.</p>
+</div>
+<div class="paragraph">
+<p>What you get by default:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Prometheus</strong> (platform + optional User Workload Monitoring) scraping cluster and workload metrics</p>
+</li>
+<li>
+<p><strong>Pre-built PrometheusRules</strong> for cluster health alerts (etcd, API server, node conditions)</p>
+</li>
+<li>
+<p><strong>Console dashboards</strong> (Observe &gt; Dashboards)&#8201;&#8212;&#8201;limited, non-customizable</p>
+</li>
+<li>
+<p><strong>Observe &gt; Metrics</strong>&#8201;&#8212;&#8201;raw PromQL query interface for ad-hoc queries</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>What you do <strong>not</strong> get:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Grafana (Red Hat removed it from the platform monitoring stack in OCP 4.11)</p>
+</li>
+<li>
+<p>Custom dashboards for GPU, vLLM, or any user workload</p>
+</li>
+<li>
+<p>Any RHOAI-specific observability dashboards</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is why the <a href="../dashboards/index.html" class="xref page">Observability Dashboards</a> chapter of this course installs the Grafana Operator and builds dashboards from scratch&#8201;&#8212;&#8201;it is the only way to get structured, reusable, shareable dashboards for model serving workloads on the platform.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_servicemonitor_telling_prometheus_what_to_scrape"><a class="anchor" href="#_servicemonitor_telling_prometheus_what_to_scrape"></a>ServiceMonitor: Telling Prometheus What to Scrape</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A ServiceMonitor is a Kubernetes Custom Resource (from the <code>monitoring.coreos.com</code> API group) that tells Prometheus:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Which pods</strong> to scrape (via label selectors that match a Kubernetes Service)</p>
+</li>
+<li>
+<p><strong>What port</strong> to scrape on</p>
+</li>
+<li>
+<p><strong>What path</strong> to scrape (usually <code>/metrics</code>)</p>
+</li>
+<li>
+<p><strong>How often</strong> to scrape (the interval, typically 30s)</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_the_discovery_chain"><a class="anchor" href="#_the_discovery_chain"></a>The Discovery Chain</h3>
+<div class="paragraph">
+<p>The chain that must be unbroken for metrics to flow:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>You create a ServiceMonitor with a label selector</p>
+</li>
+<li>
+<p>The selector matches a Kubernetes Service</p>
+</li>
+<li>
+<p>The Service selects Pods (via its own selector)</p>
+</li>
+<li>
+<p>Prometheus discovers those Pods as scrape targets</p>
+</li>
+<li>
+<p>Prometheus pulls <code>/metrics</code> from each Pod every 30s</p>
+</li>
+<li>
+<p>Metrics are stored as time series with labels</p>
+</li>
+<li>
+<p>You query them via PromQL in the Console or Grafana</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_common_debugging_issues"><a class="anchor" href="#_common_debugging_issues"></a>Common Debugging Issues</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Symptom</th>
+<th class="tableblock halign-left valign-top">Likely Cause</th>
+<th class="tableblock halign-left valign-top">How to Debug</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No metrics appearing at all</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UWM not enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check if <code>prometheus-user-workload-0</code> pod exists in <code>openshift-user-workload-monitoring</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ServiceMonitor exists but no targets</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Label selector mismatch</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Compare ServiceMonitor&#8217;s <code>selector.matchLabels</code> with actual Service labels (<code>oc get svc --show-labels</code>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Target exists but shows "Down"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Wrong port or path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check that the <code>port</code> in ServiceMonitor matches a named port on the Service and <code>/metrics</code> is accessible</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Metrics appear intermittently</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pod restarts or scrape timeout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check pod stability (<code>oc get pods -w</code>) and consider increasing scrape timeout</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+In this course, you will not create ServiceMonitors manually.
+The NVIDIA GPU Operator ships its own ServiceMonitor for DCGM metrics, and RHOAI 3.4 auto-creates one for vLLM metrics when an InferenceService is deployed.
+You will examine the auto-created ServiceMonitor in the <a href="../model-deployment/verify-metrics.html" class="xref page">Verify the Metrics Pipeline</a> exercise.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_dcgm_exporter_gpu_metrics_without_extra_work"><a class="anchor" href="#_dcgm_exporter_gpu_metrics_without_extra_work"></a>DCGM Exporter: GPU Metrics Without Extra Work</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The NVIDIA Data Center GPU Manager (DCGM) is deployed by the <strong>NVIDIA GPU Operator</strong> as a DaemonSet&#8201;&#8212;&#8201;one DCGM exporter pod runs on every node that has an NVIDIA GPU.</p>
+</div>
+<div class="sect2">
+<h3 id="_key_dcgm_metrics"><a class="anchor" href="#_key_dcgm_metrics"></a>Key DCGM Metrics</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 37.5%;">
+<col style="width: 37.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">What It Measures</th>
+<th class="tableblock halign-left valign-top">What It Tells You</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_GPU_UTIL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Percentage of time the GPU cores were active</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How busy the GPU is (0% = idle, 100% = fully occupied)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_GPU_TEMP</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU die temperature in Celsius</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Thermal health; sustained temps above 82-85C lead to throttling</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_FB_USED</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Framebuffer (GPU VRAM) used in MB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How much GPU memory is consumed (model weights + KV cache + overhead)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_FB_FREE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Framebuffer (GPU VRAM) free in MB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How much headroom remains for KV cache growth</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_POWER_USAGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Current GPU power draw in watts</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Correlates with workload intensity; useful for power budgeting</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_why_dcgm_runs_on_the_node_not_in_the_model_pod"><a class="anchor" href="#_why_dcgm_runs_on_the_node_not_in_the_model_pod"></a>Why DCGM Runs on the Node, Not in the Model Pod</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>GPU hardware counters are a system-level resource</strong>. DCGM reads directly from the NVIDIA driver, which requires host-level access. Running it as a DaemonSet with appropriate privileges is cleaner than granting every model pod access to GPU hardware counters.</p>
+</li>
+<li>
+<p><strong>One exporter per node, not per pod</strong>. A node might have multiple GPUs used by multiple pods. A single DCGM exporter collects metrics for all GPUs on the node, labeled by GPU index.</p>
+</li>
+<li>
+<p><strong>Lifecycle independence</strong>. If your model pod crashes, DCGM keeps reporting GPU metrics. This is important because GPU temperature or memory state might be <em>why</em> the pod crashed&#8201;&#8212;&#8201;you would lose that diagnostic data if metrics collection depended on the crashed pod.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_how_dcgm_metrics_reach_prometheus"><a class="anchor" href="#_how_dcgm_metrics_reach_prometheus"></a>How DCGM Metrics Reach Prometheus</h3>
+<div class="paragraph">
+<p>The NVIDIA GPU Operator automatically creates a ServiceMonitor in the <code>nvidia-gpu-operator</code> namespace.
+This ServiceMonitor is picked up by the <strong>platform</strong> Prometheus instance (not UWM), since the GPU Operator is cluster infrastructure.</p>
+</div>
+<div class="paragraph">
+<p>You do not need to create a ServiceMonitor for DCGM metrics.
+They are already being collected.
+In the lab, you will verify this by querying <code>DCGM_FI_DEV_GPU_UTIL</code> in the OpenShift Console&#8201;&#8212;&#8201;it should already have data, even before you enable UWM.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_user_workload_monitoring_what_we_are_enabling"><a class="anchor" href="#_user_workload_monitoring_what_we_are_enabling"></a>User Workload Monitoring: What We Are Enabling</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When you set <code>enableUserWorkload: true</code> in the <code>cluster-monitoring-config</code> ConfigMap, the Cluster Monitoring Operator deploys several new components into the <code>openshift-user-workload-monitoring</code> namespace:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong><code>prometheus-user-workload</code></strong>&#8201;&#8212;&#8201;A dedicated Prometheus instance that watches for ServiceMonitors and PodMonitors in user namespaces and scrapes the matching targets</p>
+</li>
+<li>
+<p><strong><code>thanos-ruler-user-workload</code></strong>&#8201;&#8212;&#8201;Evaluates PrometheusRule resources in user namespaces (this is what fires your custom alerts)</p>
+</li>
+<li>
+<p><strong>Supporting components</strong>&#8201;&#8212;&#8201;Prometheus operator instances and config reloaders to manage the lifecycle</p>
+</li>
+</ol>
+</div>
+<div class="sect2">
+<h3 id="_the_two_configmaps"><a class="anchor" href="#_the_two_configmaps"></a>The Two ConfigMaps</h3>
+<div class="paragraph">
+<p>You will apply two ConfigMaps in the lab:</p>
+</div>
+<div class="paragraph">
+<p><strong>ConfigMap 1: <code>cluster-monitoring-config</code></strong> (in <code>openshift-monitoring</code>):</p>
+</div>
+<div class="paragraph">
+<p>This is the "on switch" for UWM.
+It tells the Cluster Monitoring Operator to deploy the UWM components.
+This requires <code>cluster-admin</code> privileges because it affects cluster-wide infrastructure.</p>
+</div>
+<div class="paragraph">
+<p><strong>ConfigMap 2: <code>user-workload-monitoring-config</code></strong> (in <code>openshift-user-workload-monitoring</code>):</p>
+</div>
+<div class="paragraph">
+<p>This configures <em>how</em> UWM Prometheus behaves&#8201;&#8212;&#8201;retention period (15 days) and log level (debug for lab troubleshooting, <code>info</code> in production).</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Apply the UWM configuration ConfigMap first (or at the same time as enabling UWM).
+When UWM starts up, it reads this ConfigMap immediately.
+If the ConfigMap does not exist yet, UWM starts with defaults and then requires a restart when you add it later.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_complete_metrics_pipeline"><a class="anchor" href="#_the_complete_metrics_pipeline"></a>The Complete Metrics Pipeline</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following diagram shows the complete architecture — data sources at the bottom, the two Prometheus instances in the middle, and Thanos Querier unifying queries at the top:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/cmo-architecture.svg" alt="OpenShift CMO monitoring architecture showing platform Prometheus and UWM Prometheus feeding into Thanos Querier with alert routing to Alertmanager" width="880">
+</div>
+</div>
+<div class="paragraph">
+<p>Here is the complete picture of how metrics flow from source to consumer:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>GPU metrics</strong> (DCGM) flow through <strong>platform</strong> Prometheus&#8201;&#8212;&#8201;already running, no action needed</p>
+</li>
+<li>
+<p><strong>Container metrics</strong> (kubelet/cAdvisor) flow through <strong>platform</strong> Prometheus&#8201;&#8212;&#8201;always available</p>
+</li>
+<li>
+<p><strong>Application metrics</strong> (vLLM) flow through <strong>UWM</strong> Prometheus&#8201;&#8212;&#8201;requires enabling UWM (this chapter) and an auto-created ServiceMonitor (next chapter)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>All three sources are queryable through Thanos Querier, which provides a unified query endpoint for the OpenShift Console and Grafana.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_red_hat_documentation"><a class="anchor" href="#_red_hat_documentation"></a>Red Hat Documentation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/configuring-the-monitoring-stack#enabling-monitoring-for-user-defined-projects_configuring-the-monitoring-stack" target="_blank" rel="noopener">Enabling Monitoring for User-Defined Projects</a></p>
+</li>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/managing-metrics#specifying-how-a-service-is-monitored_managing-metrics" target="_blank" rel="noopener">Specifying How a Service Is Monitored (ServiceMonitor)</a></p>
+</li>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/configuring-the-monitoring-stack" target="_blank" rel="noopener">Configuring the Monitoring Stack</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_upstream_resources"><a class="anchor" href="#_upstream_resources"></a>Upstream Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://prometheus.io/docs/concepts/data_model/" target="_blank" rel="noopener">Prometheus Data Model</a></p>
+</li>
+<li>
+<p><a href="https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/feature-overview.html#metrics" target="_blank" rel="noopener">DCGM Metrics Reference</a></p>
+</li>
+<li>
+<p><a href="https://thanos.io/tip/components/query.md/" target="_blank" rel="noopener">Thanos Querier Documentation</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="three-layers.html">Three Layers of Observability</a></span>
+  <span class="next"><a href="enable-uwm.html">Enable User Workload Monitoring</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

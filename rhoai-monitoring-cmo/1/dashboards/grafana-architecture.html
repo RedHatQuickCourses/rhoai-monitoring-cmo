@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Grafana on OpenShift :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="promql-fundamentals.html">
+    <link rel="next" href="install-grafana.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Observability Dashboards</a></li>
+    <li><a href="grafana-architecture.html">Grafana on OpenShift</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Grafana on OpenShift</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>OpenShift includes built-in monitoring dashboards in the web console, but they are limited to single-metric views without the ability to create custom, multi-panel dashboards.
+For operational dashboards that combine GPU health, inference latency, and queue depth into a single view, you need Grafana.</p>
+</div>
+<div class="paragraph">
+<p>This page explains how the community Grafana Operator works on OpenShift, why ServiceAccount RBAC is necessary, and how dashboard-as-code CRs replace manual dashboard creation.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/grafana-architecture.svg" alt="Grafana Operator custom resource architecture showing Operator and Instance and Datasource and Dashboard CRs with RBAC chain to Thanos Querier" width="780">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_components"><a class="anchor" href="#_components"></a>Components</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Grafana deployment on OpenShift involves four components that work together:</p>
+</div>
+<div class="sect2">
+<h3 id="_grafana_operator"><a class="anchor" href="#_grafana_operator"></a>Grafana Operator</h3>
+<div class="paragraph">
+<p>The Grafana Operator is a community Kubernetes operator that watches for Grafana custom resources and manages the lifecycle of Grafana instances.
+You install it from OperatorHub.</p>
+</div>
+<div class="paragraph">
+<p>When the operator detects a <code>Grafana</code> CR, it creates:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A <strong>Deployment</strong> running the Grafana server pod</p>
+</li>
+<li>
+<p>A <strong>Service</strong> exposing port 3000</p>
+</li>
+<li>
+<p>A <strong>Route</strong> providing external HTTPS access through the OpenShift router</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The operator also watches for three additional CR types:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Custom Resource</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GrafanaDatasource</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Configures where Grafana queries metrics from (Thanos Querier in our case)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GrafanaDashboard</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines a complete dashboard as a JSON model embedded in a CR</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GrafanaFolder</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Organizes dashboards into folders within the Grafana UI</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>When you create, update, or delete any of these CRs, the operator reconciles the corresponding configuration inside the Grafana instance automatically.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_grafana_instance"><a class="anchor" href="#_grafana_instance"></a>Grafana Instance</h3>
+<div class="paragraph">
+<p>The <code>Grafana</code> CR defines the Grafana server itself.
+In the <a href="install-grafana.html" class="xref page">Install Grafana</a> exercise, you will create a Grafana instance in the <code>llm-monitoring</code> namespace with a minimal configuration that sets the admin credentials and enables the route.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_grafanadatasource"><a class="anchor" href="#_grafanadatasource"></a>GrafanaDatasource</h3>
+<div class="paragraph">
+<p>The datasource tells Grafana where to find metrics.
+In the OpenShift monitoring stack, all metrics (platform and user workload) are queryable through <strong>Thanos Querier</strong>, which runs at <code><a href="https://thanos-querier.openshift-monitoring.svc.cluster.local:9091" class="bare">https://thanos-querier.openshift-monitoring.svc.cluster.local:9091</a></code>.</p>
+</div>
+<div class="paragraph">
+<p>The datasource configuration includes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The Thanos Querier URL</p>
+</li>
+<li>
+<p>A bearer token for authentication (from the ServiceAccount)</p>
+</li>
+<li>
+<p>TLS settings (using the OpenShift service CA)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_grafanadashboard"><a class="anchor" href="#_grafanadashboard"></a>GrafanaDashboard</h3>
+<div class="paragraph">
+<p>Each <code>GrafanaDashboard</code> CR contains a complete dashboard definition as an embedded JSON model.
+When the operator processes this CR, it creates (or updates) the corresponding dashboard inside the Grafana instance.
+You will deploy three of these in the <a href="deploy-dashboards.html" class="xref page">Deploy Dashboards</a> exercise.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_a_serviceaccount_with_rbac_is_required"><a class="anchor" href="#_why_a_serviceaccount_with_rbac_is_required"></a>Why a ServiceAccount with RBAC Is Required</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Unlike a standalone Grafana that connects to an open Prometheus endpoint, Grafana on OpenShift must authenticate to query metrics.
+The OpenShift monitoring stack enforces authentication and authorization on all metric queries through Thanos Querier.</p>
+</div>
+<div class="paragraph">
+<p>The authentication chain works as follows:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>You create a <strong>ServiceAccount</strong> named <code>grafana-sa</code> in the <code>llm-monitoring</code> namespace</p>
+</li>
+<li>
+<p>You create a <strong>Secret</strong> of type <code>kubernetes.io/service-account-token</code> bound to that ServiceAccount, which generates a bearer token</p>
+</li>
+<li>
+<p>You create a <strong>ClusterRoleBinding</strong> that grants the <code>cluster-monitoring-view</code> ClusterRole to <code>grafana-sa</code></p>
+</li>
+<li>
+<p>The GrafanaDatasource references this bearer token in its configuration</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The <code>cluster-monitoring-view</code> role grants read-only access to all metrics in the cluster&#8201;&#8212;&#8201;both platform metrics (from <code>openshift-monitoring</code>) and user workload metrics (from <code>openshift-user-workload-monitoring</code>).
+This single role gives Grafana access to container metrics, GPU metrics from DCGM Exporter, and vLLM inference metrics.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Do not use the <code>cluster-admin</code> role for Grafana. The <code>cluster-monitoring-view</code> role provides exactly the access Grafana needs&#8201;&#8212;&#8201;read-only metrics access&#8201;&#8212;&#8201;without granting permissions to modify cluster resources.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_dashboard_as_code"><a class="anchor" href="#_dashboard_as_code"></a>Dashboard-as-Code</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are two ways to create Grafana dashboards: manually through the UI, or declaratively as GrafanaDashboard custom resources.
+This course uses the declarative approach exclusively.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Capability</th>
+<th class="tableblock halign-left valign-top">Manual (UI)</th>
+<th class="tableblock halign-left valign-top">Dashboard-as-Code (CR)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Reproducibility</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Must recreate by hand on each cluster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc apply -f</code> deploys the same dashboard everywhere</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Version control</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Changes not tracked</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dashboard JSON stored in Git alongside other manifests</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Multi-cluster</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Export JSON, import on each cluster manually</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Same CR applied to every cluster via GitOps</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Review process</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No review&#8201;&#8212;&#8201;changes are immediate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Changes go through pull requests and code review</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Disaster recovery</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dashboard lost if Grafana PVC is deleted</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Re-apply the CR to restore the dashboard instantly</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Drift detection</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No way to know if someone modified the dashboard</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operator reconciles the CR, reverting manual edits</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+The Grafana Operator continuously reconciles GrafanaDashboard CRs. If someone modifies a dashboard through the Grafana UI, the operator will revert the changes on the next reconciliation cycle. This is a feature, not a bug&#8201;&#8212;&#8201;it ensures your dashboards in production match what is in Git.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reading_a_dashboard_json_model"><a class="anchor" href="#_reading_a_dashboard_json_model"></a>Reading a Dashboard JSON Model</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Each GrafanaDashboard CR contains a <code>json</code> field with the full dashboard definition.
+Understanding the structure of this JSON helps you customize dashboards and troubleshoot panels that do not display data.</p>
+</div>
+<div class="sect2">
+<h3 id="_top_level_fields"><a class="anchor" href="#_top_level_fields"></a>Top-Level Fields</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>title</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The dashboard name displayed in the Grafana UI</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>uid</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A unique identifier used in URLs and cross-references between dashboards</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>templating</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines dropdown variables (such as a namespace or pod selector) that users can change to filter all panels at once</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>panels</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Array of panel definitions&#8201;&#8212;&#8201;each panel is one visualization on the dashboard</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>time</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Default time range when the dashboard is opened (e.g., last 1 hour)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>refresh</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Auto-refresh interval (e.g., every 30 seconds)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_panel_structure"><a class="anchor" href="#_panel_structure"></a>Panel Structure</h3>
+<div class="paragraph">
+<p>Each entry in the <code>panels</code> array defines a single visualization:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "title": "GPU Utilization",
+  "type": "timeseries",
+  "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+  "targets": [
+    {
+      "expr": "DCGM_FI_DEV_GPU_UTIL{namespace=\"nvidia-gpu-operator\"}",
+      "legendFormat": "GPU {{gpu}} on {{instance}}"
+    }
+  ],
+  "fieldConfig": {
+    "defaults": {
+      "thresholds": {
+        "steps": [
+          { "color": "green", "value": null },
+          { "color": "yellow", "value": 80 },
+          { "color": "red", "value": 95 }
+        ]
+      },
+      "unit": "percent"
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The key fields within each panel:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>targets[].expr</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The PromQL query that provides data for this panel. This is where the three patterns from <a href="promql-fundamentals.html" class="xref page">PromQL Fundamentals</a> appear.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>targets[].legendFormat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Template for the legend label, using double-brace syntax (e.g., <code>{{gpu}}</code>) to insert metric label values</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>gridPos</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Position and size on the dashboard grid. <code>x</code> and <code>y</code> set the position; <code>h</code> and <code>w</code> set height and width in grid units.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fieldConfig.defaults.thresholds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Color thresholds that change the visualization color based on the current value. In the example above, the panel is green below 80%, yellow from 80-95%, and red above 95%.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fieldConfig.defaults.unit</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The display unit (e.g., <code>percent</code>, <code>s</code> for seconds, <code>reqps</code> for requests per second)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The visualization type: <code>timeseries</code> for line graphs, <code>gauge</code> for radial gauges, <code>stat</code> for single-value panels, <code>table</code> for tabular data</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+The <code>thresholds</code> in your dashboard panels should match the thresholds in your alerting rules. If your PrometheusRule fires when GPU utilization exceeds 95% for 10 minutes, set the red threshold in the dashboard panel at 95% so the visual warning and the alert are synchronized.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_upstream_resources"><a class="anchor" href="#_upstream_resources"></a>Upstream Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://grafana-operator.github.io/grafana-operator/docs/" target="_blank" rel="noopener">Grafana Operator Documentation</a></p>
+</li>
+<li>
+<p><a href="https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/" target="_blank" rel="noopener">Grafana&#8201;&#8212;&#8201;Dashboard JSON Model</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_red_hat_documentation"><a class="anchor" href="#_red_hat_documentation"></a>Red Hat Documentation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/accessing-third-party-monitoring-apis" target="_blank" rel="noopener">OpenShift&#8201;&#8212;&#8201;Accessing Third-Party Monitoring APIs</a></p>
+</li>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/managing-metrics#querying-metrics-for-user-defined-projects-as-a-developer_managing-metrics" target="_blank" rel="noopener">OpenShift&#8201;&#8212;&#8201;Querying Metrics for User-Defined Projects</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="promql-fundamentals.html">PromQL Fundamentals</a></span>
+  <span class="next"><a href="install-grafana.html">Install Grafana</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

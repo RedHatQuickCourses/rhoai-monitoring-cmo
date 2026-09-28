@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>LLM Inference Mechanics :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="index.html">
+    <link rel="next" href="vllm-metrics.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Model Deployment and Metrics</a></li>
+    <li><a href="inference-mechanics.html">LLM Inference Mechanics</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">LLM Inference Mechanics</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Every LLM inference request goes through two distinct computational phases.
+These phases have different performance characteristics, different resource bottlenecks, and different metrics&#8201;&#8212;&#8201;which is why monitoring LLM inference is more nuanced than monitoring a traditional request/response API.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/inference-pipeline.svg" alt="LLM inference pipeline showing prefill and decode phases with timing metrics and GPU memory layout" width="860">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_phase_1_prefill_prompt_processing"><a class="anchor" href="#_phase_1_prefill_prompt_processing"></a>Phase 1: Prefill (Prompt Processing)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When your request arrives, the model must first process every token in your input prompt.
+This is the <strong>prefill</strong> phase (also called "prompt processing" or "prompt encoding").</p>
+</div>
+<div class="paragraph">
+<p>All input tokens are processed <strong>in parallel</strong> as large matrix multiplications&#8201;&#8212;&#8201;this is what GPUs are built for.
+The model builds an internal representation of the entire input and produces the first output token.</p>
+</div>
+<div class="paragraph">
+<p>Key characteristics of prefill:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Compute-bound</strong>: The GPU processes all input tokens simultaneously. This is massively parallel computation.</p>
+</li>
+<li>
+<p><strong>Duration scales with input length</strong>: A 100-token prompt takes roughly 10x longer to prefill than a 10-token prompt.</p>
+</li>
+<li>
+<p><strong>User experience impact</strong>: This is the "thinking" pause before the model starts responding. In a streaming API, the user sees nothing during this phase.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The moment the first output token is produced is called <strong>Time to First Token (TTFT)</strong>&#8201;&#8212;&#8201;one of the most important metrics for user-perceived responsiveness.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_phase_2_decode_auto_regressive_generation"><a class="anchor" href="#_phase_2_decode_auto_regressive_generation"></a>Phase 2: Decode (Auto-regressive Generation)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Once the first token is produced, the model enters the <strong>decode</strong> phase.
+It generates output tokens one at a time, where each new token depends on all previous tokens (both the original input and all generated output so far).</p>
+</div>
+<div class="paragraph">
+<p>Key characteristics of decode:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Memory-bound</strong>: Each decode step processes only one token, which does not fully utilize the GPU&#8217;s compute capacity. The bottleneck shifts to GPU memory bandwidth&#8201;&#8212;&#8201;reading and writing the KV cache.</p>
+</li>
+<li>
+<p><strong>Duration scales with output length</strong>: Generating 500 tokens takes roughly 10x longer than generating 50 tokens.</p>
+</li>
+<li>
+<p><strong>User experience impact</strong>: This is the "typing speed" the user sees during streaming. Each token appears at roughly regular intervals.</p>
+</li>
+<li>
+<p><strong>Sequential by nature</strong>: Unlike prefill, decode cannot be parallelized across output tokens. Each token depends on the previous one.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_metrics_that_map_to_each_phase"><a class="anchor" href="#_metrics_that_map_to_each_phase"></a>Metrics That Map to Each Phase</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 22.2222%;">
+<col style="width: 22.2222%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Phase</th>
+<th class="tableblock halign-left valign-top">What the User Sees</th>
+<th class="tableblock halign-left valign-top">Key Metric</th>
+<th class="tableblock halign-left valign-top">vLLM Metric Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prefill</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Waiting (blank screen)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time to First Token</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:time_to_first_token_seconds</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Text streaming in</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time Per Output Token</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:time_per_output_token_seconds</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Text streaming in</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inter-Token Latency</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:inter_token_latency_seconds</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total wait time</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">End-to-End Latency</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:e2e_request_latency_seconds</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The relationship: <code>E2E Latency ≈ TTFT + (num_output_tokens × TPOT)</code></p>
+</div>
+<div class="paragraph">
+<p>Consider two requests: one with 2000 input tokens and 50 output tokens, another with 50 input tokens and 2000 output tokens.
+The first request has much higher TTFT (long prefill) but short decode.
+The second has low TTFT but very long decode.
+E2E latency is likely higher for the second request because 2000 sequential decode steps usually exceed the prefill cost of 2000 parallel tokens.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_kv_cache_the_hidden_resource_bottleneck"><a class="anchor" href="#_the_kv_cache_the_hidden_resource_bottleneck"></a>The KV Cache: The Hidden Resource Bottleneck</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is arguably the most important concept for understanding AI serving capacity.</p>
+</div>
+<div class="paragraph">
+<p>During the decode phase, the model needs to "attend" to all previous tokens to generate the next one.
+The attention mechanism requires two matrices per token per layer&#8201;&#8212;&#8201;the <strong>Key</strong> matrix and the <strong>Value</strong> matrix.
+Rather than recomputing these from scratch for every decode step, the model caches them.
+This cached data is the <strong>KV cache</strong>.</p>
+</div>
+<div class="sect2">
+<h3 id="_gpu_memory_layout"><a class="anchor" href="#_gpu_memory_layout"></a>GPU Memory Layout</h3>
+<div class="paragraph">
+<p>Consider our lab setup&#8201;&#8212;&#8201;Granite 3.1 8B Instruct on an NVIDIA L4:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Component</th>
+<th class="tableblock halign-left valign-top">Size</th>
+<th class="tableblock halign-left valign-top">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Model Weights (FP16)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~16 GB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fixed: 8B parameters × 2 bytes, loaded once</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CUDA / Framework Overhead</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~1-1.5 GB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fixed: CUDA runtime, PyTorch context, vLLM buffers</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>KV Cache</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>~6-7 GB</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Variable: grows with concurrent requests and sequence length</strong></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The KV cache is what limits how many requests a model can process concurrently:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Each concurrent request with a 4096-token context uses ~614 MB of KV cache at FP16</p>
+</li>
+<li>
+<p>Maximum concurrent requests before queuing: ~6-7 GB / 614 MB ≈ <strong>10-11 requests</strong></p>
+</li>
+<li>
+<p>The 12th request must wait in a queue until someone else&#8217;s request finishes and frees KV cache</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>That is a remarkably small number.
+With just 11 concurrent users, additional requests must queue.
+This is exactly what the <code>vllm:num_requests_waiting</code> metric measures&#8201;&#8212;&#8201;and it is the single most important signal for understanding whether your model server is saturated.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_max_model_len_tradeoff"><a class="anchor" href="#_the_max_model_len_tradeoff"></a>The max-model-len Tradeoff</h3>
+<div class="paragraph">
+<p>Halving the context length roughly doubles your concurrency capacity:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>At <code>--max-model-len=4096</code>: ~614 MB per request, ~10-11 concurrent requests</p>
+</li>
+<li>
+<p>At <code>--max-model-len=2048</code>: ~307 MB per request, ~21 concurrent requests</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In production, this is a capacity planning decision driven by your actual use case&#8201;&#8212;&#8201;shorter context windows allow more concurrency, but limit what users can do with the model.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pagedattention_making_the_most_of_gpu_memory"><a class="anchor" href="#_pagedattention_making_the_most_of_gpu_memory"></a>PagedAttention: Making the Most of GPU Memory</h3>
+<div class="paragraph">
+<p>vLLM uses a technique called <strong>PagedAttention</strong> that manages KV cache like an operating system manages virtual memory:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Divides GPU memory into fixed-size <strong>pages</strong> (blocks)</p>
+</li>
+<li>
+<p>Allocates pages to requests on demand as they generate more tokens</p>
+</li>
+<li>
+<p>Frees pages immediately when a request completes</p>
+</li>
+<li>
+<p>Can share pages between requests with common prefixes</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This is more efficient than pre-allocating a fixed block per request, but it is still bounded by total GPU memory.
+The metric <code>vllm:kv_cache_usage_perc</code> tells you what fraction of the paged cache is currently allocated&#8201;&#8212;&#8201;when it approaches 100%, you are running out of room.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_key_takeaway"><a class="anchor" href="#_key_takeaway"></a>Key Takeaway</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When you see <code>vllm:kv_cache_usage_perc</code> at 85%, it means 85% of the available KV cache pages are allocated to active requests.
+The remaining 15% is all you have for new requests.
+If this number stays near 100% and <code>vllm:num_requests_waiting</code> is climbing, you need to either reduce concurrent requests, reduce max sequence length, or add more GPU capacity.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_red_hat_documentation"><a class="anchor" href="#_red_hat_documentation"></a>Red Hat Documentation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/serving_models/index" target="_blank" rel="noopener">Red Hat OpenShift AI — Serving Models</a></p>
+</li>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/serving_models/serving-large-models_serving-large-models" target="_blank" rel="noopener">Serving Large Language Models with vLLM</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_upstream_resources"><a class="anchor" href="#_upstream_resources"></a>Upstream Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.vllm.ai/en/stable/design/arch_overview.html" target="_blank" rel="noopener">vLLM Architecture Overview</a></p>
+</li>
+<li>
+<p><a href="https://docs.vllm.ai/en/stable/serving/metrics.html" target="_blank" rel="noopener">vLLM Production Metrics</a></p>
+</li>
+<li>
+<p><a href="https://blog.vllm.ai/2023/06/20/vllm.html" target="_blank" rel="noopener">Efficient Memory Management for Large Language Model Serving with PagedAttention</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="index.html">Model Deployment and Metrics</a></span>
+  <span class="next"><a href="vllm-metrics.html">vLLM Metrics Catalog</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

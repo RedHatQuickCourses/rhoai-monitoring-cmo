@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Enable User Workload Monitoring :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="monitoring-stack.html">
+    <link rel="next" href="../model-deployment/index.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Observability Foundations</a></li>
+    <li><a href="enable-uwm.html">Enable User Workload Monitoring</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Enable User Workload Monitoring</h1>
+<div class="sect1">
+<h2 id="_concepts"><a class="anchor" href="#_concepts"></a>Concepts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This lab enables User Workload Monitoring (UWM)&#8201;&#8212;&#8201;the critical piece that allows Prometheus to scrape metrics from your application pods.
+Without UWM, Prometheus completely ignores your model serving workloads, even if they expose a <code>/metrics</code> endpoint.</p>
+</div>
+<div class="paragraph">
+<p>By the end of this lab, you will have:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Verified that the NVIDIA GPU Operator and DCGM Exporter are running</p>
+</li>
+<li>
+<p>Created a dedicated namespace for model-serving workloads</p>
+</li>
+<li>
+<p>Enabled User Workload Monitoring</p>
+</li>
+<li>
+<p>Confirmed that both GPU hardware metrics and UWM health metrics are queryable</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lab"><a class="anchor" href="#_lab"></a>Lab</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_verify_the_nvidia_gpu_operator"><a class="anchor" href="#_1_verify_the_nvidia_gpu_operator"></a>1. Verify the NVIDIA GPU Operator</h3>
+<div class="paragraph">
+<p>Before touching the monitoring stack, confirm the GPU infrastructure is healthy.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get pods -n nvidia-gpu-operator</strong>
+NAME                                           READY   STATUS      RESTARTS   AGE
+gpu-feature-discovery-xxxxx                    1/1     Running     0          2d
+gpu-operator-xxxxx                             1/1     Running     0          2d
+nvidia-container-toolkit-daemonset-xxxxx       1/1     Running     0          2d
+nvidia-cuda-validator-xxxxx                    0/1     Completed   0          2d
+nvidia-dcgm-xxxxx                              1/1     Running     0          2d
+nvidia-dcgm-exporter-xxxxx                     1/1     Running     0          2d
+nvidia-device-plugin-daemonset-xxxxx           1/1     Running     0          2d
+nvidia-driver-daemonset-xxx-xxxxx              2/2     Running     0          2d
+nvidia-node-status-exporter-xxxxx              1/1     Running     0          2d
+nvidia-operator-validator-xxxxx                1/1     Running     0          2d</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Most pods should show <code>Running</code>.
+The <code>nvidia-cuda-validator</code> pod shows <code>Completed</code>&#8201;&#8212;&#8201;this is normal, it runs once to verify CUDA functionality.</p>
+</div>
+<div class="paragraph">
+<p>Verify the DCGM Exporter specifically:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get pods -n nvidia-gpu-operator -l app=nvidia-dcgm-exporter</strong>
+NAME                          READY   STATUS    RESTARTS   AGE
+nvidia-dcgm-exporter-xxxxx    1/1     Running   0          2d</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see one DCGM exporter pod per GPU node.</p>
+</div>
+<div class="paragraph">
+<p>Verify the DCGM ServiceMonitor exists:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get servicemonitor -n nvidia-gpu-operator</strong>
+NAME                          AGE
+gpu-operator                  20d
+nvidia-dcgm-exporter          20d
+nvidia-node-status-exporter   20d</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>nvidia-dcgm-exporter</code> ServiceMonitor tells platform Prometheus to scrape GPU hardware metrics.
+You did not create this&#8201;&#8212;&#8201;the NVIDIA GPU Operator ships it automatically.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_create_the_lab_namespace"><a class="anchor" href="#_2_create_the_lab_namespace"></a>2. Create the Lab Namespace</h3>
+<div class="paragraph">
+<p>All model-serving workloads for this course will live in a namespace called <code>llm-serving</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f monitoring-setup/namespace.yaml</strong>
+namespace/llm-serving created</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the namespace was created with the correct labels:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get namespace llm-serving --show-labels</strong>
+NAME          STATUS   AGE   LABELS
+llm-serving   Active   5s    modelmesh-enabled=false,opendatahub.io/dashboard=true,...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>modelmesh-enabled: "false"</code> label ensures KServe uses its standard serving path (required for vLLM-based runtimes in RHOAI 3.4).
+The <code>opendatahub.io/dashboard: "true"</code> label makes the namespace visible as a Data Science Project in the RHOAI Dashboard.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_enable_user_workload_monitoring"><a class="anchor" href="#_3_enable_user_workload_monitoring"></a>3. Enable User Workload Monitoring</h3>
+<div class="paragraph">
+<p>This is the most important step in this chapter.</p>
+</div>
+<div class="paragraph">
+<p>First, check if UWM is already enabled on your cluster:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get pods -n openshift-user-workload-monitoring</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you see <code>prometheus-user-workload-0</code> pods, UWM is already enabled.
+Skip to step 3c to verify, but still apply the configuration ConfigMap to ensure retention and log level are set correctly.</p>
+</div>
+<div class="paragraph">
+<p>If the namespace is empty or does not exist, UWM is not enabled.
+Continue with step 3a.</p>
+</div>
+<div class="sect3">
+<h4 id="_3a_apply_the_uwm_configuration"><a class="anchor" href="#_3a_apply_the_uwm_configuration"></a>3a. Apply the UWM configuration</h4>
+<div class="paragraph">
+<p>Apply the UWM configuration ConfigMap first.
+This sets the retention period and log level that UWM Prometheus will use when it starts up.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f monitoring-setup/uwm-cm-conf.yaml</strong>
+configmap/user-workload-monitoring-config created</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get configmap user-workload-monitoring-config -n openshift-user-workload-monitoring -o yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see the <code>retention: 15d</code> and <code>logLevel: debug</code> settings in the output.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_3b_enable_uwm"><a class="anchor" href="#_3b_enable_uwm"></a>3b. Enable UWM</h4>
+<div class="paragraph">
+<p>Apply the cluster monitoring ConfigMap that enables User Workload Monitoring:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f monitoring-setup/uwm-cm-enable.yaml</strong>
+configmap/cluster-monitoring-config created</code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+If the <code>cluster-monitoring-config</code> ConfigMap already exists on your cluster, applying this file will <strong>overwrite</strong> it.
+In that case, edit the existing ConfigMap instead:<br>
+<code>oc edit configmap cluster-monitoring-config -n openshift-monitoring</code><br>
+Add <code>enableUserWorkload: true</code> under <code>config.yaml</code>, save, and exit.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_3c_wait_for_uwm_pods_to_start"><a class="anchor" href="#_3c_wait_for_uwm_pods_to_start"></a>3c. Wait for UWM pods to start</h4>
+<div class="paragraph">
+<p>After applying the ConfigMap, the Cluster Monitoring Operator detects the change and deploys UWM components.
+This typically takes 30-60 seconds.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get pods -n openshift-user-workload-monitoring -w</strong>
+NAME                                   READY   STATUS    RESTARTS   AGE
+prometheus-operator-xxxxxxxxx-xxxxx    2/2     Running   0          30s
+prometheus-user-workload-0             6/6     Running   0          45s
+thanos-ruler-user-workload-0           4/4     Running   0          45s</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Wait until <code>prometheus-user-workload-0</code> shows <code>Running</code>, then press <code>Ctrl+C</code> to exit the watch.</p>
+</div>
+<details>
+<summary class="title">Troubleshooting: Pods not appearing after 2 minutes</summary>
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Check the ConfigMap was applied correctly:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get configmap cluster-monitoring-config -n openshift-monitoring -o yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Look for <code>enableUserWorkload: true</code> in the data section.</p>
+</div>
+</li>
+<li>
+<p>Check the Cluster Monitoring Operator logs:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc logs -n openshift-monitoring deployment/cluster-monitoring-operator --tail=50</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Look for errors related to user workload monitoring.</p>
+</div>
+</li>
+<li>
+<p>Check if the namespace exists:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get namespace openshift-user-workload-monitoring</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The CMO should create this namespace automatically.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</details>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_verify_metrics_are_flowing"><a class="anchor" href="#_4_verify_metrics_are_flowing"></a>4. Verify Metrics Are Flowing</h3>
+<div class="sect3">
+<h4 id="_4a_query_dcgm_metrics_via_the_openshift_console"><a class="anchor" href="#_4a_query_dcgm_metrics_via_the_openshift_console"></a>4a. Query DCGM metrics via the OpenShift Console</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open the <strong>OpenShift Web Console</strong> in your browser</p>
+</li>
+<li>
+<p>Switch to the <strong>Administrator</strong> perspective (top-left dropdown)</p>
+</li>
+<li>
+<p>Navigate to <strong>Observe &gt; Metrics</strong></p>
+</li>
+<li>
+<p>In the query box, type:</p>
+<div class="listingblock">
+<div class="content">
+<pre>DCGM_FI_DEV_GPU_UTIL</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Click <strong>Run queries</strong> (or press Enter)</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>You should see a time-series graph showing GPU utilization.
+Since no model is currently running, the value should be near <strong>0%</strong> (perhaps 1-3% from background GPU processes).</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+If you see no data, make sure the metric name is typed exactly as shown (it is case-sensitive) and verify the DCGM exporter pod is Running (step 1).
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_4b_explore_additional_gpu_metrics"><a class="anchor" href="#_4b_explore_additional_gpu_metrics"></a>4b. Explore additional GPU metrics</h4>
+<div class="paragraph">
+<p>Try these queries one at a time to explore what GPU data is available:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>DCGM_FI_DEV_GPU_TEMP</code></dt>
+<dd>
+<p>Shows the current GPU temperature. At idle, expect 30-50C depending on your GPU model and cooling.</p>
+</dd>
+<dt class="hdlist1"><code>DCGM_FI_DEV_FB_USED</code></dt>
+<dd>
+<p>Shows GPU memory (framebuffer) currently in use, in megabytes. At idle with no model loaded, this should be low (a few hundred MB for CUDA context).</p>
+</dd>
+<dt class="hdlist1"><code>DCGM_FI_DEV_FB_FREE</code></dt>
+<dd>
+<p>Shows available GPU memory. On the L4 with ~24,000 MB free, dividing by 2 gives ~12B parameters&#8201;&#8212;&#8201;meaning an 8B model fits with room to spare, but that room (~6-7 GB) is all you have for the KV cache.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_4c_verify_uwm_prometheus_is_healthy"><a class="anchor" href="#_4c_verify_uwm_prometheus_is_healthy"></a>4c. Verify UWM Prometheus is healthy</h4>
+<div class="paragraph">
+<p>Query the UWM Prometheus self-monitoring metric:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>up{namespace="openshift-user-workload-monitoring"}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see one or more time series with value <code>1</code>, indicating that UWM Prometheus targets are up and healthy.</p>
+</div>
+<div class="paragraph">
+<p>If this returns no data, UWM may not have finished starting.
+Wait 1-2 minutes and retry.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_explore_the_monitoring_ui"><a class="anchor" href="#_5_explore_the_monitoring_ui"></a>5. Explore the Monitoring UI</h3>
+<div class="paragraph">
+<p>Take a few minutes to explore the OpenShift monitoring interface.</p>
+</div>
+<div class="sect3">
+<h4 id="_5a_metrics_tab"><a class="anchor" href="#_5a_metrics_tab"></a>5a. Metrics tab</h4>
+<div class="paragraph">
+<p>You are already here from step 4. Try these explorations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Add a second query</strong>: Click "Add query" and enter <code>DCGM_FI_DEV_GPU_TEMP</code> alongside <code>DCGM_FI_DEV_GPU_UTIL</code>. You can see multiple metrics on the same timeline.</p>
+</li>
+<li>
+<p><strong>Change the time range</strong>: Use the dropdown in the top-right to switch between "Last 30 minutes", "Last 1 hour", etc. Notice how the graph resolution changes.</p>
+</li>
+<li>
+<p><strong>Check the results table</strong>: Below the graph, a table displays the current value for each time series along with all its labels.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_5b_alerting_tab"><a class="anchor" href="#_5b_alerting_tab"></a>5b. Alerting tab</h4>
+<div class="paragraph">
+<p>Navigate to <strong>Observe &gt; Alerting</strong>.
+You will see alerts that are already defined for the platform (OpenShift infrastructure alerts).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Click on the <strong>Alerting rules</strong> tab to see what rules exist</p>
+</li>
+<li>
+<p>Note the structure: each rule has a name, an expression (PromQL), a <code>for</code> duration, and a severity label</p>
+</li>
+<li>
+<p>You will create your own alert rules in the <a href="../alerting/index.html" class="xref page">Alerting</a> chapter</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_5c_targets_tab"><a class="anchor" href="#_5c_targets_tab"></a>5c. Targets tab</h4>
+<div class="paragraph">
+<p>Navigate to <strong>Observe &gt; Targets</strong>.
+This page shows every scrape target that Prometheus is actively collecting from.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type "nvidia" in the search box to filter to GPU Operator targets</p>
+</li>
+<li>
+<p>Find the <code>nvidia-dcgm-exporter</code> target and note its state (should be "Up"), the endpoint URL, and the last scrape time</p>
+</li>
+<li>
+<p>In the next chapter, after deploying the model, you can return here and search for "llm" to verify the vLLM target appears</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before proceeding to the next chapter, verify all of the following:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 42.8571%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Check</th>
+<th class="tableblock halign-left valign-top">How to Verify</th>
+<th class="tableblock halign-left valign-top">Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU Operator running</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get pods -n nvidia-gpu-operator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">All pods Running</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DCGM Exporter running</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get pods -n nvidia-gpu-operator -l app=nvidia-dcgm-exporter</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">At least 1 pod Running</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lab namespace exists</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get namespace llm-serving</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Namespace exists with correct labels</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UWM enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get pods -n openshift-user-workload-monitoring</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>prometheus-user-workload-0</code> Running</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU metrics queryable</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query <code>DCGM_FI_DEV_GPU_UTIL</code> in Console</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns data (value near 0%)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UWM healthy</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query <code>up{namespace="openshift-user-workload-monitoring"}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns value of 1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_summary"><a class="anchor" href="#_summary"></a>Summary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this lab, you:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Verified the NVIDIA GPU Operator and DCGM Exporter are running and exposing GPU metrics</p>
+</li>
+<li>
+<p>Created the <code>llm-serving</code> namespace for model-serving workloads</p>
+</li>
+<li>
+<p>Enabled User Workload Monitoring by applying two ConfigMaps</p>
+</li>
+<li>
+<p>Confirmed that GPU hardware metrics (Layer 2) are queryable from the OpenShift Console</p>
+</li>
+<li>
+<p>Explored the monitoring UI: Metrics, Alerting, and Targets tabs</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Notice what is missing: you have GPU hardware metrics flowing, but no application-level inference metrics yet.
+That is because you need a running model with a <code>/metrics</code> endpoint.
+In the next chapter, you will deploy the Granite 3.1 8B model and see all three layers of metrics flowing into Prometheus.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="monitoring-stack.html">OpenShift Monitoring Stack</a></span>
+  <span class="next"><a href="../model-deployment/index.html">Model Deployment and Metrics</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

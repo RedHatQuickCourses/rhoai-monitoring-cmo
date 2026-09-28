@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="next" href="LABENV/index.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../_/css/site.css">
+    <link rel="stylesheet" href="../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link is-current"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Home</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</h1>
+<div class="sect1">
+<h2 id="_introduction"><a class="anchor" href="#_introduction"></a>Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This hands-on course teaches AI platform engineers how to monitor GPU infrastructure and LLM inference workloads on Red Hat OpenShift AI using the built-in OpenShift monitoring stack.</p>
+</div>
+<div class="paragraph">
+<p>Students progress from understanding why AI workloads need specialized observability, through enabling User Workload Monitoring and deploying a model with metrics, to building Grafana dashboards and authoring Prometheus alert rules — culminating in a challenge lab where they diagnose a misconfigured model deployment using only observability tools.</p>
+</div>
+<div class="paragraph">
+<p>The course uses the <strong>Cluster Monitoring Operator (CMO)</strong> — the monitoring stack built into every OpenShift cluster.
+Students learn to use User Workload Monitoring (UWM), ServiceMonitors, the community Grafana Operator for dashboards, and PrometheusRules for alerting — all using the standard <code>monitoring.coreos.com</code> API.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_course_overview_and_objectives"><a class="anchor" href="#_course_overview_and_objectives"></a>Course Overview and Objectives</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Organizations running AI model serving workloads on OpenShift face a common challenge: traditional container metrics (CPU, memory, pod restarts) cannot explain <em>why</em> a model is slow, <em>when</em> the GPU is saturated, or <em>how</em> the KV cache is affecting concurrent requests.
+GPU-level and inference-level metrics are essential — but they need to be collected, visualized, and alerted on.</p>
+</div>
+<div class="paragraph">
+<p>This course builds the complete monitoring and alerting pipeline incrementally — each chapter adds a new capability (metrics collection, dashboards, alerts) until students can observe the full lifecycle of an AI serving incident from first signal to root cause.</p>
+</div>
+<div class="paragraph">
+<p>By the end of this course, students will be able to:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Explain why AI model serving workloads require different observability strategies than traditional web applications</p>
+</li>
+<li>
+<p>Describe the OpenShift monitoring stack (Prometheus, Thanos Querier, Alertmanager) and how metrics flow from a vLLM runtime through to dashboards and alerts</p>
+</li>
+<li>
+<p>Configure User Workload Monitoring and ServiceMonitors to collect metrics from model-serving runtimes</p>
+</li>
+<li>
+<p>Deploy a model on KServe with the vLLM runtime and verify that inference metrics are being scraped</p>
+</li>
+<li>
+<p>Build Grafana dashboards that visualize GPU health, node health, and inference performance using the USE and RED methods</p>
+</li>
+<li>
+<p>Author PrometheusRule alert definitions for both infrastructure (GPU) and application-level (latency SLO) conditions</p>
+</li>
+<li>
+<p>Generate synthetic load against a model endpoint and observe the full alert lifecycle (Inactive &#8594; Pending &#8594; Firing &#8594; Resolved)</p>
+</li>
+<li>
+<p>Independently diagnose a misconfigured model serving deployment using observability tools, correlating metrics across infrastructure and application layers to identify and fix the root cause</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_course_duration"><a class="anchor" href="#_course_duration"></a>Course Duration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Approximately 6 hours total (lecture + hands-on + challenge lab)</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_target_audience"><a class="anchor" href="#_target_audience"></a>Target Audience</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>AI Platform Engineers</strong> designing observability strategies for AI/ML platforms on OpenShift</p>
+</li>
+<li>
+<p><strong>OpenShift administrators</strong> responsible for monitoring clusters with GPU workloads</p>
+</li>
+<li>
+<p><strong>SREs</strong> managing AI/ML infrastructure reliability and incident response</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Working knowledge of Kubernetes/OpenShift concepts (<code>Pods</code>, <code>Services</code>, <code>Deployments</code>, <code>Namespaces</code>)</p>
+</li>
+<li>
+<p>Familiarity with the <code>oc</code> CLI for cluster administration</p>
+</li>
+<li>
+<p>Basic understanding of Prometheus concepts (metrics, scraping, PromQL) is helpful but not required — the course covers these from the ground up</p>
+</li>
+<li>
+<p>No prior experience with Grafana, PrometheusRules, or GPU monitoring is required</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>Getting Started</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before starting the course, set up your lab environment by following the instructions in <a href="LABENV/index.html" class="xref page">Lab Environment</a>.
+This covers cluster provisioning, hardware requirements, and environment verification.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="next"><a href="LABENV/index.html">Lab Environment</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../_/js/site.js" data-ui-root-path="../../_"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+<script defer src="../../_/js/vendor/tabs.js"></script>
+<script>window.__courseDuration = {"totalSeconds":3998,"pageCount":15};</script>
+<script defer src="../../_/js/vendor/course-total-duration.js"></script>
+  </body>
+</html>

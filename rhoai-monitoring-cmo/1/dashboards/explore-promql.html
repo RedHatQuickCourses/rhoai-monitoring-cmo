@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Explore PromQL in Grafana :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="deploy-dashboards.html">
+    <link rel="next" href="../alerting/index.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Observability Dashboards</a></li>
+    <li><a href="explore-promql.html">Explore PromQL</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Explore PromQL in Grafana</h1>
+<div class="sect1">
+<h2 id="_concepts"><a class="anchor" href="#_concepts"></a>Concepts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The dashboards you deployed in the previous exercise are pre-built&#8201;&#8212;&#8201;each panel has a PromQL query already wired in.
+In this exercise, you use the Grafana <strong>Explore</strong> tab to write PromQL queries by hand.</p>
+</div>
+<div class="paragraph">
+<p>Why does this matter?
+In the <a href="../alerting/index.html" class="xref page">Alerting</a> chapter, you will define PrometheusRule CRs that contain PromQL expressions.
+If an alert fires (or fails to fire), you need to debug the PromQL directly.
+Building intuition for how gauges, counters, and histograms behave&#8201;&#8212;&#8201;and how <code>rate()</code> windows affect smoothness versus responsiveness&#8201;&#8212;&#8201;is essential.</p>
+</div>
+<div class="paragraph">
+<p>By the end of this exercise, you will have:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Queried gauge, counter, and histogram metrics directly in Grafana Explore</p>
+</li>
+<li>
+<p>Understood why raw counter values are meaningless and why <code>rate()</code> is required</p>
+</li>
+<li>
+<p>Computed latency percentiles using <code>histogram_quantile()</code></p>
+</li>
+<li>
+<p>Compared rate windows (<code>[1m]</code>, <code>[5m]</code>, <code>[15m]</code>) and observed the smoothness-versus-responsiveness tradeoff</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="paragraph">
+<p>Before starting, confirm:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The previous two exercises are complete: Grafana is running with the datasource connected and dashboards deployed</p>
+</li>
+<li>
+<p>You have sent at least 10 inference requests (from the previous exercise) so histogram data is available</p>
+</li>
+<li>
+<p>If you have not sent requests recently, send a batch now to populate fresh metric data:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>POD_NAME=$(oc get pods -n llm-serving -l serving.kserve.io/inferenceservice=granite-3-1-8b -o jsonpath='{.items[0].metadata.name}')</strong>
+$ <strong>oc port-forward pod/$POD_NAME 8080:8080 -n llm-serving &amp;</strong>
+$ <strong>for i in $(seq 1 10); do
+  curl -s http://localhost:8080/v1/completions \
+    -H "Content-Type: application/json" \
+    -d '{
+      "model": "granite-3-1-8b",
+      "prompt": "Explain topic '"$i"' in data science:",
+      "max_tokens": 256,
+      "temperature": 0.7
+    }' &gt; /dev/null
+  echo "Request $i complete."
+done</strong></code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lab"><a class="anchor" href="#_lab"></a>Lab</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_open_grafana_explore"><a class="anchor" href="#_1_open_grafana_explore"></a>1. Open Grafana Explore</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>In the Grafana UI, click the <strong>Explore</strong> icon in the left sidebar (the compass icon).</p>
+</li>
+<li>
+<p>In the datasource dropdown (top-left), select <strong>Prometheus - Thanos</strong>.</p>
+</li>
+<li>
+<p>Switch to <strong>Code</strong> mode by clicking the <strong>Code</strong> toggle in the top-right of the query editor. This gives you a raw PromQL text input instead of the visual query builder.</p>
+</li>
+<li>
+<p>Set the time range to <strong>Last 30 minutes</strong> (top-right).</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>You are now in a PromQL sandbox.
+Every query you type here runs directly against Thanos Querier&#8201;&#8212;&#8201;the same endpoint your dashboards use.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_gauge_queries"><a class="anchor" href="#_2_gauge_queries"></a>2. Gauge Queries</h3>
+<div class="paragraph">
+<p>Gauges are the simplest metric type&#8201;&#8212;&#8201;the current value is the actual measurement.
+No transformations needed.</p>
+</div>
+<div class="sect3">
+<h4 id="_2a_gpu_utilization"><a class="anchor" href="#_2a_gpu_utilization"></a>2a. GPU utilization</h4>
+<div class="paragraph">
+<p>Enter this query and click <strong>Run query</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>DCGM_FI_DEV_GPU_UTIL</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This returns the current GPU compute utilization as a percentage (0-100).
+At idle, you should see a value near 0.
+This is the same metric the GPU Health dashboard&#8217;s "GPU Utilization" gauge displays.</p>
+</div>
+<div class="paragraph">
+<p>Notice the labels on the result: <code>gpu</code>, <code>instance</code>, <code>pod</code>, <code>namespace</code>.
+These labels let you filter to specific GPUs in multi-GPU clusters.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_2b_kv_cache_usage"><a class="anchor" href="#_2b_kv_cache_usage"></a>2b. KV cache usage</h4>
+<div class="listingblock">
+<div class="content">
+<pre>vllm:kv_cache_usage_perc{namespace="llm-serving"}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This returns the fraction of vLLM&#8217;s pre-allocated KV cache blocks currently in use (0.0 to 1.0).
+At idle, this should be 0 or very close to it.
+If you just finished sending requests, you may see it settling back toward 0.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Gauge queries are straightforward: the value you see <em>is</em> the value. No <code>rate()</code> or <code>increase()</code> needed. If you want the current GPU temperature, just query <code>DCGM_FI_DEV_GPU_TEMP</code>. What you see is degrees Celsius right now.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_counter_queries"><a class="anchor" href="#_3_counter_queries"></a>3. Counter Queries</h3>
+<div class="paragraph">
+<p>Counters are cumulative&#8201;&#8212;&#8201;they only go up (or reset to 0 on restart).
+The raw value is the <em>total count since the process started</em>, which is rarely useful.
+You must apply <code>rate()</code> or <code>increase()</code> to extract meaningful information.</p>
+</div>
+<div class="sect3">
+<h4 id="_3a_the_wrong_way_raw_counter"><a class="anchor" href="#_3a_the_wrong_way_raw_counter"></a>3a. The wrong way: raw counter</h4>
+<div class="paragraph">
+<p>Enter this query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>vllm:prompt_tokens_total{namespace="llm-serving"}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You will see a monotonically increasing line&#8201;&#8212;&#8201;a staircase that goes up with every request.
+The current value might be something like <code>2847</code>.
+This tells you "2,847 prompt tokens have been processed since the vLLM pod started," which is not actionable.
+You cannot tell from this graph whether the model is busy <em>right now</em> or was busy an hour ago.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_3b_the_right_way_rate"><a class="anchor" href="#_3b_the_right_way_rate"></a>3b. The right way: rate()</h4>
+<div class="paragraph">
+<p>Now apply <code>rate()</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>rate(vllm:prompt_tokens_total{namespace="llm-serving"}[5m])</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This computes the per-second rate of change over a 5-minute sliding window.
+You should see a graph that shows <em>when</em> prompt processing actually occurred&#8201;&#8212;&#8201;spikes during your request bursts, dropping to 0 during idle periods.</p>
+</div>
+<div class="paragraph">
+<p>The difference is dramatic:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Raw counter</strong>: An ever-increasing number that hides timing information</p>
+</li>
+<li>
+<p><strong>rate()</strong>: A per-second rate that reveals <em>when</em> and <em>how fast</em> work happened</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Never alert on a raw counter value. An expression like <code>vllm:prompt_tokens_total &gt; 10000</code> fires once the counter crosses 10,000 and <em>stays firing forever</em>. Always use <code>rate()</code> or <code>increase()</code> for counter-based alerts.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_3c_rate_vs_increase"><a class="anchor" href="#_3c_rate_vs_increase"></a>3c. rate() vs increase()</h4>
+<div class="paragraph">
+<p>Try this alternative:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>increase(vllm:prompt_tokens_total{namespace="llm-serving"}[5m])</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>increase()</code> returns the <em>total increase</em> over the window, not the per-second rate.
+If <code>rate()</code> returns 10 tokens/sec over a 5-minute window, <code>increase()</code> returns 10 x 300 = 3,000 tokens.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Use <code>rate()</code> when you want a <em>rate</em>: "How many tokens per second?"</p>
+</li>
+<li>
+<p>Use <code>increase()</code> when you want a <em>count over a period</em>: "How many tokens in the last 5 minutes?"</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_histogram_queries"><a class="anchor" href="#_4_histogram_queries"></a>4. Histogram Queries</h3>
+<div class="paragraph">
+<p>Histograms are the most complex metric type.
+They store observations in pre-defined buckets, enabling percentile calculations without storing every individual measurement.</p>
+</div>
+<div class="sect3">
+<h4 id="_4a_compute_p99_end_to_end_latency"><a class="anchor" href="#_4a_compute_p99_end_to_end_latency"></a>4a. Compute p99 end-to-end latency</h4>
+<div class="paragraph">
+<p>Enter this query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>histogram_quantile(0.99, sum by(le) (rate(vllm:e2e_request_latency_seconds_bucket{namespace="llm-serving"}[5m])))</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is the same query the vLLM dashboard&#8217;s "End-to-End Request Latency" p99 line uses.
+Break it down from the inside out:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>vllm:e2e_request_latency_seconds_bucket{namespace="llm-serving"}</code>&#8201;&#8212;&#8201;Selects the raw histogram bucket counters. Each bucket has an <code>le</code> (less-than-or-equal) label.</p>
+</li>
+<li>
+<p><code>rate(&#8230;&#8203;[5m])</code>&#8201;&#8212;&#8201;Computes the per-second rate of observations falling into each bucket over the last 5 minutes. Required because histogram buckets are counters.</p>
+</li>
+<li>
+<p><code>sum by(le) (&#8230;&#8203;)</code>&#8201;&#8212;&#8201;Aggregates across all pods/instances, keeping only the <code>le</code> label. This is necessary for <code>histogram_quantile</code> to work.</p>
+</li>
+<li>
+<p><code>histogram_quantile(0.99, &#8230;&#8203;)</code>&#8201;&#8212;&#8201;Estimates the 99th percentile from the bucket rates. The result is an approximation&#8201;&#8212;&#8201;its accuracy depends on bucket boundaries.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>If you have sent requests recently, you should see a value in seconds.
+With Granite 8B and 256 tokens, expect p99 around 10-30 seconds.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_4b_compare_p50_and_p99"><a class="anchor" href="#_4b_compare_p50_and_p99"></a>4b. Compare p50 and p99</h4>
+<div class="paragraph">
+<p>Modify the query to compute p50 (the median):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>histogram_quantile(0.50, sum by(le) (rate(vllm:e2e_request_latency_seconds_bucket{namespace="llm-serving"}[5m])))</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Compare the two values.
+The gap between p50 and p99 reveals <em>consistency</em>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Small gap (p99 is 1.5x p50)</strong>: Performance is consistent. Most requests experience similar latency.</p>
+</li>
+<li>
+<p><strong>Large gap (p99 is 5x or 10x p50)</strong>: Performance is inconsistent. Some requests are much slower than others&#8201;&#8212;&#8201;often caused by KV cache pressure, preemptions, or queuing.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+To see both percentiles on the same graph, click <strong>Add query</strong> (the <code>+</code> button below the query editor). Enter the p50 query in query A and the p99 query in query B. Both lines appear on the same chart.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_4c_try_ttft_percentiles"><a class="anchor" href="#_4c_try_ttft_percentiles"></a>4c. Try TTFT percentiles</h4>
+<div class="paragraph">
+<p>Time to First Token (TTFT) measures the prefill phase&#8201;&#8212;&#8201;how long users wait before text starts streaming.
+Compute p95 TTFT:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>histogram_quantile(0.95, sum by(le) (rate(vllm:time_to_first_token_seconds_bucket{namespace="llm-serving"}[5m])))</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>TTFT is typically much shorter than E2E latency because it only measures the initial prompt processing, not the full token generation.
+With short prompts, expect p95 TTFT around 0.1-1.0 seconds.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_rate_window_comparison"><a class="anchor" href="#_5_rate_window_comparison"></a>5. Rate Window Comparison</h3>
+<div class="paragraph">
+<p>The <code>[5m]</code> in <code>rate(&#8230;&#8203;[5m])</code> is the <em>lookback window</em>.
+It controls the tradeoff between responsiveness and smoothness.</p>
+</div>
+<div class="sect3">
+<h4 id="_5a_set_up_the_comparison"><a class="anchor" href="#_5a_set_up_the_comparison"></a>5a. Set up the comparison</h4>
+<div class="paragraph">
+<p>Click <strong>Add query</strong> twice to create three queries (A, B, C).
+Enter these three queries:</p>
+</div>
+<div class="paragraph">
+<p><strong>Query A:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>rate(vllm:generation_tokens_total{namespace="llm-serving"}[1m])</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Query B:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>rate(vllm:generation_tokens_total{namespace="llm-serving"}[5m])</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Query C:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>rate(vllm:generation_tokens_total{namespace="llm-serving"}[15m])</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Click <strong>Run query</strong> to display all three on the same graph.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_5b_observe_the_tradeoff"><a class="anchor" href="#_5b_observe_the_tradeoff"></a>5b. Observe the tradeoff</h4>
+<div class="paragraph">
+<p>Compare the three lines:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong><code>[1m]</code> (Query A)</strong>: The most responsive. Spikes appear immediately when requests arrive and drop to zero quickly when they stop. But the line is noisy&#8201;&#8212;&#8201;it jumps sharply between values because it is only averaging over 60 seconds of data.</p>
+</li>
+<li>
+<p><strong><code>[5m]</code> (Query B)</strong>: A good balance. Shows the general trend without excessive noise. Spikes are still visible but smoother. This is the most common choice for dashboards and alerts.</p>
+</li>
+<li>
+<p><strong><code>[15m]</code> (Query C)</strong>: The smoothest. Trends are very clear, but the line <em>lags</em>&#8201;&#8212;&#8201;it takes several minutes to reflect changes. Short bursts of activity may be averaged away entirely.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_5c_understand_the_implications"><a class="anchor" href="#_5c_understand_the_implications"></a>5c. Understand the implications</h4>
+<div class="paragraph">
+<p>The rate window matters for alerting (which you will configure in the next chapter):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Too short (<code>[1m]</code>)</strong>: Alerts may fire on brief spikes that resolve on their own (false positives). Use for dashboards where you want to see real-time activity.</p>
+</li>
+<li>
+<p><strong>Just right (<code>[5m]</code>)</strong>: Catches sustained issues while ignoring transient spikes. The standard choice for most alert rules.</p>
+</li>
+<li>
+<p><strong>Too long (<code>[15m]</code>)</strong>: Alerts are slow to fire, even during real incidents. Use for trend analysis and capacity planning, not for operational alerting.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The rate window must contain at least two scrape intervals worth of data. With a 30-second scrape interval, the minimum useful window is <code>[1m]</code>. A <code>[30s]</code> window would contain at most one data point and produce unreliable results.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_6_clean_up_port_forwarding"><a class="anchor" href="#_6_clean_up_port_forwarding"></a>6. Clean Up Port-Forwarding</h3>
+<div class="paragraph">
+<p>If you started port-forwarding earlier in this exercise:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>kill %1 2&gt;/dev/null; pkill -f "oc port-forward" 2&gt;/dev/null</strong></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 42.8571%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Check</th>
+<th class="tableblock halign-left valign-top">How to Verify</th>
+<th class="tableblock halign-left valign-top">Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Gauge queries work</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query <code>DCGM_FI_DEV_GPU_UTIL</code> in Explore</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns GPU utilization data</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Counter rate queries work</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query <code>rate(vllm:prompt_tokens_total{namespace="llm-serving"}[5m])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shows per-second token rate (spiky, not monotonic)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Histogram percentiles work</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query <code>histogram_quantile(0.99, &#8230;&#8203;)</code> for E2E latency</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns latency value in seconds</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rate window comparison</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run 3 queries with <code>[1m]</code>, <code>[5m]</code>, <code>[15m]</code> windows</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[1m]</code> is noisiest, <code>[15m]</code> is smoothest</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Understand raw vs rate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Compare raw <code>prompt_tokens_total</code> with <code>rate(prompt_tokens_total[5m])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Raw is monotonic staircase; rate shows activity spikes</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_summary"><a class="anchor" href="#_summary"></a>Summary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this exercise, you built hands-on PromQL skills by querying each metric type directly:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Gauges</strong>&#8201;&#8212;&#8201;Query directly; the value is the measurement. No transformation needed.</p>
+</li>
+<li>
+<p><strong>Counters</strong>&#8201;&#8212;&#8201;Always apply <code>rate()</code> or <code>increase()</code>. Raw counter values are misleading.</p>
+</li>
+<li>
+<p><strong>Histograms</strong>&#8201;&#8212;&#8201;Use <code>histogram_quantile()</code> with <code>rate()</code> inside <code>sum by(le)</code> to compute percentiles. Compare p50 and p99 to assess performance consistency.</p>
+</li>
+<li>
+<p><strong>Rate windows</strong>&#8201;&#8212;&#8201;Shorter windows (<code>[1m]</code>) are responsive but noisy; longer windows (<code>[15m]</code>) are smooth but laggy. The <code>[5m]</code> window balances responsiveness and stability for most use cases.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These query patterns are the foundation for the alert rules you will write next.
+In the <a href="../alerting/index.html" class="xref page">Alerting</a> chapter, you will create PrometheusRule custom resources containing PromQL expressions, run a load test to push the model to its limits, and watch alerts fire and resolve through their full lifecycle.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="deploy-dashboards.html">Deploy Dashboards</a></span>
+  <span class="next"><a href="../alerting/index.html">Alerting</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

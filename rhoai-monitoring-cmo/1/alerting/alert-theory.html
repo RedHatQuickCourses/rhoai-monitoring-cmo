@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Alert Purpose and Severity :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="index.html">
+    <link rel="next" href="prometheus-rules.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Alerting</a></li>
+    <li><a href="alert-theory.html">Alert Purpose and Severity</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Alert Purpose and Severity</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Most organizations have too many alerts, not too few.
+The result is that engineers stop trusting the alerting system, start ignoring notifications, and eventually miss the one alert that really matters.
+Good alerting starts with understanding what an alert is for and being disciplined about when to create one.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_purpose_of_an_alert"><a class="anchor" href="#_the_purpose_of_an_alert"></a>The Purpose of an Alert</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>An alert should tell a human to take an action.
+That is it.
+If there is no action to take, it should not be an alert&#8201;&#8212;&#8201;it should be a dashboard panel.</p>
+</div>
+<div class="paragraph">
+<p>This sounds obvious, but it is the most commonly violated principle in monitoring.
+Teams create alerts for every metric that has a threshold, every pod that restarts, every spike that looks concerning on a graph.
+The result is an alerting system that cries wolf so often that real incidents get lost in the noise.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/alert-severity.svg" alt="Alert severity levels for AI serving showing critical and warning and info tiers with response expectations and examples" width="900">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_alert_quality_spectrum"><a class="anchor" href="#_the_alert_quality_spectrum"></a>The Alert Quality Spectrum</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Not all alerts are equally useful.
+Consider the following progression from useless to actionable:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Alert Expression</th>
+<th class="tableblock halign-left valign-top">Quality</th>
+<th class="tableblock halign-left valign-top">Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CPU &gt; 50% for 1 minute</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Poor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Too sensitive, fires constantly, measures the wrong resource for inference workloads</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU utilization &gt; 95% for 5 minutes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Better</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Measures the right resource with a reasonable stabilization window, but what action should the engineer take?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">TTFT p95 &gt; 1 second for 2 minutes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Good</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tied to a user-facing SLO&#8201;&#8212;&#8201;when this fires, users are experiencing slow responses</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests waiting &gt; 5 for 1 minute</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Best</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Directly measures user impact, points to a clear action (scale up or throttle traffic), and identifies exactly where to look</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Each step in this progression improves along the same axis: <strong>moving from raw resource metrics toward user-visible impact</strong>.
+A busy GPU is not a problem unless users are affected.
+Queue depth directly measures user impact and tells you what to do about it.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_three_questions_for_every_alert"><a class="anchor" href="#_three_questions_for_every_alert"></a>Three Questions for Every Alert</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before creating any alert, ask these three questions:</p>
+</div>
+<div class="paragraph">
+<p><strong>1. "What action will someone take when this fires?"</strong></p>
+</div>
+<div class="paragraph">
+<p>If the answer is "look at a dashboard," that is not an action&#8201;&#8212;&#8201;that is investigation.
+What does the engineer do <em>after</em> looking at the dashboard?
+Scale up replicas?
+Restart a pod?
+Throttle incoming traffic?
+If there is no concrete action, the condition belongs on a dashboard panel, not in an alert rule.</p>
+</div>
+<div class="paragraph">
+<p><strong>2. "Can this fire when nothing is actually wrong?"</strong></p>
+</div>
+<div class="paragraph">
+<p>If yes, the threshold or stabilization window is too aggressive.
+False positives cause alert fatigue&#8201;&#8212;&#8201;people stop trusting alerts and start ignoring them.
+The next real incident gets missed.</p>
+</div>
+<div class="paragraph">
+<p><strong>3. "Will this catch the problem in time to do something about it?"</strong></p>
+</div>
+<div class="paragraph">
+<p>If the alert fires only after users have been suffering for 30 minutes, it is too slow.
+Balance speed of detection with noise tolerance.
+An alert that fires in 1 minute but produces false positives 40% of the time is worse than an alert that fires in 5 minutes but is right 95% of the time.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_alert_severity_levels"><a class="anchor" href="#_alert_severity_levels"></a>Alert Severity Levels</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Not all problems deserve the same urgency of response.
+A well-defined severity framework ensures that the right problems get the right level of attention.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Severity</th>
+<th class="tableblock halign-left valign-top">What It Means</th>
+<th class="tableblock halign-left valign-top">Expected Response</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>info</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Something noteworthy happened, no action needed now</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Review during next business day</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"Model deployment completed successfully"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>warning</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A threshold is approaching; investigate before it becomes critical</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Respond within hours</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"GPU utilization &gt; 80% for 2 minutes"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>critical</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An SLO is being violated or hardware is at risk</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Respond immediately (minutes)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"GPU temperature &gt; 70C for 1 minute"</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The distinction between <code>warning</code> and <code>critical</code> is the distinction between "this needs attention soon" and "this needs attention now."
+In practice, <code>critical</code> alerts are the ones that wake someone up at 3 AM.
+<code>Warning</code> alerts are the ones that get reviewed at the start of the next business day or shift.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_alert_fatigue_the_problem_and_the_cure"><a class="anchor" href="#_alert_fatigue_the_problem_and_the_cure"></a>Alert Fatigue: The Problem and the Cure</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Alert fatigue is the number-one cause of missed real incidents in production systems.
+The pattern is predictable:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Too many alerts fire&#8201;&#8212;&#8201;many of them false positives or low-severity issues marked as critical</p>
+</li>
+<li>
+<p>Engineers start ignoring alerts because most are not actionable</p>
+</li>
+<li>
+<p>A real critical alert fires</p>
+</li>
+<li>
+<p>Nobody notices because it is buried in a stream of noise</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The cure is straightforward: make <code>critical</code> alerts rare and always actionable.
+If an engineer gets paged at 3 AM for a <code>critical</code> alert, there must be a real problem requiring immediate action.
+If 50% of 3 AM pages turn out to be false positives, the team loses trust in the alerting system entirely.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+The most dangerous alerting configuration is one where everything is marked <code>critical</code>. When everything is critical, nothing is critical. Engineers develop the habit of dismissing all alerts, and real incidents go unnoticed.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_our_lab_approach"><a class="anchor" href="#_our_lab_approach"></a>Our Lab Approach</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the exercises later in this chapter, you will create five alert rules with a deliberate severity distribution:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>3 warning alerts</strong>: GPU utilization, inference queue backlog, KV cache usage, and time to first token latency</p>
+</li>
+<li>
+<p><strong>1 critical alert</strong>: GPU temperature</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The critical alert is reserved for genuine hardware risk&#8201;&#8212;&#8201;a GPU overheating can cause thermal throttling, performance degradation, and in extreme cases, hardware damage.
+Everything else is warning-level: important enough to investigate, but not worth waking someone up at 3 AM.</p>
+</div>
+<div class="paragraph">
+<p>This ratio&#8201;&#8212;&#8201;many warnings, few criticals&#8201;&#8212;&#8201;is the hallmark of a healthy alerting configuration.
+In production, aim for 90% or more of firing alerts to result in a concrete action.
+If your team is ignoring half the alerts they receive, the alerting design needs work, not the team.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_books_and_articles"><a class="anchor" href="#_books_and_articles"></a>Books and Articles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://sre.google/sre-book/monitoring-distributed-systems/" target="_blank" rel="noopener">Google SRE Book&#8201;&#8212;&#8201;Chapter 6: Monitoring Distributed Systems</a></p>
+</li>
+<li>
+<p><a href="https://sre.google/workbook/alerting-on-slos/" target="_blank" rel="noopener">Google SRE Workbook&#8201;&#8212;&#8201;Alerting on SLOs</a></p>
+</li>
+<li>
+<p><a href="https://docs.google.com/document/d/199PqyG3UsyXlwieHaqbGiWVa8eMWi8zzAn0YfcApr8Q/edit" target="_blank" rel="noopener">Rob Ewaschuk&#8201;&#8212;&#8201;My Philosophy on Alerting</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_red_hat_documentation"><a class="anchor" href="#_red_hat_documentation"></a>Red Hat Documentation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/managing-alerts" target="_blank" rel="noopener">OpenShift&#8201;&#8212;&#8201;Managing Alerts</a></p>
+</li>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/monitoring_data_science_models/monitoring-model-performance_monitor" target="_blank" rel="noopener">Red Hat OpenShift AI&#8201;&#8212;&#8201;Monitoring Model Performance</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_upstream_resources"><a class="anchor" href="#_upstream_resources"></a>Upstream Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://prometheus.io/docs/practices/alerting/" target="_blank" rel="noopener">Prometheus&#8201;&#8212;&#8201;Alerting Best Practices</a></p>
+</li>
+<li>
+<p><a href="https://prometheus.io/docs/alerting/latest/alertmanager/" target="_blank" rel="noopener">Prometheus&#8201;&#8212;&#8201;Alertmanager Overview</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="index.html">Alerting</a></span>
+  <span class="next"><a href="prometheus-rules.html">Anatomy of a PrometheusRule</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

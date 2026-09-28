@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Alert Lifecycle and Correlation :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="load-test.html">
+    <link rel="next" href="../challenge-lab/index.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Alerting</a></li>
+    <li><a href="alert-lifecycle.html">Alert Lifecycle</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Alert Lifecycle and Correlation</h1>
+<div class="sect1">
+<h2 id="_concepts"><a class="anchor" href="#_concepts"></a>Concepts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Alerts tell you <em>something is wrong</em>.
+Dashboards tell you <em>what and why</em>.
+The real power of the observability pipeline you have built across this course comes from using alerts and dashboards together&#8201;&#8212;&#8201;the alert reaches out to get your attention, and the dashboard gives you the context to diagnose and act.</p>
+</div>
+<div class="paragraph">
+<p>In this exercise, you will correlate firing alerts with dashboard panels, stop the load test, and watch the full resolution cycle.
+This completes the alert lifecycle: Inactive, Pending, Firing, and Resolved.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lab"><a class="anchor" href="#_lab"></a>Lab</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_correlate_across_all_four_windows"><a class="anchor" href="#_1_correlate_across_all_four_windows"></a>1. Correlate Across All Four Windows</h3>
+<div class="paragraph">
+<p>While alerts are firing from the load test in the previous exercise, compare what you see across all four views:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 37.5%;">
+<col style="width: 37.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">What the Alert Says</th>
+<th class="tableblock halign-left valign-top">What GPU Dashboard Shows</th>
+<th class="tableblock halign-left valign-top">What vLLM Dashboard Shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HighGPUUtilization (93%)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU Utilization gauge is in the red zone above the 80% threshold line</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8201;&#8212;&#8201;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">InferenceQueueBacklog (500+ waiting)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8201;&#8212;&#8201;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests Waiting panel shows hundreds of requests well above the red zone at 5</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KVCacheHighUsage (0.99)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU Memory panels stay relatively flat (pre-allocated)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KV Cache gauge at 99-100% above the 70% threshold line</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HighTTFTLatency (p95 = 150s)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8201;&#8212;&#8201;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">TTFT panel shows p95 line far above the 1-second threshold</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Notice the pattern: every firing alert has a corresponding dashboard panel where the metric is visibly above the threshold line.
+This is the alert-dashboard connection from the <a href="alert-design.html" class="xref page">Alert Design for AI Serving</a> lecture&#8201;&#8212;&#8201;the thresholds in the PrometheusRule YAMLs intentionally match the threshold lines on the Grafana dashboards.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Click on a Firing alert in the OpenShift Console to see its annotations. The <code>description</code> field uses template variables to show the actual metric value (for example, "142 requests waiting in inference queue"). This gives you immediate context without needing to open a dashboard.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_stop_the_load_test_and_observe_resolution"><a class="anchor" href="#_2_stop_the_load_test_and_observe_resolution"></a>2. Stop the Load Test and Observe Resolution</h3>
+<div class="paragraph">
+<p>Press <strong>Ctrl+C</strong> in the terminal running the load test.</p>
+</div>
+<div class="paragraph">
+<p>Now watch all four windows as the system recovers.</p>
+</div>
+<div class="sect3">
+<h4 id="_window_1_node_health"><a class="anchor" href="#_window_1_node_health"></a>Window 1 (Node Health)</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>CPU Usage drops back to baseline (approximately 5-15%)</p>
+</li>
+<li>
+<p>Network traffic returns to idle levels</p>
+</li>
+<li>
+<p>The time series panels show the load spike as a clear historical blip</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_window_2_gpu_health"><a class="anchor" href="#_window_2_gpu_health"></a>Window 2 (GPU Health)</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>GPU Utilization drops back toward 5% over 30-60 seconds as existing requests complete</p>
+</li>
+<li>
+<p>GPU Power Draw decreases</p>
+</li>
+<li>
+<p>GPU Temperature may continue rising briefly (thermal lag), then slowly drops</p>
+</li>
+<li>
+<p>GPU Memory stays roughly the same (KV cache pool remains allocated)</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/gpu-health-recovery.png" alt="GPU Health dashboard recovering showing utilization dropping and temperature cooling" width="800">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_window_3_vllm_inference"><a class="anchor" href="#_window_3_vllm_inference"></a>Window 3 (vLLM Inference)</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Requests Waiting drops to 0 (no new requests arriving)</p>
+</li>
+<li>
+<p>Requests Running drops to 0 as remaining requests complete their generation</p>
+</li>
+<li>
+<p>KV Cache Usage drops to 0% as completed requests release cache blocks</p>
+</li>
+<li>
+<p>Token Throughput returns to 0</p>
+</li>
+<li>
+<p>Latency panels show the spike as a historical blip</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/vllm-dashboard-recovery.png" alt="vLLM Inference dashboard recovering showing queue empty and KV cache released" width="800">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_window_4_openshift_alerting"><a class="anchor" href="#_window_4_openshift_alerting"></a>Window 4 (OpenShift Alerting)</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Firing alerts remain Firing for a brief period (Prometheus needs to evaluate the expression and find it is no longer true)</p>
+</li>
+<li>
+<p>After 1-2 scrape intervals (30-60 seconds), alerts transition to <strong>Resolved</strong></p>
+</li>
+<li>
+<p>Resolved alerts may disappear from the default view or show a green indicator</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/ocp-alerts-resolved.png" alt="OpenShift Console showing alerts resolved after load test stopped" width="800">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_how_long_until_alerts_resolve"><a class="anchor" href="#_how_long_until_alerts_resolve"></a>How Long Until Alerts Resolve?</h4>
+<div class="paragraph">
+<p>Alert resolution time depends on the metric type:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Gauge-based alerts</strong> (InferenceQueueBacklog, KVCacheHighUsage) resolve faster because their metrics drop immediately when load stops. Expect resolution within 1-2 Prometheus scrape intervals (30-60 seconds).</p>
+</li>
+<li>
+<p><strong>Histogram-based alerts</strong> (HighTTFTLatency) take longer because the <code>rate(&#8230;&#8203;[5m])</code> window retains historical data. Even after load stops, the 5-minute rate window keeps the calculated value elevated. Expect several minutes before the value drops below the threshold.</p>
+</li>
+<li>
+<p><strong>GPU utilization</strong> (HighGPUUtilization) resolves within 30-60 seconds after remaining in-flight requests complete.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_optional_experimentation"><a class="anchor" href="#_3_optional_experimentation"></a>3. Optional Experimentation</h3>
+<div class="paragraph">
+<p>If time permits, try these experiments to deepen your understanding.</p>
+</div>
+<div class="sect3">
+<h4 id="_experiment_1_change_the_concurrency"><a class="anchor" href="#_experiment_1_change_the_concurrency"></a>Experiment 1: Change the concurrency</h4>
+<div class="paragraph">
+<p>Run the load test with lower concurrency:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>bash alerts/load-test.sh 50 10</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With 50 concurrent requests, observe:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>InferenceQueueBacklog may not fire if the KV cache can handle 50 requests without queuing</p>
+</li>
+<li>
+<p>KVCacheHighUsage may hover around 30-50% without crossing 70%</p>
+</li>
+<li>
+<p>HighGPUUtilization may still fire (the GPU is busy with 50 concurrent requests)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Try increasing to 300:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>bash alerts/load-test.sh 300 10</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With 300 concurrent requests, observe deeper queuing, higher TTFT values, and faster alert transitions.
+This demonstrates that concurrency relative to KV cache capacity is what drives application-level alerts.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_experiment_2_modify_an_alert_threshold"><a class="anchor" href="#_experiment_2_modify_an_alert_threshold"></a>Experiment 2: Modify an alert threshold</h4>
+<div class="paragraph">
+<p>Edit the GPU health PrometheusRule to change the HighGPUUtilization threshold from 80 to 95:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc edit prometheusrule gpu-health-alerts -n nvidia-gpu-operator</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Change <code>DCGM_FI_DEV_GPU_UTIL &gt; 80</code> to <code>DCGM_FI_DEV_GPU_UTIL &gt; 95</code>.
+Save and exit.
+Re-run the load test and observe whether this alert still fires.
+This demonstrates the impact of threshold tuning.</p>
+</div>
+<div class="paragraph">
+<p>After the experiment, restore the original threshold by re-applying the YAML:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f alerts/prometheus-rules-gpu.yaml</strong></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_experiment_3_examine_alert_history"><a class="anchor" href="#_experiment_3_examine_alert_history"></a>Experiment 3: Examine alert history</h4>
+<div class="paragraph">
+<p>After running the load test:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to <strong>Observe &gt; Alerting</strong> in the OpenShift Console.</p>
+</li>
+<li>
+<p>Click on a resolved alert.</p>
+</li>
+<li>
+<p>Look at the <strong>Alert History</strong> section&#8201;&#8212;&#8201;it shows when the alert entered each state (Pending, Firing, Resolved) with timestamps.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This timeline helps you correlate events: "The load test started at 14:23, InferenceQueueBacklog went Pending at 14:24 (1 minute <code>for</code>), and Fired at 14:24. We stopped at 14:30, and it resolved at 14:31."</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 42.8571%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Check</th>
+<th class="tableblock halign-left valign-top">How to Verify</th>
+<th class="tableblock halign-left valign-top">Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dashboard-alert correlation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Compare firing alert thresholds with dashboard panels</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Threshold lines match alert thresholds</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alerts resolved after load stop</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Observe &gt; Alerting &gt; Alerts (after stopping load)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Previously firing alerts show Resolved</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU dashboard shows spike and recovery</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana GPU Health dashboard</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Utilization spike visible in time series followed by return to baseline</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">vLLM dashboard shows saturation and recovery</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana vLLM Inference dashboard</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queue depth and KV cache spikes visible followed by return to zero</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alert history available</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Click on a resolved alert in the Console</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">State transition timestamps visible</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_summary"><a class="anchor" href="#_summary"></a>Summary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this exercise, you:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Correlated firing alerts with dashboard panels and confirmed that every alert threshold matches a visual threshold line on the corresponding Grafana dashboard</p>
+</li>
+<li>
+<p>Stopped the load test and observed the resolution cycle across all four views</p>
+</li>
+<li>
+<p>Learned that gauge-based alerts resolve faster than histogram-based alerts because their metrics drop immediately</p>
+</li>
+<li>
+<p>Explored optional experiments with different concurrency levels and threshold tuning</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This completes the Alerting chapter.
+Looking back across the entire course, you have built a complete observability pipeline for AI model serving on OpenShift AI:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Chapter 1&#8201;&#8212;&#8201;Observability Foundations</strong>: Enabled User Workload Monitoring so Prometheus can scrape your applications</p>
+</li>
+<li>
+<p><strong>Chapter 2&#8201;&#8212;&#8201;Model Deployment</strong>: Deployed Granite 3.1 8B and verified that the auto-created ServiceMonitor connects vLLM metrics to Prometheus</p>
+</li>
+<li>
+<p><strong>Chapter 3&#8201;&#8212;&#8201;Dashboards</strong>: Installed Grafana, connected it to Thanos Querier, and deployed three dashboards (Node Health, GPU Health, vLLM Inference) that visualize all three metric layers</p>
+</li>
+<li>
+<p><strong>Chapter 4&#8201;&#8212;&#8201;Alerting</strong>: Created five alert rules across two PrometheusRules in two namespaces, ran a load test, and observed the full alert lifecycle from Inactive through Firing to Resolved</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Every component connects: UWM Prometheus scrapes the metrics, the ServiceMonitor tells Prometheus where to find them, the Grafana dashboards make them visible, and the PrometheusRule alerts notify you when thresholds are crossed.
+The dashboards show you <em>what is happening</em>; the alerts tell you <em>when to look</em>.</p>
+</div>
+<div class="paragraph">
+<p>In the next chapter, you will apply everything you have learned in a <a href="../challenge-lab/index.html" class="xref page">Challenge Lab</a> that tests your ability to build this pipeline independently.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="load-test.html">Load Test and Observe</a></span>
+  <span class="next"><a href="../challenge-lab/index.html">Challenge Lab</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Anatomy of a PrometheusRule :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="alert-theory.html">
+    <link rel="next" href="alert-design.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Alerting</a></li>
+    <li><a href="prometheus-rules.html">Anatomy of a PrometheusRule</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Anatomy of a PrometheusRule</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Alerts on OpenShift are defined as Kubernetes custom resources.
+The <code>PrometheusRule</code> CR is where you write the PromQL expression that defines the condition, the stabilization window that prevents false positives, and the labels and annotations that determine how the alert is routed and what information it carries.</p>
+</div>
+<div class="paragraph">
+<p>This page walks through the structure of a PrometheusRule, the alert lifecycle it drives, and a critical OpenShift concept&#8201;&#8212;&#8201;namespace enforcement&#8201;&#8212;&#8201;that determines where your rules must live.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_yaml_structure"><a class="anchor" href="#_the_yaml_structure"></a>The YAML Structure</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A PrometheusRule uses the <code>monitoring.coreos.com/v1</code> API group.
+Here is a complete example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: monitoring.coreos.com/v1     <i class="conum" data-value="1"></i><b>(1)</b>
+kind: PrometheusRule                      <i class="conum" data-value="2"></i><b>(2)</b>
+metadata:
+  name: inference-slo-alerts              <i class="conum" data-value="3"></i><b>(3)</b>
+  namespace: llm-serving                  <i class="conum" data-value="4"></i><b>(4)</b>
+spec:
+  groups:                                 <i class="conum" data-value="5"></i><b>(5)</b>
+  - name: inference-slo                   <i class="conum" data-value="6"></i><b>(6)</b>
+    rules:
+    - alert: InferenceQueueBacklog        <i class="conum" data-value="7"></i><b>(7)</b>
+      expr: |                             <i class="conum" data-value="8"></i><b>(8)</b>
+        vllm:num_requests_waiting &gt; 5
+      for: 1m                            <i class="conum" data-value="9"></i><b>(9)</b>
+      labels:                             <i class="conum" data-value="10"></i><b>(10)</b>
+        severity: warning
+      annotations:                        <i class="conum" data-value="11"></i><b>(11)</b>
+        summary: "Inference queue backlog detected"
+        description: "{{ $value }} requests waiting in the vLLM inference queue."</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>monitoring.coreos.com/v1</code> API group&#8201;&#8212;&#8201;used by the built-in Cluster Monitoring Operator</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>PrometheusRule</code> custom resource type</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Resource name&#8201;&#8212;&#8201;descriptive, lowercase with hyphens</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Namespace&#8201;&#8212;&#8201;must match the namespace of the metrics being queried (explained in detail below)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Rules are organized into groups</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Group name&#8201;&#8212;&#8201;organizational only, does not affect evaluation</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Alert name&#8201;&#8212;&#8201;appears in the OpenShift Console and Alertmanager notifications</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>The PromQL expression that defines when the alert fires</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>Stabilization window&#8201;&#8212;&#8201;how long the condition must be continuously true</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>Labels for routing and severity classification</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td>Annotations for human-readable context with template variables</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+This course uses <code>monitoring.coreos.com/v1</code>, which is the API group for the built-in Cluster Monitoring Operator (CMO). Do not confuse this with <code>monitoring.rhobs/v1</code>, which is a different API group used by the Cluster Observability Operator (COO).
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_expr_field"><a class="anchor" href="#_the_expr_field"></a>The <code>expr</code> Field</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>expr</code> field contains the PromQL expression that Prometheus evaluates continuously&#8201;&#8212;&#8201;every 30 seconds by default.
+The alert fires when the expression returns a non-empty result.</p>
+</div>
+<div class="paragraph">
+<p>This is an important distinction: the expression does not return <code>true</code> or <code>false</code>.
+It returns the set of time series where the condition is met.
+If GPU 0 is at 92% utilization and your expression is <code>DCGM_FI_DEV_GPU_UTIL &gt; 80</code>, Prometheus returns <code>{gpu="0", instance="node-1"} 92</code>.
+If no GPU is above 80%, the expression returns an empty result and the alert stays inactive.</p>
+</div>
+<div class="paragraph">
+<p>Here are the three query patterns from <a href="../dashboards/promql-fundamentals.html" class="xref page">PromQL Fundamentals</a>, applied to alerting expressions:</p>
+</div>
+<div class="paragraph">
+<p><strong>Gauge comparison</strong>&#8201;&#8212;&#8201;fires if any GPU exceeds 80%:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-promql hljs" data-lang="promql">DCGM_FI_DEV_GPU_UTIL &gt; 80</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Filtered gauge</strong>&#8201;&#8212;&#8201;checks only the <code>llm-serving</code> namespace:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-promql hljs" data-lang="promql">vllm:num_requests_waiting{namespace="llm-serving"} &gt; 5</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Histogram quantile</strong>&#8201;&#8212;&#8201;fires if p95 time to first token exceeds 1 second:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-promql hljs" data-lang="promql">histogram_quantile(0.95,
+  sum by(le) (
+    rate(vllm:time_to_first_token_seconds_bucket{namespace="llm-serving"}[5m])
+  )
+) &gt; 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_for_field"><a class="anchor" href="#_the_for_field"></a>The <code>for</code> Field</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>for</code> field is the most critical field for preventing false positives.
+It specifies how long the <code>expr</code> must be <em>continuously true</em> before the alert transitions from Pending to Firing.</p>
+</div>
+<div class="paragraph">
+<p>Consider what happens without a stabilization window.
+A single large inference request can briefly spike GPU utilization to 90%.
+Without <code>for</code>, this single-request spike triggers the alert immediately&#8201;&#8212;&#8201;even though the GPU returns to normal seconds later.
+With dozens of requests per hour, you would get dozens of false alerts per hour.</p>
+</div>
+<div class="paragraph">
+<p>With <code>for: 2m</code>, only sustained utilization above the threshold triggers the alert.
+Brief per-request spikes are ignored.
+If the metric dips below the threshold for even one scrape during the window, the pending timer resets to zero.</p>
+</div>
+<div class="paragraph">
+<p>The following diagram illustrates how the stabilization window filters out transient spikes:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/stabilization-window.svg" alt="How the for field filters transient spikes showing a brief spike that resets versus a sustained crossing that fires" width="880">
+</div>
+</div>
+<div class="sect2">
+<h3 id="_choosing_the_right_duration"><a class="anchor" href="#_choosing_the_right_duration"></a>Choosing the Right Duration</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Duration</th>
+<th class="tableblock halign-left valign-top">Effect</th>
+<th class="tableblock halign-left valign-top">Good For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>30s</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Very fast detection, many false positives</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hardware emergencies such as power failure or GPU errors</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>1m</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fast detection, some false positives</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Saturation signals like <code>vllm:num_requests_waiting</code> where you want quick response</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2m</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Balanced&#8201;&#8212;&#8201;the default for most alerts in this course</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Utilization thresholds and latency SLOs</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>5m</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Slow detection, very few false positives</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Trend alerts for capacity planning and gradual degradation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>10m+</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Very slow, practically zero false positives</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rarely used&#8201;&#8212;&#8201;too slow for operational alerts</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_alert_lifecycle"><a class="anchor" href="#_the_alert_lifecycle"></a>The Alert Lifecycle</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Every alert transitions through a well-defined set of states:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/alert-lifecycle.svg" alt="Alert lifecycle showing Inactive to Pending to Firing to Resolved state transitions" width="900">
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 42.8571%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">State</th>
+<th class="tableblock halign-left valign-top">What Is Happening</th>
+<th class="tableblock halign-left valign-top">What the Engineer Sees</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Inactive</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Expression returns empty&#8201;&#8212;&#8201;condition is not met</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nothing&#8201;&#8212;&#8201;the alert is not shown or appears grayed out in the Console</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Pending</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Expression is true, but the <code>for</code> timer has not elapsed yet</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yellow or orange indicator&#8201;&#8212;&#8201;condition detected, waiting to confirm it is sustained</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Firing</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Expression has been continuously true for longer than the <code>for</code> duration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Red indicator&#8201;&#8212;&#8201;notification sent to Alertmanager</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Resolved</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Expression returns empty after previously firing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Green indicator briefly&#8201;&#8212;&#8201;the issue has cleared</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The transition from Pending back to Inactive is what makes the <code>for</code> field so valuable. A transient spike enters Pending state, but if the condition clears before the timer elapses, the alert silently returns to Inactive. No notification is sent. No engineer is bothered.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_labels_and_annotations"><a class="anchor" href="#_labels_and_annotations"></a>Labels and Annotations</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Labels and annotations serve different purposes in an alert rule.</p>
+</div>
+<div class="sect2">
+<h3 id="_labels_routing_and_grouping"><a class="anchor" href="#_labels_routing_and_grouping"></a>Labels: Routing and Grouping</h3>
+<div class="paragraph">
+<p>Labels are machine-readable metadata used by Alertmanager to decide <em>where</em> to send the notification:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">labels:
+  severity: warning       # Determines urgency and notification channel
+  team: ai-platform       # Optional: routes to a specific team's channel</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>severity</code> label is the most important.
+Alertmanager uses it to route <code>critical</code> alerts to PagerDuty (immediate page) and <code>warning</code> alerts to a Slack channel (reviewed during business hours).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_annotations_human_readable_context"><a class="anchor" href="#_annotations_human_readable_context"></a>Annotations: Human-Readable Context</h3>
+<div class="paragraph">
+<p>Annotations provide context for the human who receives the notification:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">annotations:
+  summary: "GPU utilization above 80%"
+  description: "GPU {{ $labels.gpu }} on {{ $labels.instance }} is at {{ $value }}%."</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The double-brace syntax (<code>{{ }}</code>) uses Go templates.
+Prometheus fills in these variables with actual values when the alert fires:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>{{ $labels.gpu }}</code>&#8201;&#8212;&#8201;the value of the <code>gpu</code> label on the matching time series</p>
+</li>
+<li>
+<p><code>{{ $labels.instance }}</code>&#8201;&#8212;&#8201;the node where the metric was scraped</p>
+</li>
+<li>
+<p><code>{{ $value }}</code>&#8201;&#8212;&#8201;the current numeric value of the expression</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This transforms a generic message like "GPU utilization is high" into a specific, actionable message like "GPU 0 on gpu-node-1 is at 92% utilization."</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Always include <code>{{ $value }}</code> in at least one annotation. An alert that says "GPU utilization is high" forces the engineer to open a dashboard just to find out <em>how</em> high. An alert that says "GPU utilization is at 92%" gives immediate context.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_namespace_enforcement"><a class="anchor" href="#_namespace_enforcement"></a>Namespace Enforcement</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is a critical OpenShift concept that causes silent failures when misunderstood.</p>
+</div>
+<div class="paragraph">
+<p>OpenShift&#8217;s User Workload Monitoring (UWM) enforces a security feature called <code>enforcedNamespaceLabel</code>.
+The Thanos Ruler silently injects <code>namespace="&lt;rule-namespace&gt;"</code> into every PromQL vector selector in user-namespace PrometheusRules.
+This means a PrometheusRule can only match metrics that carry its own namespace label.</p>
+</div>
+<div class="sect2">
+<h3 id="_the_problem"><a class="anchor" href="#_the_problem"></a>The Problem</h3>
+<div class="paragraph">
+<p>vLLM metrics and GPU metrics carry different namespace labels:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">vLLM metrics carry:     namespace="llm-serving"
+DCGM GPU metrics carry: namespace="nvidia-gpu-operator"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you put a GPU alert rule like <code>DCGM_FI_DEV_GPU_UTIL &gt; 80</code> in the <code>llm-serving</code> namespace, UWM rewrites the expression to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-promql hljs" data-lang="promql">DCGM_FI_DEV_GPU_UTIL{namespace="llm-serving"} &gt; 80</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This silently matches <strong>zero series</strong>&#8201;&#8212;&#8201;DCGM metrics do not have <code>namespace="llm-serving"</code>.
+The rule evaluates successfully but always returns empty.
+The alert stays Inactive forever.
+There are no errors, no warnings in the logs&#8201;&#8212;&#8201;it simply does not work.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_solution_two_prometheusrule_resources"><a class="anchor" href="#_the_solution_two_prometheusrule_resources"></a>The Solution: Two PrometheusRule Resources</h3>
+<div class="imageblock">
+<div class="content">
+<img src="_images/namespace-enforcement.svg" alt="Namespace-scoped alert rule evaluation showing vLLM rules in llm-serving and GPU rules in nvidia-gpu-operator with their respective evaluators" width="780">
+</div>
+</div>
+<div class="paragraph">
+<p>You must split alert rules into separate PrometheusRule resources, each deployed to the namespace that matches its metrics:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 22.2222%;">
+<col style="width: 22.2222%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">PrometheusRule</th>
+<th class="tableblock halign-left valign-top">Namespace</th>
+<th class="tableblock halign-left valign-top">Evaluated By</th>
+<th class="tableblock halign-left valign-top">Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>gpu-health-alerts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nvidia-gpu-operator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Platform Prometheus</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DCGM metrics carry <code>namespace="nvidia-gpu-operator"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>inference-slo-alerts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>llm-serving</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UWM Thanos Ruler</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">vLLM metrics carry <code>namespace="llm-serving"</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The <code>nvidia-gpu-operator</code> namespace has the label <code>openshift.io/cluster-monitoring=true</code>, so its PrometheusRules are evaluated by the platform Prometheus, not UWM.
+GPU alerts appear under <strong>Source: Platform</strong> in the OpenShift Console alerting UI.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Namespace mismatch is the most common "silent failure" with PrometheusRules on OpenShift. There are no error messages&#8201;&#8212;&#8201;the rule simply never fires. If an alert stays Inactive when you expect it to fire, check whether the metric&#8217;s namespace label matches the PrometheusRule&#8217;s namespace. If they do not match, the rule will never fire.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_red_hat_documentation"><a class="anchor" href="#_red_hat_documentation"></a>Red Hat Documentation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/managing-alerts#creating-alerting-rules-for-user-defined-projects_managing-alerts" target="_blank" rel="noopener">OpenShift&#8201;&#8212;&#8201;Creating Alerting Rules for User-Defined Projects</a></p>
+</li>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/configuring-the-monitoring-stack#configuring-the-monitoring-stack" target="_blank" rel="noopener">OpenShift&#8201;&#8212;&#8201;Configuring the Monitoring Stack</a></p>
+</li>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/managing-alerts" target="_blank" rel="noopener">OpenShift&#8201;&#8212;&#8201;Managing Alerts</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_upstream_resources"><a class="anchor" href="#_upstream_resources"></a>Upstream Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/" target="_blank" rel="noopener">Prometheus&#8201;&#8212;&#8201;Alerting Rules</a></p>
+</li>
+<li>
+<p><a href="https://prometheus.io/docs/alerting/latest/alertmanager/" target="_blank" rel="noopener">Prometheus&#8201;&#8212;&#8201;Alertmanager</a></p>
+</li>
+<li>
+<p><a href="https://prometheus.io/docs/prometheus/latest/configuration/template_reference/" target="_blank" rel="noopener">Prometheus&#8201;&#8212;&#8201;Template Reference for Annotations</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_articles"><a class="anchor" href="#_articles"></a>Articles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.robustperception.io/whats-the-difference-between-group_interval-group_wait-and-repeat_interval/" target="_blank" rel="noopener">Robust Perception&#8201;&#8212;&#8201;Understanding Alertmanager Timing</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="alert-theory.html">Alert Purpose and Severity</a></span>
+  <span class="next"><a href="alert-design.html">Alert Design for AI Serving</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Deploy the Model :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="kserve-model.html">
+    <link rel="next" href="verify-metrics.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Model Deployment and Metrics</a></li>
+    <li><a href="deploy-model.html">Deploy the Model</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Deploy the Model</h1>
+<div class="sect1">
+<h2 id="_concepts"><a class="anchor" href="#_concepts"></a>Concepts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this lab, you create the three resources required to deploy a model on RHOAI 3.4&#8201;&#8212;&#8201;a HardwareProfile, a ServingRuntime, and an InferenceService&#8201;&#8212;&#8201;and deploy IBM Granite 3.1 8B Instruct on the L4 GPU.</p>
+</div>
+<div class="paragraph">
+<p>By the end of this lab, you will have:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Created the HardwareProfile, ServingRuntime, and InferenceService</p>
+</li>
+<li>
+<p>Deployed Granite 3.1 8B using the vLLM runtime on KServe</p>
+</li>
+<li>
+<p>Verified the model pod is running with the model loaded into GPU memory</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="paragraph">
+<p>Before starting, confirm:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Chapter 1 completed: UWM enabled, DCGM metrics queryable</p>
+</li>
+<li>
+<p>The <code>llm-serving</code> namespace exists (<code>oc get namespace llm-serving</code>)</p>
+</li>
+<li>
+<p>You have at least one NVIDIA L4 GPU node with an available GPU</p>
+</li>
+<li>
+<p>You are logged in with cluster-admin privileges</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_lab_files"><a class="anchor" href="#_lab_files"></a>Lab Files</h3>
+<div class="listingblock">
+<div class="content">
+<pre>model-deploy/
+├── hardware-profile.yaml    # HardwareProfile for GPU resource constraints
+├── serving-runtime.yaml     # ServingRuntime for vLLM on NVIDIA GPUs
+└── inference-service.yaml   # InferenceService for Granite 3.1 8B Instruct</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+RHOAI 3.4 auto-creates a ServiceMonitor when you deploy an InferenceService. You do not need to create one manually&#8201;&#8212;&#8201;you will examine the auto-created one in the <a href="verify-metrics.html" class="xref page">next exercise</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lab"><a class="anchor" href="#_lab"></a>Lab</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_create_the_hardwareprofile"><a class="anchor" href="#_1_create_the_hardwareprofile"></a>1. Create the HardwareProfile</h3>
+<div class="paragraph">
+<p>The HardwareProfile defines resource constraints (CPU, memory, GPU) for model serving workloads.
+It is a cluster-level resource created in the <code>redhat-ods-applications</code> namespace.</p>
+</div>
+<div class="paragraph">
+<p>Review the YAML:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>cat model-deploy/hardware-profile.yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Key fields to note:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>namespace: redhat-ods-applications</code>&#8201;&#8212;&#8201;The RHOAI operator namespace, not your project namespace. HardwareProfiles are cluster-scoped resources.</p>
+</li>
+<li>
+<p><code>spec.identifiers</code>&#8201;&#8212;&#8201;Defines three resource types: CPU (1-8 cores), Memory (8Gi-24Gi), and GPU (1 NVIDIA GPU).</p>
+</li>
+<li>
+<p><code>opendatahub.io/disabled: "false"</code>&#8201;&#8212;&#8201;Makes this profile available in the RHOAI dashboard.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Apply the HardwareProfile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f model-deploy/hardware-profile.yaml</strong>
+hardwareprofile.infrastructure.opendatahub.io/gpu-profile created</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get hardwareprofile gpu-profile -n redhat-ods-applications</strong>
+NAME          AGE
+gpu-profile   5s</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_create_the_servingruntime"><a class="anchor" href="#_2_create_the_servingruntime"></a>2. Create the ServingRuntime</h3>
+<div class="paragraph">
+<p>The ServingRuntime defines the model serving platform&#8201;&#8212;&#8201;the container image, startup command, and supported model formats.
+The InferenceService references this by name, so it must exist before the InferenceService is created.</p>
+</div>
+<div class="paragraph">
+<p>Review the YAML:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>cat model-deploy/serving-runtime.yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Key fields to note:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>name: granite-3-1-8b</code>&#8201;&#8212;&#8201;The InferenceService will reference this exact name in its <code>runtime</code> field.</p>
+</li>
+<li>
+<p><code>containers[0].name: kserve-container</code>&#8201;&#8212;&#8201;<strong>Must be exactly this name.</strong> KServe requires it to inject storage initializer sidecars and volume mounts.</p>
+</li>
+<li>
+<p><code>--port=8080</code>&#8201;&#8212;&#8201;The RHOAI convention for the vLLM API and metrics port.</p>
+</li>
+<li>
+<p><code>--served-model-name=\{{.Name}}</code>&#8201;&#8212;&#8201;A Go template that KServe resolves to the InferenceService name at runtime.</p>
+</li>
+<li>
+<p><code>image: registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.4</code>&#8201;&#8212;&#8201;The Red Hat certified vLLM image for CUDA/NVIDIA GPUs.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Apply the ServingRuntime:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f model-deploy/serving-runtime.yaml</strong>
+servingruntime.serving.kserve.io/granite-3-1-8b created</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get servingruntimes -n llm-serving</strong>
+NAME             DISABLED   MODELTYPE   CONTAINERS         AGE
+granite-3-1-8b              vLLM        kserve-container   5s</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_deploy_the_inferenceservice"><a class="anchor" href="#_3_deploy_the_inferenceservice"></a>3. Deploy the InferenceService</h3>
+<div class="paragraph">
+<p>Review the YAML:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>cat model-deploy/inference-service.yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Key fields to note:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>serving.kserve.io/deploymentMode: RawDeployment</code>&#8201;&#8212;&#8201;Uses standard Kubernetes Deployments instead of Knative. Recommended for GPU workloads.</p>
+</li>
+<li>
+<p><code>runtime: granite-3-1-8b</code>&#8201;&#8212;&#8201;Must match the ServingRuntime name from step 2.</p>
+</li>
+<li>
+<p><code>storageUri</code>&#8201;&#8212;&#8201;The OCI modelcar image from the Red Hat AI Services registry (~15 GB).</p>
+</li>
+<li>
+<p><code>--max-model-len=4096</code>&#8201;&#8212;&#8201;Limits context window to prevent OOM (Granite supports 128K natively, but that would exceed L4 VRAM).</p>
+</li>
+<li>
+<p><code>--gpu-memory-utilization=0.90</code>&#8201;&#8212;&#8201;Uses 90% of GPU memory, keeping 10% as a safety buffer.</p>
+</li>
+<li>
+<p><code>--enforce-eager</code>&#8201;&#8212;&#8201;Disables CUDA graphs to save GPU memory.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Apply:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f model-deploy/inference-service.yaml</strong>
+inferenceservice.serving.kserve.io/granite-3-1-8b created</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_monitor_the_deployment"><a class="anchor" href="#_4_monitor_the_deployment"></a>4. Monitor the Deployment</h3>
+<div class="paragraph">
+<p>Watch the InferenceService status:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get inferenceservice granite-3-1-8b -n llm-serving -w</strong>
+NAME             URL   READY   PREV   LATEST   ...   AGE
+granite-3-1-8b         False                         5s
+granite-3-1-8b         False                         2m
+granite-3-1-8b   ...   True                          5m</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The deployment is ready when <code>READY</code> shows <code>True</code>.
+For Granite 3.1 8B, expect <strong>3-8 minutes</strong> on first deploy (the ~15 GB modelcar image must be pulled, then the model loaded into GPU memory).
+On subsequent deploys with the image cached, expect ~60-90 seconds.
+Press <code>Ctrl+C</code> to exit the watch.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+The model image is ~15 GB. On a 1 Gbps network, the pull alone takes 2-3 minutes. You can monitor pull progress in a separate terminal:<br>
+<code>oc get events -n llm-serving --sort-by='.lastTimestamp' -w</code>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_check_the_model_pod_logs"><a class="anchor" href="#_5_check_the_model_pod_logs"></a>5. Check the Model Pod Logs</h3>
+<div class="paragraph">
+<p>Once the pod is Running, verify that vLLM has loaded the model successfully:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>POD_NAME=$(oc get pods -n llm-serving -l serving.kserve.io/inferenceservice=granite-3-1-8b -o jsonpath='{.items[0].metadata.name}')</strong>
+$ <strong>oc logs $POD_NAME -c kserve-container -n llm-serving | tail -30</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Signs of a healthy startup:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>"Loading model weights&#8230;&#8203;"</code> followed by <code>"Model loaded successfully"</code></p>
+</li>
+<li>
+<p><code>"GPU blocks: &lt;number&gt;"</code>&#8201;&#8212;&#8201;tells you how many KV cache blocks vLLM allocated. With Granite 8B on L4, expect around 1,500-1,700 blocks.</p>
+</li>
+<li>
+<p><code>"Uvicorn running on <a href="http://0.0.0.0:8080"" class="bare">http://0.0.0.0:8080"</a></code>&#8201;&#8212;&#8201;the server is ready</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The model pod shows <code>2/2</code> containers: <code>kserve-container</code> (the vLLM server) and <code>modelcar</code> (the storage initializer that downloads the model). Always specify <code>-c kserve-container</code> to target the vLLM container.
+</td>
+</tr>
+</table>
+</div>
+<details>
+<summary class="title">Troubleshooting: Model pod won&#8217;t start</summary>
+<div class="content">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Symptom</th>
+<th class="tableblock halign-left valign-top">Cause</th>
+<th class="tableblock halign-left valign-top">Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Pending</code> forever</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No GPU available on any node</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check <code>oc describe node &lt;gpu-node&gt;</code> for GPU allocatable vs. allocated. Free up GPUs or add a node.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ImagePullBackOff</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Can&#8217;t pull the ~15 GB modelcar image</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check cluster internet access to <code>quay.io</code>. Verify with: <code>oc debug node/&lt;node&gt;&#8201;&#8212;&#8201;chroot /host curl -sI <a href="https://quay.io" class="bare">https://quay.io</a></code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>CrashLoopBackOff</code> with <code>CUDA out of memory</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Model + KV cache exceeds L4 VRAM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reduce <code>--max-model-len</code> to <code>2048</code> in inference-service.yaml, or lower <code>--gpu-memory-utilization</code> to <code>0.85</code>. Re-apply.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OOMKilled</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Not enough container memory (not GPU memory)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Increase <code>resources.requests.memory</code> to <code>24Gi</code> in inference-service.yaml.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">InferenceService stays False, no pod created</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ServingRuntime missing or name mismatch</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Verify <code>oc get servingruntimes -n llm-serving</code> shows the runtime. Check that the <code>runtime</code> field matches exactly.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before proceeding to the next exercise, verify all of the following:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 42.8571%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Check</th>
+<th class="tableblock halign-left valign-top">How to Verify</th>
+<th class="tableblock halign-left valign-top">Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HardwareProfile created</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get hardwareprofile gpu-profile -n redhat-ods-applications</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Profile exists</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ServingRuntime created</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get servingruntimes -n llm-serving</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>granite-3-1-8b</code> exists</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">InferenceService ready</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get inferenceservice granite-3-1-8b -n llm-serving</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">READY = True</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Model pod running</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get pods -n llm-serving -l serving.kserve.io/inferenceservice=granite-3-1-8b</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1 pod, Running, 2/2</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="kserve-model.html">KServe Deployment Model</a></span>
+  <span class="next"><a href="verify-metrics.html">Verify the Metrics Pipeline</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

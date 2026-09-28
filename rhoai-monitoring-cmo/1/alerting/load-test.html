@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Load Test and Observe :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="create-alerts.html">
+    <link rel="next" href="alert-lifecycle.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Alerting</a></li>
+    <li><a href="load-test.html">Load Test and Observe</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Load Test and Observe</h1>
+<div class="sect1">
+<h2 id="_concepts"><a class="anchor" href="#_concepts"></a>Concepts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the previous exercise you deployed five alert rules across two namespaces.
+All alerts are Inactive because the model is idle.
+Now you generate enough concurrent load to cross every threshold and watch the alert lifecycle unfold in real time.</p>
+</div>
+<div class="sect2">
+<h3 id="_why_in_cluster_load_testing"><a class="anchor" href="#_why_in_cluster_load_testing"></a>Why In-Cluster Load Testing?</h3>
+<div class="paragraph">
+<p>The load test script runs requests <strong>inside</strong> the model pod using <code>oc exec</code>.
+This is a deliberate design choice:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Port-forward serializes connections.</strong> If you run curl from your local machine through <code>oc port-forward</code>, all requests funnel through a single TCP tunnel. Even with 200 curl processes in parallel, the port-forward serializes them&#8201;&#8212;&#8201;they arrive at vLLM one at a time. The model server would process requests sequentially instead of saturating.</p>
+</li>
+<li>
+<p><strong><code>oc exec</code> enables true concurrency.</strong> The script runs a shell inside the model pod&#8217;s container. All curl processes start simultaneously, hitting vLLM&#8217;s HTTP server on <code>localhost:8080</code> without any network bottleneck. 200 concurrent requests arrive truly in parallel.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_how_the_load_test_triggers_alerts"><a class="anchor" href="#_how_the_load_test_triggers_alerts"></a>How the Load Test Triggers Alerts</h3>
+<div class="paragraph">
+<p>With Granite 3.1 8B on an L4 (24 GB VRAM), vLLM admits ALL incoming requests immediately&#8201;&#8212;&#8201;there is no upfront capacity check.
+With 200 concurrent requests each generating 256 tokens, the KV cache fills to approximately 100% after about 20 seconds.
+At that point:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>New requests begin waiting&#8201;&#8212;&#8201;<strong>InferenceQueueBacklog</strong> threshold crossed (&gt; 5 waiting for 1m)</p>
+</li>
+<li>
+<p>KV cache sustains above 70%&#8201;&#8212;&#8201;<strong>KVCacheHighUsage</strong> threshold crossed (&gt; 0.7 for 1m)</p>
+</li>
+<li>
+<p>TTFT spikes as queued requests wait&#8201;&#8212;&#8201;<strong>HighTTFTLatency</strong> threshold crossed (p95 &gt; 1s for 2m)</p>
+</li>
+<li>
+<p>GPU reaches maximum utilization&#8201;&#8212;&#8201;<strong>HighGPUUtilization</strong> threshold crossed (&gt; 80% for 2m)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lab"><a class="anchor" href="#_lab"></a>Lab</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_arrange_your_observation_windows"><a class="anchor" href="#_1_arrange_your_observation_windows"></a>1. Arrange Your Observation Windows</h3>
+<div class="paragraph">
+<p>This is the most important part of the lab experience.
+You will watch the alert lifecycle unfold in real time across four views simultaneously.</p>
+</div>
+<div class="paragraph">
+<p>Open four browser windows (or tabs you can quickly switch between):</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 42.8571%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Window</th>
+<th class="tableblock halign-left valign-top">What to Open</th>
+<th class="tableblock halign-left valign-top">What to Watch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Window 1</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana&#8201;&#8212;&#8201;<strong>Node Health (USE Method)</strong> dashboard</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CPU, memory, disk I/O, network (select the GPU node from the Instance dropdown)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Window 2</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana&#8201;&#8212;&#8201;<strong>GPU Health (USE Method)</strong> dashboard</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU utilization, temperature, memory, power</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Window 3</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana&#8201;&#8212;&#8201;<strong>vLLM Inference (RED Method)</strong> dashboard</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queue depth, KV cache, latency, throughput</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Window 4</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OpenShift Console&#8201;&#8212;&#8201;<strong>Observe &gt; Alerting</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alert state transitions (Inactive to Pending to Firing)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_2_configure_auto_refresh"><a class="anchor" href="#_2_configure_auto_refresh"></a>2. Configure Auto-Refresh</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Grafana dashboards</strong>: Set all three to auto-refresh every <strong>10 seconds</strong>. Click the clock icon in the top-right corner and select "10s".</p>
+</li>
+<li>
+<p><strong>OpenShift Console</strong>: The Alerting page auto-refreshes, but you can also manually refresh with the browser.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_verify_baseline_state"><a class="anchor" href="#_3_verify_baseline_state"></a>3. Verify Baseline State</h3>
+<div class="paragraph">
+<p>Before generating load, confirm the baseline in each window.</p>
+</div>
+<div class="paragraph">
+<p><strong>Window 1 (Node Health)</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>CPU Usage: approximately 5-15% (system processes, kubelet, monitoring)</p>
+</li>
+<li>
+<p>Memory Usage: approximately 30-60% (varies by node size)</p>
+</li>
+<li>
+<p>Disk I/O: Low / near zero</p>
+</li>
+<li>
+<p>Network: Low baseline traffic</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Window 2 (GPU Health)</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>GPU Utilization: approximately 2-5% (idle with model loaded)</p>
+</li>
+<li>
+<p>GPU Temperature: approximately 30-50 C (ambient)</p>
+</li>
+<li>
+<p>GPU Memory Used: approximately 20,000-21,000 MB (model weights + pre-allocated KV cache)</p>
+</li>
+<li>
+<p>GPU Memory Free: approximately 3,000-4,000 MB</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Window 3 (vLLM Inference)</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Requests Waiting: 0</p>
+</li>
+<li>
+<p>KV Cache Usage: 0% or very near</p>
+</li>
+<li>
+<p>Requests Running: 0</p>
+</li>
+<li>
+<p>Token Throughput: 0</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Window 4 (OpenShift Alerting)</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>All 5 alerts: Inactive</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+GPU memory is already at approximately 20-21 GB because vLLM pre-allocates GPU memory at startup. The model weights consume approximately 16 GB, and the remaining available VRAM is reserved for the KV cache pool. This pre-allocation is normal. You will not see GPU memory change much during the load test because it is already allocated.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_review_the_load_test_script"><a class="anchor" href="#_4_review_the_load_test_script"></a>4. Review the Load Test Script</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>cat alerts/load-test.sh</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Key points to notice:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Sends batches of <strong>200 concurrent requests</strong> by default (configurable via first argument)</p>
+</li>
+<li>
+<p>Each request asks for <strong>256 output tokens</strong> with a long prompt</p>
+</li>
+<li>
+<p>Runs <strong>15 batches</strong> by default (3,000 total requests)</p>
+</li>
+<li>
+<p>Batches overlap with a 10-second stagger to maintain sustained pressure</p>
+</li>
+<li>
+<p>Runs all requests inside the pod via <code>oc exec</code> for true concurrency</p>
+</li>
+<li>
+<p>Auto-detects the Running pod and model name (skips pods in error states)</p>
+</li>
+<li>
+<p>Reports progress after each batch completes</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_run_the_load_test"><a class="anchor" href="#_5_run_the_load_test"></a>5. Run the Load Test</h3>
+<div class="paragraph">
+<p>First, verify which pod is Running:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get pods -n llm-serving -l serving.kserve.io/inferenceservice</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If multiple pods exist (for example, one Running and one in <code>UnexpectedAdmissionError</code>), the script auto-detects the Running pod.</p>
+</div>
+<div class="paragraph">
+<p>Start the load test:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>bash alerts/load-test.sh</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The script displays a banner showing the detected pod, model name, concurrency, and total request count.
+Verify the pod name in the banner before the 3-second countdown expires.
+If it shows the wrong pod, press <code>Ctrl+C</code> and re-run with the pod name specified explicitly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>bash alerts/load-test.sh 200 15 llm-serving &lt;your-pod-name&gt;</strong></code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+After starting the load test, immediately switch to your four observation windows and begin watching all four views. The following steps describe what you should see over the next several minutes.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_6_observe_phase_1ramp_up_first_30_60_seconds"><a class="anchor" href="#_6_observe_phase_1ramp_up_first_30_60_seconds"></a>6. Observe Phase 1&#8201;&#8212;&#8201;Ramp-up (First 30-60 Seconds)</h3>
+<div class="paragraph">
+<p><strong>Window 1 (Node Health)</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>CPU Usage spikes as the inference workload drives system-level CPU consumption</p>
+</li>
+<li>
+<p>Network Received increases as prompt payloads arrive at the node</p>
+</li>
+<li>
+<p>Network Transmitted increases as generated tokens are sent back</p>
+</li>
+<li>
+<p>Disk I/O and Memory remain relatively stable</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/node-health-under-load.png" alt="Node Health dashboard under load showing CPU and network spikes" width="800">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Window 2 (GPU Health)</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>GPU Utilization spikes from approximately 5% toward 90-100%</p>
+</li>
+<li>
+<p>GPU Power Draw increases proportionally</p>
+</li>
+<li>
+<p>GPU Temperature begins a slow climb (thermal mass causes it to lag behind utilization)</p>
+</li>
+<li>
+<p>GPU Memory Used stays roughly the same (already pre-allocated)</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/gpu-health-under-load.png" alt="GPU Health dashboard under load showing utilization gauge in the red zone" width="800">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Window 3 (vLLM Inference)</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Requests Running jumps to approximately 200 immediately (vLLM admits all requests)</p>
+</li>
+<li>
+<p>Requests Waiting starts at 0&#8201;&#8212;&#8201;vLLM begins processing all 200 at once</p>
+</li>
+<li>
+<p>KV Cache Usage rises rapidly from 0% toward 90-100% over approximately 20 seconds as token generation consumes cache blocks</p>
+</li>
+<li>
+<p>Token Throughput spikes as generation begins</p>
+</li>
+<li>
+<p>E2E Latency and TTFT panels start populating</p>
+</li>
+<li>
+<p>After approximately 20 seconds: Requests Waiting begins climbing as the KV cache fills and new batch requests cannot get cache blocks</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/vllm-dashboard-under-load.png" alt="vLLM Inference dashboard under load showing KV cache full and requests queuing" width="800">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Window 4 (OpenShift Alerting)</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Alerts are still <strong>Inactive</strong>&#8201;&#8212;&#8201;the <code>for</code> durations have not elapsed yet</p>
+</li>
+<li>
+<p>After approximately 60 seconds: <code>InferenceQueueBacklog</code> transitions to <strong>Pending</strong> (for: 1m)</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+vLLM&#8217;s behavior differs from what you might expect. There is no upfront "this many concurrent requests fit" limit. vLLM greedily admits all requests and begins prefill (computing attention for the prompt). Queuing only starts when the KV cache fills during the <em>generation</em> phase&#8201;&#8212;&#8201;when each request needs cache blocks to store the growing key-value pairs for each new token. This is why Requests Running shows 200 and Requests Waiting shows 0 initially, then Waiting starts climbing approximately 20 seconds later.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_7_observe_phase_2alerts_firing_1_3_minutes"><a class="anchor" href="#_7_observe_phase_2alerts_firing_1_3_minutes"></a>7. Observe Phase 2&#8201;&#8212;&#8201;Alerts Firing (1-3 Minutes)</h3>
+<div class="paragraph">
+<p>As the <code>for</code> durations elapse, watch alerts transition from Pending to <strong>Firing</strong>.</p>
+</div>
+<div class="sect3">
+<h4 id="_expected_firing_order"><a class="anchor" href="#_expected_firing_order"></a>Expected Firing Order</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Time</th>
+<th class="tableblock halign-left valign-top">Alert</th>
+<th class="tableblock halign-left valign-top">Why It Fires at This Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~1 min</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>InferenceQueueBacklog</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">for: 1m&#8201;&#8212;&#8201;queue depth jumps well above 5 once KV cache fills (approximately 20 seconds into load)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~1-2 min</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>KVCacheHighUsage</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">for: 1m&#8201;&#8212;&#8201;KV cache sustains above 70% once overlapping batches keep constant pressure</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~2 min</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>HighGPUUtilization</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">for: 2m&#8201;&#8212;&#8201;GPU sustains above 80% throughout the load</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~2 min</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>HighTTFTLatency</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">for: 2m&#8201;&#8212;&#8201;TTFT p95 exceeds 1 second massively (often 30-150 seconds under heavy load)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The KVCacheHighUsage alert requires the metric to stay <em>continuously</em> above 0.7 for 1 minute. Between load test batches, the KV cache may briefly dip as completed requests release cache blocks before the next batch fills them again. If the cache dips below 0.7 for even one Prometheus scrape (30 seconds), the <code>for</code> timer resets. This is correct behavior&#8201;&#8212;&#8201;the <code>for</code> field is filtering out intermittent spikes as designed.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+GPUTemperatureHigh is a critical-severity emergency alert for genuine hardware risk. Under sustained load, the L4 may or may not exceed 70 C depending on datacenter cooling. If the GPU stays below 70 C, the cooling system is working well.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/ocp-alerts-firing.png" alt="OpenShift Console Alerting showing custom alerts firing" width="800">
+</div>
+</div>
+<div class="paragraph">
+<p>Watch the <strong>Pending to Firing</strong> transition in Window 4.
+The alert was detected (Pending) and then confirmed as sustained (Firing).
+Click on a Firing alert to see its details&#8201;&#8212;&#8201;the annotations show the actual metric value (for example, "142 requests waiting in inference queue").</p>
+</div>
+<details>
+<summary class="title">Troubleshooting: Alerts not firing during the load test</summary>
+<div class="content">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Symptom</th>
+<th class="tableblock halign-left valign-top">Cause</th>
+<th class="tableblock halign-left valign-top">Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HighGPUUtilization never fires</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU does not sustain above 80% for 2 minutes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Increase concurrency to 250-300 or increase max_tokens in load-test.sh</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">InferenceQueueBacklog never fires</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queue depth stays below 5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Increase concurrency. With only 50 concurrent requests, the KV cache may handle all without queuing. Use 200+ concurrent.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HighTTFTLatency never fires</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Load test too short for the for: 2m to elapse</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run more batches: <code>bash alerts/load-test.sh 200 30</code>. The load must sustain long enough for the 2-minute for duration.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KVCacheHighUsage goes Pending then back to Inactive</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cache dips below 70% between batches, resetting the for timer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Expected behavior. For this alert to fire, the cache must stay continuously above 70% for 1 minute. Increase concurrency or decrease the wait between batches.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Script reports "No InferenceService pod found"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Wrong namespace or pod not running</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check: <code>oc get pods -n llm-serving -l serving.kserve.io/inferenceservice</code>. Verify the InferenceService is Ready.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc exec</code> hangs or times out</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pod container not responding</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check pod status: <code>oc get pods -n llm-serving</code>. If the pod is in CrashLoopBackOff, the model server may have OOM&#8217;d from a previous load test. Wait for it to restart.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests fail with HTTP 500 inside the pod</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Model server OOM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reduce concurrency: <code>bash alerts/load-test.sh 100 10</code>. Check pod logs: <code>oc logs -n llm-serving &lt;pod-name&gt; -c kserve-container --tail=20</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 42.8571%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Check</th>
+<th class="tableblock halign-left valign-top">How to Verify</th>
+<th class="tableblock halign-left valign-top">Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Load test running</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Terminal shows batch progress messages</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Batches launching with stagger delay</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU utilization spiked</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana GPU Health dashboard</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU Utilization gauge above 80%</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests queuing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana vLLM Inference dashboard</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests Waiting above 5</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KV cache saturated</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana vLLM Inference dashboard</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KV Cache Usage above 70%</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">At least 2 alerts fired</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Observe &gt; Alerting &gt; Alerts</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">InferenceQueueBacklog and HighGPUUtilization show Firing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alert details show context</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Click on a Firing alert</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Annotations show actual metric values</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_summary"><a class="anchor" href="#_summary"></a>Summary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this exercise, you:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Set up a multi-window observation environment with three Grafana dashboards and the OpenShift Console Alerting page</p>
+</li>
+<li>
+<p>Verified the baseline state across all four views with the model idle</p>
+</li>
+<li>
+<p>Reviewed the load test script and understood why in-cluster testing via <code>oc exec</code> is necessary for true concurrency</p>
+</li>
+<li>
+<p>Ran the load test with 200 concurrent requests and observed the ramp-up phase across all dashboards</p>
+</li>
+<li>
+<p>Watched alerts transition from Inactive to Pending to Firing as the <code>for</code> durations elapsed</p>
+</li>
+<li>
+<p>Understood the expected firing order and why alerts with shorter <code>for</code> durations fire first</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In the next exercise, you will correlate what each alert tells you with what the dashboards show, then stop the load and observe how alerts resolve.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="create-alerts.html">Create Alert Rules</a></span>
+  <span class="next"><a href="alert-lifecycle.html">Alert Lifecycle</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

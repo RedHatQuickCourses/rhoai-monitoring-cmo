@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Performance Investigation :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="index.html">
+    <link rel="next" href="solution.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Challenge Lab</a></li>
+    <li><a href="challenge.html">Performance Investigation</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Performance Investigation</h1>
+<div class="sect1">
+<h2 id="_scenario"><a class="anchor" href="#_scenario"></a>Scenario</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You are an AI Platform Engineer at Meridian Health.
+Last Friday, your team deployed a Granite LLM model to power an internal clinical note summarization tool.
+Over the weekend, usage ramped up as more physicians started using the application.</p>
+</div>
+<div class="paragraph">
+<p>On Monday morning, you arrive to a queue of escalation tickets:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+The summarization tool was working fine last week, but today every request takes 30-45 seconds. I cannot use this between patient appointments — I need responses in under 10 seconds.
+</blockquote>
+<div class="attribution">
+&#8212; Ticket #4271 — Dr. Patel (Cardiology)
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+I submitted three notes for summarization at the same time and only one started processing. The other two just hung there for over a minute before anything happened.
+</blockquote>
+<div class="attribution">
+&#8212; Ticket #4273 — Nurse Thompson (ER)
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+The tool seems to work fine when I am the only one using it, but during rounds when everyone is submitting notes simultaneously, it becomes completely unusable.
+</blockquote>
+<div class="attribution">
+&#8212; Ticket #4280 — Dr. Kim (Radiology)
+</div>
+</div>
+<div class="paragraph">
+<p>The infrastructure team has confirmed:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The GPU node is healthy&#8201;&#8212;&#8201;no hardware alerts</p>
+</li>
+<li>
+<p>The model pod is running without OOMKills or CrashLoopBackoffs</p>
+</li>
+<li>
+<p>The model responds to requests&#8201;&#8212;&#8201;no HTTP 5xx errors</p>
+</li>
+<li>
+<p>Network latency between the app and the model endpoint is &lt; 1ms</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>The problem is not a crash. The model runs, it just runs poorly.</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_setup"><a class="anchor" href="#_setup"></a>Setup</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Your instructor runs the setup script to deploy the challenge environment.
+If you are working independently, run the setup yourself:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>bash challenge/setup.sh</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This creates the <code>llm-challenge</code> namespace with an InferenceService and a load generator that simulates 8 concurrent users.
+The model takes 5-10 minutes for the first image pull and startup.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Do NOT read the <code>challenge/setup.sh</code> script or the <code>challenge/manifests/</code> directory before completing your investigation. The point is to diagnose through observability, not by reading configuration files.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_is_deployed"><a class="anchor" href="#_what_is_deployed"></a>What Is Deployed</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The setup script deployed the following in namespace <code>llm-challenge</code>:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 33.3333%;">
+<col style="width: 50.0001%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Resource</th>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">InferenceService</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>granite-challenge</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IBM Granite 3.1 8B Instruct on vLLM runtime</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Deployment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>load-generator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Simulates user traffic (~8 concurrent users)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>KServe has auto-created a ServiceMonitor for metrics scraping, but <strong>no dashboards or alerts have been configured</strong> for this namespace.</p>
+</div>
+<div class="paragraph">
+<p>Chapters 1-4 resources should remain running&#8201;&#8212;&#8201;the challenge lab uses a separate namespace.
+You can reuse the Grafana instance from Chapter 3 to visualize metrics from <code>llm-challenge</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_your_mission"><a class="anchor" href="#_your_mission"></a>Your Mission</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Use the observability techniques from Chapters 1-4 to investigate the performance problem and fix it.</p>
+</div>
+<div class="sect2">
+<h3 id="_phase_1_instrument"><a class="anchor" href="#_phase_1_instrument"></a>Phase 1: Instrument</h3>
+<div class="paragraph">
+<p>You cannot diagnose what you cannot see.
+Verify that metrics are flowing from the <code>llm-challenge</code> namespace and set up visualization.</p>
+</div>
+<div class="paragraph">
+<p>Think about:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>What metrics sources exist in this environment?</p>
+</li>
+<li>
+<p>Is the auto-created ServiceMonitor working? Are metrics reaching Prometheus?</p>
+</li>
+<li>
+<p>How can you visualize the metrics effectively (dashboards or ad-hoc queries)?</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_phase_2_observe"><a class="anchor" href="#_phase_2_observe"></a>Phase 2: Observe</h3>
+<div class="paragraph">
+<p>Build dashboards or use ad-hoc PromQL queries to understand the model&#8217;s behavior under the current load.
+The load generator is already running inside the cluster with 8 concurrent users&#8201;&#8212;&#8201;you do not need to generate your own load.</p>
+</div>
+<div class="paragraph">
+<p>Think about:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>What does the GPU health look like? Is it the bottleneck? (Remember: GPU metrics and inference metrics may live in different namespaces)</p>
+</li>
+<li>
+<p>What do the inference-level metrics tell you? Are requests being processed efficiently?</p>
+</li>
+<li>
+<p>Is there a mismatch between infrastructure metrics and application metrics? Compare GPU utilization, GPU memory usage, and inference queue metrics side by side.</p>
+</li>
+<li>
+<p>Are there any hard ceilings or caps visible in the metrics&#8201;&#8212;&#8201;values that never exceed a certain number?</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_phase_3_diagnose"><a class="anchor" href="#_phase_3_diagnose"></a>Phase 3: Diagnose</h3>
+<div class="paragraph">
+<p>Correlate the metrics across layers to identify the root cause.</p>
+</div>
+<div class="paragraph">
+<p>Think about:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>What metric behavior is abnormal compared to what you saw in Chapters 2-4?</p>
+</li>
+<li>
+<p>Are there hard limits or ceilings visible in the metrics?</p>
+</li>
+<li>
+<p>What configuration could cause the behavior you are observing?</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_phase_4_fix"><a class="anchor" href="#_phase_4_fix"></a>Phase 4: Fix</h3>
+<div class="paragraph">
+<p>Modify the deployment configuration to resolve the performance issues.
+Do not delete and recreate the InferenceService&#8201;&#8212;&#8201;edit the existing one.</p>
+</div>
+<div class="paragraph">
+<p>Think about:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Where is the serving configuration defined?</p>
+</li>
+<li>
+<p>Which parameters control the behavior you identified?</p>
+</li>
+<li>
+<p>How do you apply changes to a KServe InferenceService?</p>
+</li>
+<li>
+<p>What values did Chapter 2&#8217;s working deployment use for these parameters?</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_phase_5_verify"><a class="anchor" href="#_phase_5_verify"></a>Phase 5: Verify</h3>
+<div class="paragraph">
+<p>Confirm that your fix resolved the problem.
+The load generator automatically starts sending traffic to the new pod after rollout&#8201;&#8212;&#8201;wait 2-3 minutes for metrics to accumulate.</p>
+</div>
+<div class="paragraph">
+<p>Think about:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>What should the metrics look like after the fix?</p>
+</li>
+<li>
+<p>Do the user complaints map to the improvements you see?</p>
+</li>
+<li>
+<p>Are there any remaining bottlenecks?</p>
+</li>
+<li>
+<p>Can you create a before/after comparison of key metrics?</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_completion_criteria"><a class="anchor" href="#_completion_criteria"></a>Completion Criteria</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You have completed the challenge when:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Metrics from the <code>llm-challenge</code> namespace are visible in Prometheus (both vLLM inference metrics and GPU metrics)</p>
+</li>
+<li>
+<p>You can explain the root cause of the performance degradation, supported by metric evidence</p>
+</li>
+<li>
+<p>You have applied a fix to the existing InferenceService (not deleted and recreated it)</p>
+</li>
+<li>
+<p><code>vllm:num_requests_waiting</code> is consistently near 0 under the same load</p>
+</li>
+<li>
+<p>The user complaints (slow response, queuing, poor concurrent performance) are resolved</p>
+</li>
+<li>
+<p>You can present a before/after metric comparison showing improvement</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hints"><a class="anchor" href="#_hints"></a>Hints</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Use these only if you are stuck.
+Try each phase independently for at least 10 minutes before reading a hint.</p>
+</div>
+<details>
+<summary class="title">Hint 1 — Instrumentation</summary>
+<div class="content">
+<div class="paragraph">
+<p>KServe auto-creates a ServiceMonitor when you deploy an InferenceService.
+Check whether it exists with <code>oc get servicemonitor -n llm-challenge</code>.
+Verify the target is UP in OpenShift Console &gt; Observe &gt; Targets.</p>
+</div>
+<div class="paragraph">
+<p>Remember from Chapter 4 that GPU metrics (DCGM) carry <code>namespace="nvidia-gpu-operator"</code>, not your model&#8217;s namespace&#8201;&#8212;&#8201;query them without a namespace filter or with the correct namespace.</p>
+</div>
+</div>
+</details>
+<details>
+<summary class="title">Hint 2 — What to look for</summary>
+<div class="content">
+<div class="paragraph">
+<p>Query these three metrics side by side and compare:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>DCGM_FI_DEV_GPU_UTIL</code></p>
+</li>
+<li>
+<p><code>vllm:num_requests_running{namespace="llm-challenge"}</code></p>
+</li>
+<li>
+<p><code>vllm:num_requests_waiting{namespace="llm-challenge"}</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>What is the maximum value <code>vllm:num_requests_running</code> ever reaches?
+Is that normal for 8 concurrent users?</p>
+</div>
+</div>
+</details>
+<details>
+<summary class="title">Hint 3 — Root cause direction</summary>
+<div class="content">
+<div class="paragraph">
+<p>The InferenceService args control vLLM&#8217;s behavior.
+Two arguments in particular limit throughput: one caps concurrency, the other restricts how much GPU memory vLLM is allowed to use.</p>
+</div>
+<div class="paragraph">
+<p>Run <code>oc get inferenceservice granite-challenge -n llm-challenge -o yaml</code> and examine the <code>args</code> section carefully.
+Compare the values to what was used in Chapter 2.</p>
+</div>
+</div>
+</details>
+<details>
+<summary class="title">Hint 4 — Verifying your fix</summary>
+<div class="content">
+<div class="paragraph">
+<p>Do not test your fix by running <code>curl</code> through <code>oc port-forward</code>&#8201;&#8212;&#8201;as you learned in Chapter 4, port-forward serializes connections and will not show true concurrent behavior.
+Instead, watch the metrics from the already-running load generator after you apply your fix.</p>
+</div>
+</div>
+</details>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cleanup"><a class="anchor" href="#_cleanup"></a>Cleanup</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>After completing the challenge lab:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>bash challenge/teardown.sh</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To reset the entire cluster (all 5 chapters):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>bash scripts/cleanup-all.sh</strong></code></pre>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="index.html">Challenge Lab</a></span>
+  <span class="next"><a href="solution.html">Solution Walkthrough</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

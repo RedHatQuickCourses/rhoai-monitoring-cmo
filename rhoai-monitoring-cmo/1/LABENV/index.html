@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Lab Environment :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="../index.html">
+    <link rel="next" href="../observability-foundations/index.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Lab Environment</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Lab Environment</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This chapter covers provisioning your lab cluster and verifying that it meets the requirements for the course.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ordering_your_lab_on_the_red_hat_demo_platform_rhdp"><a class="anchor" href="#_ordering_your_lab_on_the_red_hat_demo_platform_rhdp"></a>Ordering Your Lab on the Red Hat Demo Platform (RHDP)</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Log in</strong> to the RHDP portal.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Red Hat associates: <a href="https://demo.redhat.com/" target="_blank" rel="noopener">https://demo.redhat.com/</a></p>
+</li>
+<li>
+<p>Red Hat partners: <a href="https://partner.demo.redhat.com/" target="_blank" rel="noopener">https://partner.demo.redhat.com/</a></p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Search</strong> for the catalog entry: <strong>AI Factory Training</strong>.</p>
+<div class="paragraph">
+<p>Direct link: <a href="https://catalog.demo.redhat.com/catalog/babylon-catalog-prod?item=babylon-catalog-prod/published.ai-factory-training.prod" target="_blank" rel="noopener">AI Factory Training</a></p>
+</div>
+</li>
+<li>
+<p>On the catalog page, <strong>click</strong> the <strong>Order</strong> button.</p>
+</li>
+<li>
+<p><strong>Fill out</strong> the required details in the order form.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><strong>Activity</strong>: <code>Practice/Enablement</code></p>
+</li>
+<li>
+<p><strong>Purpose</strong>: <code>Learning about the Product</code></p>
+</li>
+<li>
+<p><strong>Cloud Provider</strong>: <code>aws</code></p>
+</li>
+<li>
+<p><strong>GPU instance type</strong>: <code>g6.8xlarge</code></p>
+</li>
+<li>
+<p><strong>Region</strong>: Nearest available AWS region</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Review the <strong>IMPORTANT information</strong> text at the bottom of the form and select the box labeled:<br>
+<strong>"I confirm that I understand the above warnings."</strong></p>
+</li>
+<li>
+<p>Click the <strong>Order</strong> button to start provisioning your lab environment.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+This lab can take approximately <strong>90 minutes to 2 hours</strong> to be provisioned.
+You will receive an email with access details after your lab environment is provisioned.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_how_to_access_your_lab_via_the_rhdp_portal"><a class="anchor" href="#_how_to_access_your_lab_via_the_rhdp_portal"></a>How to Access Your Lab via the RHDP Portal</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>On the RHDP portal, <strong>click</strong> on the <strong>Services</strong> option in the left-hand menu.</p>
+</li>
+<li>
+<p><strong>Select your lab</strong> from the listings on the right-hand side of the page to view access details.</p>
+</li>
+<li>
+<p>Note the following details from your lab environment:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><strong>OpenShift Console URL</strong> — the web console URL for cluster administration</p>
+</li>
+<li>
+<p><strong>admin password</strong> — the password for the <code>admin</code> user (cluster admin)</p>
+</li>
+<li>
+<p><strong>Bastion SSH access</strong> — SSH host, port, and credentials for the bastion server (if available)</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cluster_specifications"><a class="anchor" href="#_cluster_specifications"></a>Cluster Specifications</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This course was tested on the following cluster configuration.
+If you are provisioning your own cluster outside of RHDP, match these specifications as closely as possible.</p>
+</div>
+<div class="sect2">
+<h3 id="_tested_versions"><a class="anchor" href="#_tested_versions"></a>Tested Versions</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Component</th>
+<th class="tableblock halign-left valign-top">Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OpenShift Container Platform</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4.20.30</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kubernetes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v1.33.13</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Red Hat Enterprise Linux CoreOS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">9.6 (Plow)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CRI-O</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1.33.13</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc</code> CLI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4.20+</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Red Hat OpenShift AI (RHOAI)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.4.2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NVIDIA GPU Operator</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">25.3.4</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_node_configuration"><a class="anchor" href="#_node_configuration"></a>Node Configuration</h3>
+<div class="paragraph">
+<p>The RHDP lab environment is a single-node OpenShift cluster where the node carries the <code>control-plane</code>, <code>master</code>, and <code>worker</code> roles.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2858%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Node Role</th>
+<th class="tableblock halign-left valign-top">Count</th>
+<th class="tableblock halign-left valign-top">vCPUs</th>
+<th class="tableblock halign-left valign-top">Memory</th>
+<th class="tableblock halign-left valign-top">Disk</th>
+<th class="tableblock halign-left valign-top">GPU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Control-plane + worker</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">121 GiB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1.4 TiB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1x NVIDIA L4 (23 GiB VRAM)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_gpu"><a class="anchor" href="#_gpu"></a>GPU</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU Model</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NVIDIA L4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU Memory</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">23 GiB VRAM</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CUDA Driver</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">580.x</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AWS Instance Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">g6.8xlarge</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_storage"><a class="anchor" href="#_storage"></a>Storage</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">StorageClass</th>
+<th class="tableblock halign-left valign-top">Provisioner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>gp3-csi</code> (default)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ebs.csi.aws.com</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>gp2-csi</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ebs.csi.aws.com</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_platform"><a class="anchor" href="#_platform"></a>Platform</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Infrastructure platform</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AWS</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Identity provider</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Red Hat Build of Keycloak (RHBK)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pre-installed operators</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RHOAI 3.4.2, NVIDIA GPU Operator, Node Feature Discovery, Red Hat Serverless, Red Hat Service Mesh, Red Hat Build of Keycloak, cert-manager, OpenShift Pipelines, JobSet</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_minimum_requirements_for_your_own_cluster"><a class="anchor" href="#_minimum_requirements_for_your_own_cluster"></a>Minimum Requirements for Your Own Cluster</h3>
+<div class="paragraph">
+<p>If you do not have access to the Red Hat Demo Platform, you can provision your own cluster with the following minimum requirements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>OpenShift Container Platform 4.20+</p>
+</li>
+<li>
+<p><strong>1 GPU node</strong> with at least 16 vCPUs, 64 GiB RAM, and 1x NVIDIA L4 GPU (24 GiB VRAM) or equivalent</p>
+</li>
+<li>
+<p>Cluster admin access via <code>oc</code></p>
+</li>
+<li>
+<p>Red Hat OpenShift AI (RHOAI) 3.4+ installed</p>
+</li>
+<li>
+<p>NVIDIA GPU Operator installed and functional (DCGM Exporter pods running)</p>
+</li>
+<li>
+<p>Persistent storage (any CSI-based StorageClass)</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The Grafana Operator is <strong>not</strong> pre-installed.
+You will install the community Grafana Operator as part of the course exercises in <a href="../dashboards/install-grafana.html" class="xref page">Install Grafana</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_verifying_cluster_access"><a class="anchor" href="#_verifying_cluster_access"></a>Verifying Cluster Access</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Once your lab is provisioned, log in with the credentials from the RHDP email or portal:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc login -u admin -p &lt;password&gt; &lt;OPENSHIFT_CLUSTER_API_URL&gt;</strong>
+Login successful.
+...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the cluster node:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get nodes</strong>
+NAME                         STATUS   ROLES                         AGE   VERSION
+ip-10-0-3-183.ec2.internal   Ready    control-plane,master,worker   3h    v1.33.13</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see a single node with the <code>control-plane</code>, <code>master</code>, and <code>worker</code> roles.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_verifying_gpu_access"><a class="anchor" href="#_verifying_gpu_access"></a>Verifying GPU Access</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Verify that the GPU node is detected and the NVIDIA GPU Operator is running:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get nodes -l nvidia.com/gpu.present=true</strong>
+NAME                         STATUS   ROLES                         AGE   VERSION
+ip-10-0-3-183.ec2.internal   Ready    control-plane,master,worker   3h    v1.33.13</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the DCGM Exporter pods are running (these expose GPU metrics that Prometheus scrapes):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get pods -n nvidia-gpu-operator -l app=nvidia-dcgm-exporter</strong>
+NAME                          READY   STATUS    RESTARTS   AGE
+nvidia-dcgm-exporter-xxxxx    1/1     Running   0          3h</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the GPU is visible to workloads:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get node -o jsonpath='{.items[0].status.capacity.nvidia\.com/gpu}'</strong>
+1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_verifying_rhoai"><a class="anchor" href="#_verifying_rhoai"></a>Verifying RHOAI</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Verify that Red Hat OpenShift AI is installed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get csv -n redhat-ods-operator | grep rhods</strong>
+rhods-operator.3.4.2   Red Hat OpenShift AI   3.4.2   ...   Succeeded</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>Succeeded</code> phase confirms RHOAI is installed and ready.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_required_cli_tools"><a class="anchor" href="#_required_cli_tools"></a>Required CLI Tools</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Ensure the following tools are installed on your workstation:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>oc</code> — OpenShift CLI (4.20+)</p>
+</li>
+<li>
+<p><code>curl</code> — for testing model inference endpoints</p>
+</li>
+<li>
+<p><code>jq</code> — for parsing JSON responses from APIs</p>
+</li>
+<li>
+<p><code>git</code> — for cloning the lab files repository</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cloning_the_lab_code_repository"><a class="anchor" href="#_cloning_the_lab_code_repository"></a>Cloning the Lab Code Repository</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The lab code (YAML manifests, shell scripts, and configuration files) is in a separate repository from the course content.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>git clone https://github.com/RedHatQuickCourses/genai-apps.git</strong>
+$ <strong>cd monitoring-cmo</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>All exercise commands in this course assume you are in the <code>monitoring-cmo</code> directory.
+The repository is organized by chapter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">monitoring-cmo/
+├── scripts/              # Cluster check and cleanup scripts
+├── monitoring-setup/     # UWM ConfigMaps, namespace YAML
+├── model-deploy/         # HardwareProfile, ServingRuntime, InferenceService
+├── grafana/              # Grafana Operator, instance, RBAC, datasource, dashboards
+├── alerts/               # PrometheusRule CRs, load test script
+└── challenge/            # Challenge lab setup/teardown and manifests</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>scripts/</code> directory includes a cleanup script you can use at any point if you need to start over:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>bash scripts/cleanup-all.sh</code></dt>
+<dd>
+<p>Removes all course resources (alerts, dashboards, Grafana, model, UWM configuration) in reverse order.
+Use this to restart the entire course from the Observability Foundations chapter.</p>
+</dd>
+</dl>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+If the cluster has existing GPU workloads running, you must remove them before continuing.
+The lab cluster has a single NVIDIA L4 GPU, and the Granite model deployment requires the full GPU.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="../index.html">Home</a></span>
+  <span class="next"><a href="../observability-foundations/index.html">Observability Foundations</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

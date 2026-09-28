@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>KServe and the Deployment Model :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="vllm-metrics.html">
+    <link rel="next" href="deploy-model.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Model Deployment and Metrics</a></li>
+    <li><a href="kserve-model.html">KServe Deployment Model</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">KServe and the Deployment Model</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section shifts from "what happens inside the model" to "how do we deploy it on OpenShift."
+Deploying a model on RHOAI 3.4 requires creating three Kubernetes custom resources in a specific order.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_three_resource_model"><a class="anchor" href="#_the_three_resource_model"></a>The Three-Resource Model</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Each resource has a distinct role, and each must exist before the next one can reference it.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 37.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Order</th>
+<th class="tableblock halign-left valign-top">Resource</th>
+<th class="tableblock halign-left valign-top">API / Scope</th>
+<th class="tableblock halign-left valign-top">Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>HardwareProfile</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>infrastructure.opendatahub.io/v1</code><br>
+Cluster scope (<code>redhat-ods-applications</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines resource constraints: CPU cores, memory, GPU count. Referenced by InferenceService via annotations. Required for RHOAI dashboard visibility.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ServingRuntime</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>serving.kserve.io/v1alpha1</code><br>
+Namespace scope</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines the model serving platform: container image, startup command, port configuration, supported model formats. The container <strong>must</strong> be named <code>kserve-container</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>InferenceService</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>serving.kserve.io/v1beta1</code><br>
+Namespace scope</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines the model deployment: model URI, runtime reference, resource limits, vLLM tuning arguments, deployment mode.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_why_three_resources_instead_of_one"><a class="anchor" href="#_why_three_resources_instead_of_one"></a>Why Three Resources Instead of One?</h3>
+<div class="paragraph">
+<p>This separation reflects how production organizations manage AI infrastructure:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>HardwareProfiles</strong> are managed by <strong>platform engineers</strong>. They define what GPU hardware is available and enforce resource bounds. A profile created once can be referenced by many model deployments across the cluster.</p>
+</li>
+<li>
+<p><strong>ServingRuntimes</strong> are managed by <strong>platform engineers or MLOps teams</strong>. They standardize which container images and configurations are approved for use.</p>
+</li>
+<li>
+<p><strong>InferenceServices</strong> are created by <strong>data scientists or application teams</strong>. They specify which model to deploy and how to tune it&#8201;&#8212;&#8201;without needing to know the container image or GPU configuration details.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+RHOAI ships pre-configured serving runtime <strong>Templates</strong> visible in the dashboard under <strong>Settings &gt; Serving runtimes</strong>. When deploying via the dashboard UI, RHOAI creates the ServingRuntime CR from the template automatically. When deploying via CLI or GitOps (as in this course), you must create the ServingRuntime CR yourself. This is why <code>oc get servingruntimes --all-namespaces</code> returns nothing on a fresh cluster.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_key_fields_in_each_resource"><a class="anchor" href="#_key_fields_in_each_resource"></a>Key Fields in Each Resource</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_hardwareprofile"><a class="anchor" href="#_hardwareprofile"></a>HardwareProfile</h3>
+<div class="paragraph">
+<p>The HardwareProfile defines resource constraints for the RHOAI dashboard:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>namespace: redhat-ods-applications</code>&#8201;&#8212;&#8201;Always in the RHOAI operator namespace, not your project namespace</p>
+</li>
+<li>
+<p><code>spec.identifiers</code>&#8201;&#8212;&#8201;Defines resource types with min/max/default values: CPU (1-8 cores), Memory (8Gi-24Gi), GPU (1 NVIDIA GPU)</p>
+</li>
+<li>
+<p><code>opendatahub.io/disabled: "false"</code>&#8201;&#8212;&#8201;Makes this profile available in the dashboard</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_servingruntime"><a class="anchor" href="#_servingruntime"></a>ServingRuntime</h3>
+<div class="paragraph">
+<p>The ServingRuntime defines the model serving platform:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>name: kserve-container</code>&#8201;&#8212;&#8201;KServe requires this exact container name to inject storage initializer sidecars and volume mounts</p>
+</li>
+<li>
+<p><code>--served-model-name=\{{.Name}}</code>&#8201;&#8212;&#8201;A Go template resolved by KServe; <code>\{{.Name}}</code> is replaced with the InferenceService name at runtime</p>
+</li>
+<li>
+<p><code>--model=/mnt/models</code>&#8201;&#8212;&#8201;Where KServe&#8217;s storage initializer mounts the downloaded model</p>
+</li>
+<li>
+<p><code>image: registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.4</code>&#8201;&#8212;&#8201;The Red Hat certified vLLM image for CUDA/NVIDIA GPUs</p>
+</li>
+<li>
+<p><code>--port=8080</code>&#8201;&#8212;&#8201;The RHOAI convention for both the vLLM API and the metrics endpoint</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_inferenceservice"><a class="anchor" href="#_inferenceservice"></a>InferenceService</h3>
+<div class="paragraph">
+<p>The InferenceService specifies which model to deploy and how to configure it:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>serving.kserve.io/deploymentMode: RawDeployment</code>&#8201;&#8212;&#8201;Uses standard Kubernetes Deployments instead of Knative Serving. Recommended for GPU workloads to avoid cold-start GPU allocation delays.</p>
+</li>
+<li>
+<p><code>runtime: granite-3-1-8b</code>&#8201;&#8212;&#8201;Must exactly match the ServingRuntime name in the same namespace</p>
+</li>
+<li>
+<p><code>storageUri: oci://&#8230;&#8203;</code>&#8201;&#8212;&#8201;The OCI modelcar image from the Red Hat AI Services registry (~15 GB)</p>
+</li>
+<li>
+<p><code>nvidia.com/gpu: "1"</code>&#8201;&#8212;&#8201;A Kubernetes extended resource request. The NVIDIA device plugin advertises GPU resources on each node, and the scheduler places the pod accordingly.</p>
+</li>
+<li>
+<p><code>--max-model-len=4096</code>&#8201;&#8212;&#8201;Granite 3.1 8B supports up to 128K tokens natively, but that would cause immediate OOM on a 24 GB GPU</p>
+</li>
+<li>
+<p><code>--gpu-memory-utilization=0.90</code>&#8201;&#8212;&#8201;Uses 90% of GPU memory for model weights and KV cache</p>
+</li>
+<li>
+<p><code>--enforce-eager</code>&#8201;&#8212;&#8201;Disables CUDA graphs to save ~500 MB-1 GB of VRAM</p>
+</li>
+<li>
+<p><code>--dtype=float16</code>&#8201;&#8212;&#8201;Native precision for the L4 GPU</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_kserve_creates_automatically"><a class="anchor" href="#_what_kserve_creates_automatically"></a>What KServe Creates Automatically</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When you apply an InferenceService with a valid ServingRuntime already in place, the KServe controller creates several Kubernetes resources automatically:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A <strong>Deployment</strong> running the vLLM container with your model</p>
+</li>
+<li>
+<p>A <strong>predictor Service</strong> (<code>&lt;name&gt;-predictor</code>)&#8201;&#8212;&#8201;headless ClusterIP for inference traffic</p>
+</li>
+<li>
+<p>A <strong>metrics Service</strong> (<code>&lt;name&gt;-metrics</code>)&#8201;&#8212;&#8201;dedicated ClusterIP service on port 8080 for Prometheus scraping</p>
+</li>
+<li>
+<p>A <strong>ServiceMonitor</strong> (<code>&lt;name&gt;-metrics</code>)&#8201;&#8212;&#8201;tells Prometheus to scrape the metrics Service</p>
+</li>
+<li>
+<p>A <strong>Route</strong> (via OpenShift) for external HTTPS access</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The auto-created ServiceMonitor is a key RHOAI 3.4 feature.
+In earlier versions of KServe, you had to create a ServiceMonitor manually.
+RHOAI 3.4&#8217;s KServe controller creates one as part of InferenceService reconciliation, so vLLM metrics flow into Prometheus automatically once UWM is enabled.</p>
+</div>
+<div class="paragraph">
+<p>What is <strong>not</strong> created automatically:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>PrometheusRule</strong>&#8201;&#8212;&#8201;Alert definitions are your responsibility. That is the <a href="../alerting/index.html" class="xref page">Alerting</a> chapter.</p>
+</li>
+<li>
+<p><strong>Grafana dashboards</strong>&#8201;&#8212;&#8201;Visualization is also your responsibility. That is the <a href="../dashboards/index.html" class="xref page">Dashboards</a> chapter.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_auto_created_servicemonitor"><a class="anchor" href="#_the_auto_created_servicemonitor"></a>The Auto-Created ServiceMonitor</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When KServe reconciles an InferenceService named <code>granite-3-1-8b</code>, it creates:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>A <strong>Service</strong> named <code>granite-3-1-8b-metrics</code> with label <code>name: granite-3-1-8b-metrics</code> on port 8080</p>
+</li>
+<li>
+<p>A <strong>ServiceMonitor</strong> named <code>granite-3-1-8b-metrics</code> that selects that Service</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The key fields in the auto-created ServiceMonitor:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ownerReferences</code>&#8201;&#8212;&#8201;The InferenceService owns this ServiceMonitor. If you delete the InferenceService, the ServiceMonitor is garbage-collected automatically.</p>
+</li>
+<li>
+<p><code>selector.matchLabels.name: granite-3-1-8b-metrics</code>&#8201;&#8212;&#8201;Matches the dedicated metrics Service (not the predictor Service).</p>
+</li>
+<li>
+<p><code>endpoints[0].port: granite-3-1-8b-metrics</code>&#8201;&#8212;&#8201;Matches by port <strong>name</strong>, not number. Using a port number instead of a name would silently fail.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This follows the same pattern as the NVIDIA GPU Operator, which auto-creates a ServiceMonitor for DCGM metrics.
+The operator that manages the workload also manages its observability wiring.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_scraping_chain"><a class="anchor" href="#_the_scraping_chain"></a>The Scraping Chain</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following diagram shows how metrics flow from data sources through the two Prometheus instances to consumers:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/metrics-flow.svg" alt="Metrics flow from vLLM and DCGM through CMO Prometheus instances to Thanos Querier and consumers" width="900">
+</div>
+</div>
+<div class="paragraph">
+<p>The complete path from model pod to queryable metric:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>vLLM generates metrics internally (token counts, latencies, cache usage)</p>
+</li>
+<li>
+<p>vLLM formats them as Prometheus text and serves at <code>:8080/metrics</code></p>
+</li>
+<li>
+<p>ServiceMonitor selector matches the Service &#8594; Pod labels</p>
+</li>
+<li>
+<p>UWM Prometheus discovers the target (because the ServiceMonitor is in a user namespace and UWM is enabled)</p>
+</li>
+<li>
+<p>UWM Prometheus scrapes <code>:8080/metrics</code> every 30 seconds</p>
+</li>
+<li>
+<p>Metrics stored as time series with labels (namespace, pod, model_name, etc.)</p>
+</li>
+<li>
+<p>Thanos Querier can now serve these metrics alongside DCGM metrics</p>
+</li>
+<li>
+<p>You query them in the OpenShift Console or Grafana</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>If metrics do not appear, check each link in this chain.
+You will do exactly this in the <a href="verify-metrics.html" class="xref page">Verify the Metrics Pipeline</a> exercise.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_model_choice_why_granite_3_1_8b_instruct"><a class="anchor" href="#_model_choice_why_granite_3_1_8b_instruct"></a>Model Choice: Why Granite 3.1 8B Instruct?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>IBM Granite 3.1 8B Instruct is a deliberate choice that balances teaching effectiveness with realism:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Consideration</th>
+<th class="tableblock halign-left valign-top">Why It Matters for This Course</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Size: 8B parameters (~16 GB at FP16)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Consumes most of the L4&#8217;s 24 GB VRAM, leaving only ~6-7 GB for KV cache. This tight memory budget makes KV cache pressure, request queuing, and GPU saturation observable under realistic load.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Instruction-tuned</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generates coherent, high-quality responses. Students can interact with the model naturally and see meaningful outputs.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Red Hat ecosystem</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IBM Granite is the model family that Red Hat ships, supports, and validates. Students in a Red Hat training will encounter Granite in production.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>OCI modelcar format</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Available as a standard OCI container image (~15 GB). Version-controlled, security-scanned, and faster to deploy than downloading from HuggingFace.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Memory-constrained on L4</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With only ~10-11 concurrent requests before KV cache fills, the load test in the <a href="../alerting/index.html" class="xref page">Alerting</a> chapter naturally triggers every alert we define.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A smaller model (3B parameters) would leave ~16 GB for KV cache, supporting ~26 concurrent requests.
+Under the same load test, the KV cache would never fill, queue backlog might never appear, and students would see metrics that never move in ways that demonstrate the concepts.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_red_hat_documentation"><a class="anchor" href="#_red_hat_documentation"></a>Red Hat Documentation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/serving_models/serving-large-models_serving-large-models" target="_blank" rel="noopener">Red Hat OpenShift AI&#8201;&#8212;&#8201;Serving Large Models</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_upstream_resources"><a class="anchor" href="#_upstream_resources"></a>Upstream Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://kserve.github.io/website/latest/modelserving/v1beta1/serving_runtime/" target="_blank" rel="noopener">KServe ServingRuntime Documentation</a></p>
+</li>
+<li>
+<p><a href="https://docs.vllm.ai/en/stable/serving/openai_compatible_server.html" target="_blank" rel="noopener">vLLM OpenAI-Compatible Server</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="vllm-metrics.html">vLLM Metrics Catalog</a></span>
+  <span class="next"><a href="deploy-model.html">Deploy the Model</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Solution Walkthrough :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="challenge.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Challenge Lab</a></li>
+    <li><a href="solution.html">Solution Walkthrough</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Solution Walkthrough</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+This page contains the complete solution. Do not read this until you have attempted the challenge on your own.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_root_cause_summary"><a class="anchor" href="#_root_cause_summary"></a>Root Cause Summary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The InferenceService is deployed with two restrictive vLLM arguments that severely limit throughput:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Deployed Value</th>
+<th class="tableblock halign-left valign-top">Correct Value</th>
+<th class="tableblock halign-left valign-top">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--max-num-seqs</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>3</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>256</code> (default)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Only 3 requests can run concurrently; all others queue</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--gpu-memory-utilization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0.80</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0.90</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reduces GPU memory available for KV cache from ~5.6 GB to ~1.7 GB</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Students who identify and fix only <code>--max-num-seqs</code> will see improvement, but KV cache pressure becomes the new ceiling at higher concurrency.
+Both must be addressed for full resolution.
+This teaches that performance problems are often multi-layered.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_phase_1_instrument"><a class="anchor" href="#_phase_1_instrument"></a>Phase 1: Instrument</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_verify_the_auto_created_servicemonitor"><a class="anchor" href="#_verify_the_auto_created_servicemonitor"></a>Verify the Auto-Created ServiceMonitor</h3>
+<div class="paragraph">
+<p>KServe in RHOAI 3.4 auto-creates a ServiceMonitor when the InferenceService is deployed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get servicemonitor -n llm-challenge</strong>
+NAME                         AGE
+granite-challenge-metrics    10m</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_verify_metrics_are_being_scraped"><a class="anchor" href="#_verify_metrics_are_being_scraped"></a>Verify Metrics Are Being Scraped</h3>
+<div class="paragraph">
+<p>Navigate to OpenShift Console &gt; Observe &gt; Targets and look for a target matching <code>llm-challenge/granite-challenge-metrics</code>.
+It should show state UP.</p>
+</div>
+<div class="paragraph">
+<p>Alternatively, query a vLLM metric in Observe &gt; Metrics:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>vllm:num_requests_running{namespace="llm-challenge"}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If this returns data, scraping is working.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_understand_the_two_metrics_namespaces"><a class="anchor" href="#_understand_the_two_metrics_namespaces"></a>Understand the Two Metrics Namespaces</h3>
+<div class="paragraph">
+<p>Students should recognize from Chapter 4 that GPU and inference metrics live in different namespaces:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric Source</th>
+<th class="tableblock halign-left valign-top">Namespace on Metric</th>
+<th class="tableblock halign-left valign-top">Where to Query</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">vLLM inference metrics</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>namespace="llm-challenge"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Observe &gt; Metrics (Developer view with <code>llm-challenge</code> project)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DCGM GPU metrics</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>namespace="nvidia-gpu-operator"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Observe &gt; Metrics (Administrator view or Developer view with <code>nvidia-gpu-operator</code> project)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>If students query <code>DCGM_FI_DEV_GPU_UTIL{namespace="llm-challenge"}</code>, they will get no results.
+This is the same namespace enforcement behavior from Chapter 4.
+Query GPU metrics without a namespace filter or with <code>namespace="nvidia-gpu-operator"</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_set_up_grafana_optional"><a class="anchor" href="#_set_up_grafana_optional"></a>Set Up Grafana (Optional)</h3>
+<div class="paragraph">
+<p>Students can reuse the Grafana instance from Chapter 3.
+It already has <code>cluster-monitoring-view</code> and sees all namespaces.
+No new Grafana RBAC is needed.</p>
+</div>
+<div class="paragraph">
+<p>Students can either use the existing dashboards (adjusting the namespace variable if available) or run ad-hoc queries in Grafana Explore or OpenShift Console Metrics.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_phase_2_observe"><a class="anchor" href="#_phase_2_observe"></a>Phase 2: Observe</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_key_queries_and_expected_values_under_load"><a class="anchor" href="#_key_queries_and_expected_values_under_load"></a>Key Queries and Expected Values Under Load</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">Query</th>
+<th class="tableblock halign-left valign-top">Expected Value</th>
+<th class="tableblock halign-left valign-top">Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU utilization</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_GPU_UTIL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">40-60%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Moderate&#8201;&#8212;&#8201;GPU has idle capacity</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU memory free</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_FB_FREE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~4-5 GB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Significant free memory not being used</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests running</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:num_requests_running{namespace="llm-challenge"}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Exactly 3</strong> (never higher)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hard cap&#8201;&#8212;&#8201;this is the smoking gun</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests waiting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:num_requests_waiting{namespace="llm-challenge"}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3-5+</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests queuing because only 3 can run</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KV cache usage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:kv_cache_usage_perc{namespace="llm-challenge"}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">80-100%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KV cache is under pressure</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">E2E latency p95</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>histogram_quantile(0.95, sum by(le)(rate(vllm:e2e_request_latency_seconds_bucket{namespace="llm-challenge"}[5m])))</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">15-30s+</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Very high due to queuing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">TTFT p95</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>histogram_quantile(0.95, sum by(le)(rate(vllm:time_to_first_token_seconds_bucket{namespace="llm-challenge"}[5m])))</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5-20s+</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Includes queue wait time</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_the_diagnostic_insight"><a class="anchor" href="#_the_diagnostic_insight"></a>The Diagnostic Insight</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GPU utilization at 40-60%          &lt;-- GPU has capacity
+         BUT
+Requests waiting at 3-5+          &lt;-- Requests are queuing
+         AND
+vllm:num_requests_running = 3     &lt;-- Hard ceiling, never exceeds 3
+         AND
+KV cache near 100%                &lt;-- Memory pressure
+         BUT
+GPU memory has 4-5 GB free        &lt;-- vLLM is not using all available VRAM</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The GPU has both compute capacity and free memory, but vLLM is artificially constrained.
+Something in the configuration is limiting concurrency and memory usage.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_phase_3_diagnose"><a class="anchor" href="#_phase_3_diagnose"></a>Phase 3: Diagnose</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Inspect the InferenceService configuration:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get inferenceservice granite-challenge -n llm-challenge -o yaml</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Look at the <code>args</code> section and compare to the Chapter 2 InferenceService:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># Chapter 2 (working):
+# --gpu-memory-utilization 0.90
+# (no --max-num-seqs, uses default 256)
+
+# Challenge (broken):
+# --gpu-memory-utilization 0.80    &lt;-- 10% less GPU memory, ~4 GB less KV cache
+# --max-num-seqs 3                 &lt;-- Hard cap at 3 concurrent sequences</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_root_cause_1_max_num_seqs_3"><a class="anchor" href="#_root_cause_1_max_num_seqs_3"></a>Root Cause 1: <code>--max-num-seqs 3</code></h3>
+<div class="paragraph">
+<p>This vLLM argument limits the maximum number of sequences that can be processed concurrently to 3.
+The default is 256.
+With 8 concurrent users from the load generator, 5 requests always wait in the queue.</p>
+</div>
+<div class="paragraph">
+<p>This explains Nurse Thompson&#8217;s ticket: "I submitted three notes at the same time and only one started processing."
+Actually, all three would start (the cap is 3), but the fourth and beyond would queue.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_root_cause_2_gpu_memory_utilization_0_80"><a class="anchor" href="#_root_cause_2_gpu_memory_utilization_0_80"></a>Root Cause 2: <code>--gpu-memory-utilization 0.80</code></h3>
+<div class="paragraph">
+<p>This argument tells vLLM to use only 80% of the 24 GB GPU (19.2 GB).
+After model weights (~16 GB) and framework overhead (~1.5 GB), only ~1.7 GB remains for KV cache.
+At the correct value of 0.90 (21.6 GB), there would be ~4-5 GB for KV cache&#8201;&#8212;&#8201;roughly 3x more capacity.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+vLLM pre-allocates the entire KV cache pool at startup based on <code>--gpu-memory-utilization</code>. The <code>DCGM_FI_DEV_FB_USED</code> metric stays roughly constant whether the model is idle or under heavy load. The key diagnostic signal is that <code>DCGM_FI_DEV_FB_FREE</code> shows significant unused memory that vLLM was configured not to claim.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_phase_4_fix"><a class="anchor" href="#_phase_4_fix"></a>Phase 4: Fix</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Edit the InferenceService to remove the bottlenecks:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc edit inferenceservice granite-challenge -n llm-challenge</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the <code>args</code> section:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Change <code>"0.80"</code> to <code>"0.90"</code> (the line after <code>--gpu-memory-utilization</code>)</p>
+</li>
+<li>
+<p>Remove the two lines <code>--max-num-seqs</code> and <code>"3"</code></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Save and exit.
+KServe will roll out a new revision automatically.</p>
+</div>
+<div class="paragraph">
+<p>Alternatively, use <code>oc patch</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc patch inferenceservice granite-challenge -n llm-challenge --type='json' -p='[
+  {"op": "replace", "path": "/spec/predictor/model/args", "value": [
+    "--max-model-len", "4096",
+    "--dtype", "float16",
+    "--gpu-memory-utilization", "0.90",
+    "--enforce-eager"
+  ]}
+]'</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Wait for the new pod to be ready:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get pods -n llm-challenge -w</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The old pod terminates and a new one starts.
+Wait until the new pod shows <code>Running</code> with <code>1/1</code> ready.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_phase_5_verify"><a class="anchor" href="#_phase_5_verify"></a>Phase 5: Verify</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>After the fix is applied and the new pod is running, the load generator automatically starts sending traffic to the new pod.
+Wait 2-3 minutes for metrics to accumulate, then compare:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 14.2858%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">Before Fix</th>
+<th class="tableblock halign-left valign-top">After Fix</th>
+<th class="tableblock halign-left valign-top">Improved?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:num_requests_running</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Always 3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5-8 (matches actual demand)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:num_requests_waiting</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3-5+</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0-1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DCGM_FI_DEV_GPU_UTIL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">40-60%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">70-90%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes (better utilization)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:kv_cache_usage_perc</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">80-100%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">40-70%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes (more headroom)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">E2E latency p95</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">15-30s</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2-5s</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">TTFT p95</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5-20s</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.5-2s</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_mapping_back_to_user_complaints"><a class="anchor" href="#_mapping_back_to_user_complaints"></a>Mapping Back to User Complaints</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Complaint</th>
+<th class="tableblock halign-left valign-top">Root Cause</th>
+<th class="tableblock halign-left valign-top">After Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dr. Patel: 30-45s responses</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queue wait + limited concurrency</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Responses in 2-5s</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nurse Thompson: 2 of 3 requests hung</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--max-num-seqs 3</code> cap</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">All concurrent requests served</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dr. Kim: fine alone but slow during rounds</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Concurrency limit hit under load</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scales to ~10 concurrent requests</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_grading_rubric"><a class="anchor" href="#_grading_rubric"></a>Grading Rubric</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-left valign-top">Full Credit</th>
+<th class="tableblock halign-left valign-top">Partial Credit</th>
+<th class="tableblock halign-left valign-top">No Credit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Instrumentation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Auto-created ServiceMonitor verified and metrics visible in Prometheus. Student correctly queries GPU metrics from <code>nvidia-gpu-operator</code> namespace.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Metrics visible but student struggled with namespace scoping for GPU metrics</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No metrics collected</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Observation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dashboards or PromQL queries showing GPU + inference metrics side by side with cross-layer correlation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Some metrics queried but not correlated across layers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No metrics examined</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Diagnosis</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Both <code>--max-num-seqs</code> and <code>--gpu-memory-utilization</code> identified with metric evidence</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One of the two root causes identified</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Root cause not found or found by reading YAML instead of metrics</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fix applied</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">InferenceService updated with new pod running with correct args</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fix applied but only partially (one of two issues fixed)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No fix attempted or model deleted and redeployed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Verification</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Before/after metric comparison showing improvement and verified via load generator metrics (not port-forward)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fix applied but no metric verification</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No verification</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_common_mistakes"><a class="anchor" href="#_common_mistakes"></a>Common Mistakes</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Reading the YAML first instead of using metrics.</strong> While <code>oc get isvc -o yaml</code> reveals the bad args, it bypasses the observability skills the challenge tests. Diagnose through metrics first.</p>
+</li>
+<li>
+<p><strong>Fixing only <code>--max-num-seqs</code> and declaring victory.</strong> After removing the concurrency cap, performance improves significantly. But if load increases, <code>--gpu-memory-utilization 0.80</code> becomes the new bottleneck. Both issues must be addressed.</p>
+</li>
+<li>
+<p><strong>Deleting the InferenceService and recreating from Chapter 2.</strong> This fixes the issue but does not demonstrate diagnostic ability.</p>
+</li>
+<li>
+<p><strong>Confusing GPU utilization with GPU memory.</strong> GPU utilization at 40-60% might suggest the GPU is not the problem. The key is that vLLM pre-allocates KV cache memory at startup&#8201;&#8212;&#8201;<code>DCGM_FI_DEV_FB_USED</code> stays constant under load. The diagnostic signal is <code>DCGM_FI_DEV_FB_FREE</code> showing unused memory that vLLM was configured not to claim.</p>
+</li>
+<li>
+<p><strong>Not waiting for the new pod to be ready.</strong> After editing the InferenceService, students may check metrics before the new pod finishes loading the model and see no data.</p>
+</li>
+<li>
+<p><strong>Testing the fix via port-forward instead of using the in-cluster load generator.</strong> As learned in Chapter 4, <code>oc port-forward</code> serializes concurrent connections. The deployed load generator runs inside the cluster and provides true concurrency.</p>
+</li>
+<li>
+<p><strong>Querying GPU metrics with <code>namespace="llm-challenge"</code>.</strong> DCGM metrics carry <code>namespace="nvidia-gpu-operator"</code>. This is the same namespace enforcement concept from Chapter 4.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="challenge.html">Performance Investigation</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

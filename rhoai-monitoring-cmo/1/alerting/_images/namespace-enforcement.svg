@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 420" font-family="Red Hat Text, Liberation Sans, sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#4a4a4a"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#c62828"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#283593"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="780" height="420" rx="6" fill="#fafafa" stroke="#d0d0d0"/>
+
+  <!-- Title -->
+  <text x="390" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Namespace-Scoped Alert Rule Evaluation</text>
+
+  <!-- Left namespace: llm-serving -->
+  <rect x="30" y="50" width="350" height="250" rx="5" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="45" y="70" font-size="12" fill="#2e7d32" font-weight="bold">namespace: llm-serving</text>
+
+  <!-- vLLM pod -->
+  <rect x="50" y="85" width="180" height="55" rx="4" fill="#fff" stroke="#666" stroke-width="1"/>
+  <text x="140" y="107" text-anchor="middle" font-weight="bold" font-size="12" fill="#333">vLLM Model Pod</text>
+  <text x="140" y="125" text-anchor="middle" font-size="10" fill="#888">vllm:* metrics</text>
+
+  <!-- PrometheusRule: inference -->
+  <rect x="50" y="160" width="310" height="55" rx="4" fill="#e8eaf6" stroke="#283593" stroke-width="1.5"/>
+  <text x="205" y="182" text-anchor="middle" font-weight="bold" fill="#283593">PrometheusRule</text>
+  <text x="205" y="200" text-anchor="middle" font-size="10" fill="#666">inference-slo-alerts (3 rules)</text>
+
+  <!-- Checkmark -->
+  <text x="330" y="200" font-size="20" fill="#2e7d32">&#x2713;</text>
+
+  <!-- Label showing injected namespace -->
+  <rect x="50" y="235" width="310" height="30" rx="3" fill="#c8e6c9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="205" y="255" text-anchor="middle" font-size="10" fill="#1b5e20">injected: namespace="llm-serving"  &#x2192;  matches vllm:* metrics</text>
+
+  <!-- Right namespace: nvidia-gpu-operator -->
+  <rect x="400" y="50" width="350" height="250" rx="5" fill="#fff3e0" stroke="#e65100" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="415" y="70" font-size="12" fill="#e65100" font-weight="bold">namespace: nvidia-gpu-operator</text>
+
+  <!-- DCGM Exporter pod -->
+  <rect x="420" y="85" width="180" height="55" rx="4" fill="#fff" stroke="#666" stroke-width="1"/>
+  <text x="510" y="107" text-anchor="middle" font-weight="bold" font-size="12" fill="#333">DCGM Exporter Pod</text>
+  <text x="510" y="125" text-anchor="middle" font-size="10" fill="#888">DCGM_FI_* metrics</text>
+
+  <!-- PrometheusRule: GPU -->
+  <rect x="420" y="160" width="310" height="55" rx="4" fill="#e8eaf6" stroke="#283593" stroke-width="1.5"/>
+  <text x="575" y="182" text-anchor="middle" font-weight="bold" fill="#283593">PrometheusRule</text>
+  <text x="575" y="200" text-anchor="middle" font-size="10" fill="#666">gpu-health-alerts (2 rules)</text>
+
+  <!-- Checkmark -->
+  <text x="700" y="200" font-size="20" fill="#2e7d32">&#x2713;</text>
+
+  <!-- Label showing injected namespace -->
+  <rect x="420" y="235" width="310" height="30" rx="3" fill="#ffe0b2" stroke="#e65100" stroke-width="1"/>
+  <text x="575" y="255" text-anchor="middle" font-size="10" fill="#bf360c">injected: namespace="nvidia-gpu-operator"  &#x2192;  matches DCGM_FI_* metrics</text>
+
+  <!-- Bottom section: evaluators -->
+  <rect x="30" y="320" width="350" height="70" rx="4" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.5"/>
+  <text x="205" y="345" text-anchor="middle" font-weight="bold" fill="#6a1b9a">UWM Thanos Ruler</text>
+  <text x="205" y="363" text-anchor="middle" font-size="10" fill="#666">evaluates user namespace rules</text>
+  <text x="205" y="378" text-anchor="middle" font-size="10" fill="#888">Source: User</text>
+
+  <rect x="400" y="320" width="350" height="70" rx="4" fill="#fce4ec" stroke="#c62828" stroke-width="1.5"/>
+  <text x="575" y="345" text-anchor="middle" font-weight="bold" fill="#c62828">Platform Prometheus</text>
+  <text x="575" y="363" text-anchor="middle" font-size="10" fill="#666">evaluates platform namespace rules</text>
+  <text x="575" y="378" text-anchor="middle" font-size="10" fill="#888">Source: Platform</text>
+
+  <!-- Arrows: namespaces to evaluators -->
+  <line x1="205" y1="300" x2="205" y2="315" stroke="#6a1b9a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="575" y1="300" x2="575" y2="315" stroke="#c62828" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Legend -->
+  <text x="390" y="413" text-anchor="middle" font-size="10" fill="#888">enforcedNamespaceLabel silently injects a namespace selector into every PromQL expression</text>
+</svg>

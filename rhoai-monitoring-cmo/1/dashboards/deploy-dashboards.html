@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Deploy and Explore Dashboards :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="install-grafana.html">
+    <link rel="next" href="explore-promql.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../model-deployment/index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../model-deployment/verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Observability Dashboards</a></li>
+    <li><a href="deploy-dashboards.html">Deploy Dashboards</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Deploy and Explore Dashboards</h1>
+<div class="sect1">
+<h2 id="_concepts"><a class="anchor" href="#_concepts"></a>Concepts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>With Grafana connected to Thanos Querier, you are ready to deploy the three dashboards that cover AI model serving observability:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Node Health (USE Method)</strong>&#8201;&#8212;&#8201;Is the compute node healthy? CPU, memory, disk, network.</p>
+</li>
+<li>
+<p><strong>GPU Health (USE Method)</strong>&#8201;&#8212;&#8201;Is the GPU hardware healthy? Utilization, memory, temperature, power.</p>
+</li>
+<li>
+<p><strong>vLLM Inference (RED Method)</strong>&#8201;&#8212;&#8201;How is the model performing for users? Rate, errors, duration, saturation.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Each dashboard is defined as a <code>GrafanaDashboard</code> custom resource.
+The Grafana Operator reconciles the dashboard JSON into the Grafana instance automatically&#8201;&#8212;&#8201;changes to the YAML appear in Grafana within about 30 seconds.
+This is the <em>dashboard-as-code</em> approach: dashboards are version-controlled, reproducible, and deployable alongside the rest of your infrastructure.</p>
+</div>
+<div class="paragraph">
+<p>By the end of this lab, you will have:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Deployed all three dashboards as GrafanaDashboard CRs</p>
+</li>
+<li>
+<p>Explored each dashboard at idle to establish baseline readings</p>
+</li>
+<li>
+<p>Sent inference requests and observed how metrics change under load</p>
+</li>
+<li>
+<p>Understood how the USE and RED methods complement each other</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_lab_files"><a class="anchor" href="#_lab_files"></a>Lab Files</h3>
+<div class="listingblock">
+<div class="content">
+<pre>grafana/
+├── grafana-dashboard-node.yaml   # Node Health (USE Method)
+├── grafana-dashboard-gpu.yaml    # GPU Health (USE Method)
+└── grafana-dashboard-vllm.yaml   # vLLM Inference (RED Method)</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lab"><a class="anchor" href="#_lab"></a>Lab</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_deploy_the_dashboards"><a class="anchor" href="#_1_deploy_the_dashboards"></a>1. Deploy the Dashboards</h3>
+<div class="paragraph">
+<p>Apply all three dashboard CRs:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f grafana/grafana-dashboard-node.yaml</strong>
+grafanadashboard.grafana.integreatly.org/node-health created</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f grafana/grafana-dashboard-gpu.yaml</strong>
+grafanadashboard.grafana.integreatly.org/gpu-health created</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc apply -f grafana/grafana-dashboard-vllm.yaml</strong>
+grafanadashboard.grafana.integreatly.org/vllm-inference created</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify all three CRs were created:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get grafanadashboard -n llm-serving</strong>
+NAME              AGE
+gpu-health        10s
+node-health       15s
+vllm-inference    5s</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_verify_dashboards_in_grafana"><a class="anchor" href="#_2_verify_dashboards_in_grafana"></a>2. Verify Dashboards in Grafana</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>In the Grafana UI, click <strong>Dashboards</strong> in the left sidebar (the four-squares icon).</p>
+</li>
+<li>
+<p>You should see all three dashboards listed:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Node Health (USE Method)</strong></p>
+</li>
+<li>
+<p><strong>GPU Health (USE Method)</strong></p>
+</li>
+<li>
+<p><strong>vLLM Inference (RED Method)</strong></p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>If the dashboards do not appear immediately, wait 30 seconds and refresh the page.
+The Grafana Operator reconciles on a short polling interval.</p>
+</div>
+<details>
+<summary class="title">Troubleshooting: Dashboards not appearing</summary>
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Verify the GrafanaDashboard CRs have the correct <code>instanceSelector</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get grafanadashboard -n llm-serving -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.instanceSelector}{"\n"}{end}'</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Each should show <code>matchLabels.dashboards: grafana</code>, matching the Grafana instance label.</p>
+</div>
+</li>
+<li>
+<p>Check the Grafana Operator logs for reconciliation errors:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc logs -n llm-serving deployment/grafana-operator --tail=20</strong></code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify the Grafana instance has the matching label:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>oc get grafana -n llm-serving -o jsonpath='{.items[0].metadata.labels}'</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Look for <code>"dashboards":"grafana"</code>.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</details>
+</div>
+<div class="sect2">
+<h3 id="_3_explore_the_node_health_dashboard"><a class="anchor" href="#_3_explore_the_node_health_dashboard"></a>3. Explore the Node Health Dashboard</h3>
+<div class="paragraph">
+<p>Click on <strong>Node Health (USE Method)</strong> to open it.</p>
+</div>
+<div class="paragraph">
+<p>This dashboard uses the <strong>USE Method</strong> (Utilization, Saturation, Errors) applied to compute node resources.
+It contains a <code>$instance</code> template variable at the top&#8201;&#8212;&#8201;select the GPU node from the dropdown.</p>
+</div>
+<div class="sect3">
+<h4 id="_expected_state_at_idle"><a class="anchor" href="#_expected_state_at_idle"></a>Expected state at idle</h4>
+<div class="paragraph">
+<p>At idle with the model loaded but no active requests, you should see:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>CPU Usage</strong>: 5-15%. The model pod and system processes consume minimal CPU when idle.</p>
+</li>
+<li>
+<p><strong>Memory Usage</strong>: 30-60%. System processes, container runtime, and the model pod&#8217;s CPU-side memory (not GPU memory) contribute here.</p>
+</li>
+<li>
+<p><strong>Disk I/O</strong>: Near zero. After model loading completes, there is minimal disk activity.</p>
+</li>
+<li>
+<p><strong>Network I/O</strong>: Very low baseline. Small amounts of traffic from Prometheus scraping, kubelet heartbeats, and control plane communication.</p>
+</li>
+<li>
+<p><strong>Filesystem Usage</strong>: Varies by cluster. Watch for values above 80% (orange threshold line)&#8201;&#8212;&#8201;high filesystem usage can prevent new container images from being pulled.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The threshold lines on each panel (orange at 80% for CPU, 80% for memory, 80% and 90% for filesystem) are visual guides, not alerting rules. You will create actual alerting rules in the <a href="../alerting/index.html" class="xref page">Alerting</a> chapter.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_explore_the_gpu_health_dashboard"><a class="anchor" href="#_4_explore_the_gpu_health_dashboard"></a>4. Explore the GPU Health Dashboard</h3>
+<div class="paragraph">
+<p>Click the back arrow and open <strong>GPU Health (USE Method)</strong>.</p>
+</div>
+<div class="paragraph">
+<p>This dashboard applies the USE Method to GPU hardware using DCGM Exporter metrics.</p>
+</div>
+<div class="sect3">
+<h4 id="_expected_state_at_idle_2"><a class="anchor" href="#_expected_state_at_idle_2"></a>Expected state at idle</h4>
+<div class="paragraph">
+<p>With Granite 3.1 8B loaded but no active requests:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>GPU Utilization</strong>: 0-5%. The GPU compute cores are essentially idle when no inference is running.</p>
+</li>
+<li>
+<p><strong>GPU Memory Used</strong>: Approximately 17,000-21,000 MB (~17-21 GB). This looks high, but it is expected.</p>
+</li>
+<li>
+<p><strong>GPU Memory Free</strong>: Approximately 3,000-7,000 MB (~3-7 GB).</p>
+</li>
+<li>
+<p><strong>GPU Temperature</strong>: 30-50 C. Well within safe operating range at idle.</p>
+</li>
+<li>
+<p><strong>GPU Power Draw</strong>: 15-25 W. The L4 has a 72 W TDP; idle power draw is roughly 20-35% of maximum.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_why_is_gpu_memory_so_high_at_idle"><a class="anchor" href="#_why_is_gpu_memory_so_high_at_idle"></a>Why is GPU memory so high at idle?</h4>
+<div class="paragraph">
+<p>The ~17-21 GB of GPU memory usage at idle is not a problem&#8201;&#8212;&#8201;it is <em>expected</em>.
+Three things consume GPU VRAM before any requests arrive:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Model weights</strong> (~16 GB): Granite 3.1 8B has 8 billion parameters, each stored as 16-bit floating point (2 bytes per parameter). 8B x 2 bytes = ~16 GB.</p>
+</li>
+<li>
+<p><strong>CUDA context</strong> (~300-500 MB): PyTorch, CUDA libraries, and the vLLM runtime allocate GPU memory for framework overhead.</p>
+</li>
+<li>
+<p><strong>Pre-allocated KV cache</strong>: vLLM pre-allocates KV cache blocks at startup (controlled by <code>--gpu-memory-utilization=0.90</code>). It claims 90% of total VRAM and divides the space after model weights into cache blocks. Even with zero active requests, this memory is <em>reserved</em> (allocated but not yet used for any request&#8217;s key/value tensors).</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This leaves only ~3-7 GB of <em>free</em> framebuffer memory&#8201;&#8212;&#8201;the unallocated 10% safety buffer. The KV cache usage gauge on the vLLM dashboard (which you will see next) shows the fraction of <em>pre-allocated cache blocks</em> actually in use, which is a more meaningful saturation signal than raw GPU memory.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_explore_the_vllm_inference_dashboard"><a class="anchor" href="#_5_explore_the_vllm_inference_dashboard"></a>5. Explore the vLLM Inference Dashboard</h3>
+<div class="paragraph">
+<p>Click the back arrow and open <strong>vLLM Inference (RED Method)</strong>.</p>
+</div>
+<div class="paragraph">
+<p>This dashboard uses the <strong>RED Method</strong> (Rate, Errors, Duration) plus Saturation signals, applied to the vLLM inference engine.
+The <code>$namespace</code> variable at the top should default to <code>llm-serving</code>.</p>
+</div>
+<div class="sect3">
+<h4 id="_expected_state_at_idle_3"><a class="anchor" href="#_expected_state_at_idle_3"></a>Expected state at idle</h4>
+<div class="paragraph">
+<p>With no active inference requests:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Requests Waiting</strong>: 0. No requests are queued.</p>
+</li>
+<li>
+<p><strong>KV Cache Usage</strong>: 0% (or very close). No cache blocks are allocated to active requests.</p>
+</li>
+<li>
+<p><strong>Request Queue Time</strong>: No data. Histogram percentiles require recent observations to compute.</p>
+</li>
+<li>
+<p><strong>KV Cache Preemptions</strong>: 0/sec. No evictions needed when there are no requests.</p>
+</li>
+<li>
+<p><strong>Requests Running</strong>: 0. No active inference.</p>
+</li>
+<li>
+<p><strong>Token Throughput</strong>: 0 tokens/sec. No tokens being generated.</p>
+</li>
+<li>
+<p><strong>E2E Latency and TTFT panels</strong>: No data or NaN. These panels compute percentiles from histogram buckets, which require recent request data. After you send requests in the next steps, these will populate.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+It is normal for latency panels to show "No data" at idle. Histogram-based percentiles (<code>histogram_quantile</code>) return NaN when there are no observations in the rate window. As soon as you send requests, data will appear.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_6_generate_load_and_observe_the_dashboards"><a class="anchor" href="#_6_generate_load_and_observe_the_dashboards"></a>6. Generate Load and Observe the Dashboards</h3>
+<div class="paragraph">
+<p>Now send requests and watch all three dashboards respond.
+Keep the Grafana UI open while running commands in the terminal.</p>
+</div>
+<div class="sect3">
+<h4 id="_6a_set_up_port_forwarding"><a class="anchor" href="#_6a_set_up_port_forwarding"></a>6a. Set up port-forwarding</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>POD_NAME=$(oc get pods -n llm-serving -l serving.kserve.io/inferenceservice=granite-3-1-8b -o jsonpath='{.items[0].metadata.name}')</strong>
+$ <strong>oc port-forward pod/$POD_NAME 8080:8080 -n llm-serving &amp;</strong></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_6b_send_a_single_request"><a class="anchor" href="#_6b_send_a_single_request"></a>6b. Send a single request</h4>
+<div class="paragraph">
+<p>Send one request with 512 max tokens to generate enough load for the dashboards to register:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>curl -s http://localhost:8080/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "granite-3-1-8b",
+    "prompt": "Write a detailed explanation of how large language models work:",
+    "max_tokens": 512,
+    "temperature": 0.7
+  }' | python3 -m json.tool | head -5</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>While this request is processing (it takes several seconds with 512 tokens), switch to the Grafana dashboards and observe:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>GPU Health dashboard</strong>: GPU Utilization spikes from near 0% to 40-80%. GPU Temperature may rise a few degrees. Power draw increases toward the TDP.</p>
+</li>
+<li>
+<p><strong>vLLM Inference dashboard</strong>: Requests Running jumps to 1. KV Cache Usage briefly rises as the KV cache fills with key/value tensors for this request. Token Throughput shows generation activity.</p>
+</li>
+<li>
+<p><strong>Node Health dashboard</strong>: CPU usage may increase slightly. Network Transmitted shows outbound traffic as the response is sent.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Set the Grafana time range to "Last 15 minutes" and the refresh interval to "10s" (both in the top-right corner) for the most responsive view during testing.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_6c_send_multiple_requests_to_populate_latency_panels"><a class="anchor" href="#_6c_send_multiple_requests_to_populate_latency_panels"></a>6c. Send multiple requests to populate latency panels</h4>
+<div class="paragraph">
+<p>The latency panels (E2E Latency, TTFT, TPOT) compute percentiles over a 5-minute rate window.
+A single request may not produce smooth percentile curves.
+Send 10 requests in a loop:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>for i in $(seq 1 10); do
+  echo "Sending request $i..."
+  curl -s http://localhost:8080/v1/completions \
+    -H "Content-Type: application/json" \
+    -d '{
+      "model": "granite-3-1-8b",
+      "prompt": "Explain concept number '"$i"' in machine learning:",
+      "max_tokens": 256,
+      "temperature": 0.7
+    }' &gt; /dev/null
+  echo "Request $i complete."
+done</strong></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This runs requests sequentially (one at a time).
+It takes 2-5 minutes to complete all 10.</p>
+</div>
+<div class="paragraph">
+<p>After all requests finish, return to the vLLM Inference dashboard and observe:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>E2E Latency</strong>: The p50, p95, and p99 lines now show data. With Granite 8B and 256 tokens, expect p50 around 5-15 seconds.</p>
+</li>
+<li>
+<p><strong>TTFT (Time to First Token)</strong>: Shows the prefill duration. Expect p50 around 0.1-0.5 seconds for short prompts.</p>
+</li>
+<li>
+<p><strong>Request Completion Rate</strong>: Shows completed requests per second, broken down by <code>finished_reason</code> (<code>stop</code> vs <code>length</code>). With <code>max_tokens: 256</code>, most will show <code>length</code> because the model was cut off.</p>
+</li>
+<li>
+<p><strong>Token Throughput</strong>: Shows the generation and prompt token rates during the burst.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_6d_stop_port_forwarding"><a class="anchor" href="#_6d_stop_port_forwarding"></a>6d. Stop port-forwarding</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ <strong>kill %1</strong></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_7_interpret_the_dashboards"><a class="anchor" href="#_7_interpret_the_dashboards"></a>7. Interpret the Dashboards</h3>
+<div class="paragraph">
+<p>Now that you have data on all three dashboards, understand how to read them.</p>
+</div>
+<div class="sect3">
+<h4 id="_use_method_node_health_and_gpu_health"><a class="anchor" href="#_use_method_node_health_and_gpu_health"></a>USE Method (Node Health and GPU Health)</h4>
+<div class="paragraph">
+<p>The USE Method asks three questions about every resource:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Utilization</strong>&#8201;&#8212;&#8201;What fraction of the resource&#8217;s capacity is being used? (CPU %, GPU %, memory %)</p>
+</li>
+<li>
+<p><strong>Saturation</strong>&#8201;&#8212;&#8201;Is work queuing because the resource is full? (Disk I/O queuing, requests waiting for GPU)</p>
+</li>
+<li>
+<p><strong>Errors</strong>&#8201;&#8212;&#8201;Are there failures? (GPU temperature approaching thermal throttle, filesystem nearly full)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The Node Health dashboard applies USE to the compute node (CPU, memory, disk, network).
+The GPU Health dashboard applies USE to the GPU accelerator (compute cores, VRAM, temperature, power).</p>
+</div>
+<div class="paragraph">
+<p><strong>When to look here</strong>: These are <em>overview</em> dashboards. Start here when you suspect an infrastructure problem&#8201;&#8212;&#8201;the model is slow but you do not know why. USE dashboards help you quickly identify <em>which resource</em> is the bottleneck.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_red_method_vllm_inference"><a class="anchor" href="#_red_method_vllm_inference"></a>RED Method (vLLM Inference)</h4>
+<div class="paragraph">
+<p>The RED Method asks three questions about every service:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Rate</strong>&#8201;&#8212;&#8201;How many requests is the service handling? (Requests running, tokens/sec, completions/sec)</p>
+</li>
+<li>
+<p><strong>Errors</strong>&#8201;&#8212;&#8201;Are requests failing or being cut off? (Completion reasons: <code>stop</code> vs <code>length</code>)</p>
+</li>
+<li>
+<p><strong>Duration</strong>&#8201;&#8212;&#8201;How long do requests take? (E2E latency, TTFT, TPOT percentiles)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The vLLM dashboard adds <em>Saturation</em> signals (requests waiting, KV cache usage, preemptions) because these are the leading indicators of performance degradation.</p>
+</div>
+<div class="paragraph">
+<p><strong>When to look here</strong>: This is a <em>drill-down</em> dashboard. Look here when users report slow responses. The percentile panels (p50/p95/p99) show the distribution of user experience:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>p50 (median)</strong>&#8201;&#8212;&#8201;The "typical" experience. Half of all requests are faster, half are slower.</p>
+</li>
+<li>
+<p><strong>p95</strong>&#8201;&#8212;&#8201;The experience of 1-in-20 requests. This is often used for SLO targets.</p>
+</li>
+<li>
+<p><strong>p99</strong>&#8201;&#8212;&#8201;The worst-case experience for 1-in-100 requests. A large gap between p50 and p99 indicates inconsistent performance.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_how_use_and_red_complement_each_other"><a class="anchor" href="#_how_use_and_red_complement_each_other"></a>How USE and RED complement each other</h4>
+<div class="paragraph">
+<p>These two methods answer different questions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>RED tells you <strong>what</strong> is happening: "Latency is high and requests are queuing."</p>
+</li>
+<li>
+<p>USE tells you <strong>why</strong> it is happening: "GPU utilization is at 95% and KV cache is full."</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In practice, you start with the RED dashboard (user-facing symptoms), then drill into the USE dashboards (infrastructure causes).
+For example: if the vLLM dashboard shows rising p99 latency and increasing queue depth, switch to the GPU Health dashboard to check whether GPU utilization is saturated or if KV cache preemptions are occurring.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 42.8571%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Check</th>
+<th class="tableblock halign-left valign-top">How to Verify</th>
+<th class="tableblock halign-left valign-top">Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dashboard CRs created</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oc get grafanadashboard -n llm-serving</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3 dashboards listed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dashboards visible in Grafana</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Grafana UI &gt; Dashboards</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">All 3 dashboards appear</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Node Health shows data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open Node Health dashboard</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CPU, memory, disk, network panels populated</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU Health shows data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open GPU Health dashboard</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPU utilization, memory, temperature panels populated</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">vLLM dashboard shows data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open vLLM Inference dashboard (after sending requests)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Latency percentiles and rate panels populated</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Latency percentiles populated</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check E2E Latency panel after 10 requests</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">p50, p95, p99 lines visible</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_summary"><a class="anchor" href="#_summary"></a>Summary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this lab, you:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Deployed three dashboards as GrafanaDashboard custom resources&#8201;&#8212;&#8201;the dashboard-as-code approach</p>
+</li>
+<li>
+<p>Explored the Node Health (USE) and GPU Health (USE) dashboards and established baseline readings at idle</p>
+</li>
+<li>
+<p>Learned why GPU memory appears high at idle (model weights + CUDA context + pre-allocated KV cache)</p>
+</li>
+<li>
+<p>Sent inference requests and observed how metrics respond in real time across all three dashboards</p>
+</li>
+<li>
+<p>Understood how to interpret percentile panels (p50/p95/p99) and how the USE and RED methods complement each other</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In the next exercise, you will use the Grafana Explore tab to write and experiment with PromQL queries directly&#8201;&#8212;&#8201;building the query skills you need for the <a href="../alerting/index.html" class="xref page">Alerting</a> chapter.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="install-grafana.html">Install Grafana</a></span>
+  <span class="next"><a href="explore-promql.html">Explore PromQL</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

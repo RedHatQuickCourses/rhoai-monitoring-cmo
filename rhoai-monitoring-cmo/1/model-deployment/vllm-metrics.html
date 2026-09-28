@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>vLLM Metrics Catalog :: From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</title>
+    <link rel="prev" href="inference-mechanics.html">
+    <link rel="next" href="kserve-model.html">
+    <meta name="generator" content="Antora 3.2.0-rc.2">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/rhoai-monitoring-cmo/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai-monitoring-cmo" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../observability-foundations/index.html">Observability Foundations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/ai-vs-traditional.html">AI vs Traditional Monitoring</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/three-layers.html">Three Layers of Observability</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/monitoring-stack.html">OpenShift Monitoring Stack</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../observability-foundations/enable-uwm.html">Enable User Workload Monitoring</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="index.html">Model Deployment and Metrics</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="inference-mechanics.html">LLM Inference Mechanics</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="vllm-metrics.html">vLLM Metrics Catalog</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="kserve-model.html">KServe Deployment Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="deploy-model.html">Deploy the Model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="verify-metrics.html">Verify the Metrics Pipeline</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../dashboards/index.html">Observability Dashboards</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/dashboard-design.html">Dashboard Design Principles</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/promql-fundamentals.html">PromQL Fundamentals</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/grafana-architecture.html">Grafana on OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/install-grafana.html">Install Grafana</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/deploy-dashboards.html">Deploy Dashboards</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../dashboards/explore-promql.html">Explore PromQL</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../alerting/index.html">Alerting</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-theory.html">Alert Purpose and Severity</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/prometheus-rules.html">Anatomy of a PrometheusRule</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-design.html">Alert Design for AI Serving</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/create-alerts.html">Create Alert Rules</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/load-test.html">Load Test and Observe</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../alerting/alert-lifecycle.html">Alert Lifecycle</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../challenge-lab/index.html">Challenge Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/challenge.html">Performance Investigation</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../challenge-lab/solution.html">Solution Walkthrough</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">From Metrics to Alerts: Observing AI applications on Red Hat OpenShift AI</a></li>
+    <li><a href="index.html">Model Deployment and Metrics</a></li>
+    <li><a href="vllm-metrics.html">vLLM Metrics Catalog</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">vLLM Metrics Catalog</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now that you understand the inference mechanics, this section maps them to the concrete Prometheus metrics that vLLM exposes at its <code>/metrics</code> endpoint on port 8080 (the RHOAI convention).</p>
+</div>
+<div class="paragraph">
+<p>vLLM metrics fall into four categories: latency, throughput, saturation, and diagnostic.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_latency_metrics_histograms"><a class="anchor" href="#_latency_metrics_histograms"></a>Latency Metrics (Histograms)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Latency metrics are recorded as <strong>histograms</strong>, meaning Prometheus stores a distribution across predefined buckets.
+This lets you compute percentiles (p50, p95, p99)&#8201;&#8212;&#8201;which are far more useful than averages for understanding user experience.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 30%;">
+<col style="width: 20%;">
+<col style="width: 30%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">What It Measures</th>
+<th class="tableblock halign-left valign-top">Phase</th>
+<th class="tableblock halign-left valign-top">Why It Matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:time_to_first_token_seconds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Duration of the prefill phase</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prefill</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User-perceived responsiveness&#8201;&#8212;&#8201;how long before the model starts "typing"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:time_per_output_token_seconds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Average time per decode step</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Token streaming speed&#8201;&#8212;&#8201;how fast the response appears</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:inter_token_latency_seconds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time between consecutive output tokens</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Streaming smoothness&#8201;&#8212;&#8201;are tokens arriving at a consistent pace?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:e2e_request_latency_seconds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total wall-clock time from request arrival to final token</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Overall SLO compliance&#8201;&#8212;&#8201;total user wait time</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:request_queue_time_seconds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time a request spent waiting in the queue before inference began</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queuing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Directly measures queuing delay</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:request_prefill_time_seconds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time spent in the prefill phase only</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prefill</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Isolates GPU compute time for prompt processing, excluding queue wait</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:request_decode_time_seconds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time spent in the decode phase only</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Isolates generation time&#8201;&#8212;&#8201;helps distinguish slow decoding from slow prefill</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_why_histograms_not_averages"><a class="anchor" href="#_why_histograms_not_averages"></a>Why Histograms, Not Averages?</h3>
+<div class="paragraph">
+<p>Consider two scenarios, both with the same average latency of 2 seconds:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Scenario A</strong>: All requests take 1.8-2.2 seconds (tight distribution)</p>
+</li>
+<li>
+<p><strong>Scenario B</strong>: 90% of requests take 0.5 seconds, 10% take 15.5 seconds (long tail)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The average hides Scenario B&#8217;s terrible experience for 10% of users.
+The p99 (99th percentile) reveals it: Scenario A&#8217;s p99 is ~2.2s; Scenario B&#8217;s p99 is ~15.5s.
+This is why we use percentile-based alerting and dashboards.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_throughput_metrics_counters"><a class="anchor" href="#_throughput_metrics_counters"></a>Throughput Metrics (Counters)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Throughput metrics are <strong>counters</strong>&#8201;&#8212;&#8201;monotonically increasing values that reset to zero when the process restarts.
+To get a useful rate (for example, tokens per second), you must apply the <code>rate()</code> function in PromQL.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 30%;">
+<col style="width: 20%;">
+<col style="width: 30%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">What It Measures</th>
+<th class="tableblock halign-left valign-top">Raw Value Example</th>
+<th class="tableblock halign-left valign-top">Useful Query</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:prompt_tokens_total</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total input tokens processed since startup</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1,547,832</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>rate(vllm:prompt_tokens_total[5m])</code> &#8594; prompt tokens/sec</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:generation_tokens_total</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total output tokens generated since startup</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">892,451</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>rate(vllm:generation_tokens_total[5m])</code> &#8594; generation tokens/sec</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:request_success_total</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total completed requests (with <code>finished_reason</code> label)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5,412</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>rate(vllm:request_success_total[5m])</code> &#8594; requests/sec</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:num_preemptions_total</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">KV cache evictions from running requests to make room for another</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">23</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>rate(vllm:num_preemptions_total[5m])</code> &#8594; preemptions/sec</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_the_finished_reason_label"><a class="anchor" href="#_the_finished_reason_label"></a>The finished_reason Label</h3>
+<div class="paragraph">
+<p>Every completed request gets labeled with why it finished:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong><code>finished_reason="stop"</code></strong>&#8201;&#8212;&#8201;The model naturally completed its response (hit a stop token). This is normal.</p>
+</li>
+<li>
+<p><strong><code>finished_reason="length"</code></strong>&#8201;&#8212;&#8201;The request hit the <code>max_tokens</code> limit and was cut off.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A high ratio of <code>length</code> finishes can indicate that users are requesting more output than allowed, or that your <code>max_tokens</code> setting is too conservative for the use case.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_kv_cache_evictions_preemptions"><a class="anchor" href="#_kv_cache_evictions_preemptions"></a>KV Cache Evictions (Preemptions)</h3>
+<div class="paragraph">
+<p>When GPU memory is tight, vLLM may <strong>preempt</strong> a running request by evicting its KV cache blocks to make room for another request.
+The preempted request must later re-process those evicted tokens, wasting GPU compute.
+A non-zero preemption rate is a strong signal that the KV cache is undersized for the concurrent workload.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_saturation_metrics_gauges"><a class="anchor" href="#_saturation_metrics_gauges"></a>Saturation Metrics (Gauges)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Saturation metrics are <strong>gauges</strong>&#8201;&#8212;&#8201;point-in-time values that can go up or down.
+You query them directly without needing <code>rate()</code>.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 33.3333%;">
+<col style="width: 22.2222%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">What It Measures</th>
+<th class="tableblock halign-left valign-top">Healthy Range</th>
+<th class="tableblock halign-left valign-top">Alarm Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:num_requests_running</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests currently being processed by the model</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Depends on model/GPU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context-dependent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:num_requests_waiting</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests in the queue waiting for KV cache space</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>0</strong> (ideally)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>&gt; 0 sustained</strong> means the model is saturated</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:kv_cache_usage_perc</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fraction of KV cache pages currently allocated</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.0 - 0.8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&gt; 0.9 means approaching capacity ceiling</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_the_most_important_metric_for_capacity"><a class="anchor" href="#_the_most_important_metric_for_capacity"></a>The Most Important Metric for Capacity</h3>
+<div class="paragraph">
+<p><code>vllm:num_requests_waiting</code> deserves special emphasis.
+In traditional monitoring, you might alert when CPU &gt; 80%.
+The AI serving equivalent is alerting when <code>vllm:num_requests_waiting &gt; 0</code> for a sustained period.</p>
+</div>
+<div class="paragraph">
+<p>Consider two cases, both with GPU at 95% utilization:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Case A</strong>: <code>num_requests_running</code> = 10, <code>num_requests_waiting</code> = 0&#8201;&#8212;&#8201;The GPU is efficiently serving all requests. No one is waiting. This is ideal.</p>
+</li>
+<li>
+<p><strong>Case B</strong>: <code>num_requests_running</code> = 10, <code>num_requests_waiting</code> = 15&#8201;&#8212;&#8201;15 users are in a queue, experiencing additional latency. The model is saturated.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Same GPU utilization.
+Completely different user experience.</p>
+</div>
+<div class="paragraph">
+<p>Think of it like a restaurant: GPU utilization is "how busy is the kitchen."
+<code>vllm:num_requests_waiting</code> is "how many people are standing in line."
+A busy kitchen with no line is efficient.
+A busy kitchen with 15 people in line has a capacity problem.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_diagnostic_metrics_workload_characterization"><a class="anchor" href="#_diagnostic_metrics_workload_characterization"></a>Diagnostic Metrics (Workload Characterization)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Beyond the core metrics, vLLM exposes several metrics useful for understanding your workload&#8217;s shape.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">What It Tells You</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:request_prompt_tokens</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Histogram</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Distribution of input prompt sizes. Helps you understand typical workload&#8201;&#8212;&#8201;are users sending 50-token prompts or 2000-token prompts?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:request_generation_tokens</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Histogram</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Distribution of output generation sizes. Shows whether requests typically generate 50 or 500 tokens&#8201;&#8212;&#8201;critical for capacity planning.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:prefix_cache_queries_total</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Counter</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How many times vLLM checked whether a prompt prefix was already cached.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:prefix_cache_hits_total</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Counter</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How many prefix cache lookups succeeded. The ratio <code>hits / queries</code> gives you the prefix cache hit rate.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vllm:cache_config_info</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Info</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An info metric (always value 1) with labels describing the KV cache configuration: block size, number of GPU/CPU blocks.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Use these metrics for capacity planning:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If <code>request_prompt_tokens</code> shows most prompts are under 500 tokens, you might safely reduce <code>--max-model-len</code> from 4096 to 2048 to double KV cache capacity.</p>
+</li>
+<li>
+<p>If <code>request_generation_tokens</code> shows 90% of outputs are under 100 tokens, but <code>max_tokens</code> is set to 2048, you are over-allocating KV cache budget per request.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_red_hat_documentation"><a class="anchor" href="#_red_hat_documentation"></a>Red Hat Documentation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/monitoring_data_science_models/index" target="_blank" rel="noopener">Red Hat OpenShift AI — Monitoring Data Science Models</a></p>
+</li>
+<li>
+<p><a href="https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2-latest/html/serving_models/serving-large-models_serving-large-models" target="_blank" rel="noopener">Serving Large Language Models with vLLM</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_upstream_resources"><a class="anchor" href="#_upstream_resources"></a>Upstream Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.vllm.ai/en/stable/serving/metrics.html" target="_blank" rel="noopener">vLLM Production Metrics</a></p>
+</li>
+<li>
+<p><a href="https://prometheus.io/docs/concepts/metric_types/" target="_blank" rel="noopener">Prometheus Metric Types</a></p>
+</li>
+<li>
+<p><a href="https://prometheus.io/docs/practices/histograms/" target="_blank" rel="noopener">Prometheus Histograms and Summaries Best Practices</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="inference-mechanics.html">LLM Inference Mechanics</a></span>
+  <span class="next"><a href="kserve-model.html">KServe Deployment Model</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>
